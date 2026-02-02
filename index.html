@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Delivery Nic - Tu Supermercado en Casa</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Supabase JS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <!-- EmailJS Library -->
+    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+
+    <!-- jsPDF & AutoTable -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
+    <!-- Iconos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Configuración de colores -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            green: '#0AAD0A', 
+                            dark: '#108910',
+                            orange: '#FF8000', 
+                            gray: '#F3F4F6'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hero-pattern {
+            background-image: url('https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        .hero-overlay { background: rgba(0, 0, 0, 0.5); }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0AAD0A;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .file-upload-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+        .file-upload-btn {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            background: #0AAD0A;
+            color: white;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .order-card {
+            border-left: 4px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .order-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .status-pendiente { border-left-color: #fbbf24; }
+        .status-en-camino { border-left-color: #3b82f6; }
+        .status-entregado { border-left-color: #10b981; }
+        .status-cancelado { border-left-color: #ef4444; }
+        
+        .step-icon {
+            width: 60px;
+            height: 60px;
+            background: #e6f4e6;
+            color: #0AAD0A;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin: 0 auto 1rem;
+        }
+
+        /* Estilos para el Carrusel */
+        .carousel-container {
+            position: relative;
+            overflow: hidden;
+            height: 500px; /* Altura fija para el carrusel */
+            background-color: #1a1a1a; 
+        }
+        .carousel-slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 0.8s ease-in-out;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1;
+        }
+        .carousel-slide.active {
+            opacity: 1;
+            z-index: 10;
+        }
+        .carousel-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain; 
+        }
+        /* Botones de navegación con z-index alto */
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 1rem;
+            border-radius: 9999px;
+            cursor: pointer;
+            z-index: 20; /* Asegurar que estén sobre las imágenes */
+            transition: all 0.3s;
+        }
+        .carousel-btn:hover {
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+
+    <!-- Navegación -->
+    <nav class="bg-white shadow-sm sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                
+                <div class="flex items-center cursor-pointer flex-shrink-0" onclick="showView('home')">
+                    <img id="navProfileImg" src="" class="hidden h-10 w-10 rounded-full object-cover mr-2 border border-brand-green">
+                    <div class="flex items-center" id="navLogoDefault">
+                        <i class="fas fa-shopping-basket text-brand-green text-3xl mr-2"></i>
+                    </div>
+                    <span class="font-bold text-lg md:text-xl tracking-tight text-gray-900 leading-tight">
+                        Shop Delivery <span class="text-brand-green">Nic</span>
+                    </span>
+                </div>
+                
+                <div class="hidden md:flex space-x-6 items-center flex-grow justify-center">
+                    <button onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium">Inicio</button>
+                    <a href="#about" onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium">Servicios</a>
+                    <button onclick="showView('pricing')" class="text-gray-600 hover:text-brand-green font-medium">Tarifas</button>
+                    <a href="#contact" onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium">Contacto</a>
+                    <div id="navUserLinks" class="flex space-x-4"></div>
+                </div>
+
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <div id="navAuthButtons" class="hidden md:flex items-center space-x-3"></div>
+                    <div id="mobileHeaderAuth" class="md:hidden flex items-center"></div>
+                    <div class="md:hidden flex items-center">
+                        <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-brand-green p-2 focus:outline-none">
+                            <i class="fas fa-bars text-2xl"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t p-4 shadow-lg absolute w-full z-50">
+            <button onclick="showView('home'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100">Inicio</button>
+            <button onclick="showView('pricing'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100">Tarifas</button>
+            <div id="mobileUserLinks" class="my-2 pt-2"></div>
+            <div id="mobileAuthButtons" class="mt-2 pt-2"></div>
+        </div>
+    </nav>
+
+    <!-- VISTA: INICIO -->
+    <div id="view-home" class="view-section flex-grow">
+        <!-- Hero Section -->
+        <div class="relative h-[550px] flex items-center justify-center text-center hero-pattern text-white">
+            <div class="absolute inset-0 hero-overlay"></div>
+            <div class="relative z-10 px-4 max-w-4xl">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight">Hacemos tu Supermercado por ti</h1>
+                <p class="text-xl md:text-2xl mb-8 font-light text-green-50">Compras en PriceSmart y Walmart Nicaragua entregadas en la puerta de tu casa.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="checkAuthAndRedirect()" class="bg-brand-orange hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transition transform hover:scale-105">
+                        <i class="fas fa-shopping-cart mr-2"></i> Hacer mi Pedido
+                    </button>
+                    <button onclick="showView('pricing')" class="bg-white text-brand-green hover:bg-gray-100 font-bold py-4 px-8 rounded-full text-lg shadow-lg transition transform hover:scale-105">
+                        <i class="fas fa-tag mr-2"></i> Ver Tarifas
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN: GALERÍA CARRUSEL -->
+        <section class="bg-white pt-8 pb-4">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Productos Populares</h2>
+            </div>
+            <div class="max-w-5xl mx-auto px-4">
+                <div class="carousel-container rounded-xl shadow-2xl relative group">
+                    
+                    <!-- Slide 1 -->
+                    <div class="carousel-slide active">
+                        <img src="https://scontent.fmga11-2.fna.fbcdn.net/v/t39.30808-6/626643657_25621939290782080_1734958348227725339_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=1OYdj5j8RYYQ7kNvwFTT41J&_nc_oc=AdkfmJBsbUPr08TQdO7RplsYA7MfVWJgZh9qYMsbVmw9nflc3tOU3k_ZgI2nS6vkcVfbIL3SfEBVjDVR4U6GPYOy&_nc_zt=23&_nc_ht=scontent.fmga11-2.fna&_nc_gid=ugM_aTKaqFl_VDmceTj3Vw&oh=00_AftXE49wrqd930oVbjyvzDFU_0VYr1VpozqPoJvMUUpF9g&oe=6985F1CA" class="carousel-img" alt="Producto 1">
+                    </div>
+                    
+                    <!-- Slide 2 -->
+                    <div class="carousel-slide">
+                        <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627145422_25621953257447350_7008384717410034584_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=127cfc&_nc_ohc=k0wu6JrdXC0Q7kNvwF_Gi8Q&_nc_oc=AdmGtjATGDDQsjE5_WxCo-Nr5nv834Ty4r_ElVF_fwz8eHfhAmWoUFHr1sSVvKbUfuLeKs79CIO3Kn67YD_gvznn&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=1KDXZHhbWRAvuAcWYxXb5Q&oh=00_AfuvskX0KAsbQaAmic6HSnXKYYY6wLXlGHDBgonN9yo9lQ&oe=6985F509" class="carousel-img" alt="Producto 2">
+                    </div>
+
+                    <!-- Slide 3 -->
+                    <div class="carousel-slide">
+                        <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627184355_25621960950779914_7389725803311426778_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=n9MT2xaB-XwQ7kNvwHsyVUh&_nc_oc=AdnUyff9UaBdgpS6P9tD_lIgcMHphe9L82I4nPffy2kn5p61srlG2_f6my_lHHJmoSZPQ0SBaxl5B5O1rd4BmOL3&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=9RkBuJCgU_W-ode9ZCPUNw&oh=00_AftiXDzdokZNp5OY09U608rZCfhw3FpIqgI7yZ8urU0Qqg&oe=6985DCE1" class="carousel-img" alt="Producto 3">
+                    </div>
+
+                    <!-- Slide 4 -->
+                    <div class="carousel-slide">
+                        <img src="https://scontent.fmga11-2.fna.fbcdn.net/v/t39.30808-6/626886935_25621971240778885_4681874634737483407_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zk4dpUFKJS4Q7kNvwGQQIar&_nc_oc=AdkUCqSzLIKd8KRzkgX299-SNCKUu-qkBXvKEmveXmY4_i9QmLzJKLQERvq4l5ixupipI_Xn-hOmEq999jVTUQCd&_nc_zt=23&_nc_ht=scontent.fmga11-2.fna&_nc_gid=kXuztfxis0kH5P1QsgEaQw&oh=00_AfvIL-qCzzYJ4AxAylU-H7qfPgYjnIQOdy2dOVf8BGOdMA&oe=6985FB5C" class="carousel-img" alt="Producto 4">
+                    </div>
+
+                    <!-- Slide 5 -->
+                    <div class="carousel-slide">
+                        <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627035391_25621977694111573_660820740685578265_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=KHBJCEBAAh4Q7kNvwHPfJK1&_nc_oc=Adk38CLobgljFgHol5d9XmKpURsglO1bVb750tEZ52l28-NBHSCJuQr4kS-KiMDFPPnMhp0i8Smd8eBX-G6IsDDM&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=cEipVaw4remTEYoKeIrWaQ&oh=00_Afs3c0jUetkhuMrOtFdDDEQArUnttREC2Bo662Rz0AY8zA&oe=698609C0" class="carousel-img" alt="Producto 5">
+                    </div>
+
+                    <!-- Controles Flechas -->
+                    <button class="carousel-btn left-4" onclick="prevSlide()">
+                        <i class="fas fa-chevron-left text-2xl"></i>
+                    </button>
+                    <button class="carousel-btn right-4" onclick="nextSlide()">
+                        <i class="fas fa-chevron-right text-2xl"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Sección Informativa -->
+        <section id="about" class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4">¿Cómo funciona Shop Delivery Nic?</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto mb-12">Somos tu asistente personal de compras. Olvídate del tráfico, las filas y el calor. Nosotros seleccionamos los mejores productos para ti.</p>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
+                        <div class="step-icon"><i class="fas fa-list-ol"></i></div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">1. Envía tu Lista</h3>
+                        <p class="text-gray-600 text-sm">Regístrate y escribe qué productos necesitas de Walmart o PriceSmart. Puedes detallar marcas y cantidades.</p>
+                    </div>
+                    <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
+                        <div class="step-icon"><i class="fas fa-shopping-basket"></i></div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">2. Compramos por Ti</h3>
+                        <p class="text-gray-600 text-sm">Nuestro equipo va al supermercado y selecciona los mejores productos.</p>
+                    </div>
+                    <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
+                        <div class="step-icon"><i class="fas fa-truck"></i></div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">3. Recibe en Casa</h3>
+                        <p class="text-gray-600 text-sm">Llevamos todo hasta la puerta de tu hogar en Granada, Masaya, Managua y más.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Beneficios -->
+        <section class="py-16 bg-brand-gray">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6">¿Por qué elegirnos?</h2>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-brand-green text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-800">Ahorra Tiempo y Combustible</h4>
+                                    <p class="text-gray-600 text-sm">No gastes horas en el tráfico ni en filas. Nosotros nos encargamos.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-brand-green text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-800">Sin Membresía Requerida</h4>
+                                    <p class="text-gray-600 text-sm">Compramos en PriceSmart por ti, no necesitas tener tu propia membresía.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-brand-green text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-800">Atención Personalizada</h4>
+                                    <p class="text-gray-600 text-sm">Si no hay un producto, te llamamos para ofrecerte alternativas al instante.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="rounded-2xl overflow-hidden shadow-xl h-80">
+                        <img src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Compras Supermercado" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Información de Contacto -->
+        <section id="contact" class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-12">Contáctanos</h2>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm">
+                        <div class="text-brand-green text-4xl mb-4"><i class="fas fa-map-marker-alt"></i></div>
+                        <h3 class="text-xl font-bold mb-2">Ubicación</h3>
+                        <p class="text-gray-600 font-medium">Granada, Nicaragua</p>
+                        <p class="text-gray-500 text-sm mt-2">Gasolinera UNO Guapinol<br>5 cuadras al norte.</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm">
+                        <div class="text-brand-green text-4xl mb-4"><i class="fas fa-clock"></i></div>
+                        <h3 class="text-xl font-bold mb-2">Horario de Atención</h3>
+                        <ul class="text-gray-600 text-sm space-y-2">
+                            <li class="flex justify-between border-b pb-1"><span>Lunes - Viernes:</span> <strong>8:00 AM - 6:00 PM</strong></li>
+                            <li class="flex justify-between border-b pb-1"><span>Sábados:</span> <strong>8:00 AM - 2:00 PM</strong></li>
+                            <li class="flex justify-between text-red-500"><span>Domingos:</span> <strong>Cerrado</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm">
+                        <div class="text-brand-green text-4xl mb-4"><i class="fas fa-phone-alt"></i></div>
+                        <h3 class="text-xl font-bold mb-2">Contacto Directo</h3>
+                        <p class="text-gray-600 mb-4">¿Tienes dudas o quieres cotizar?</p>
+                        <a href="https://wa.me/50558367648" target="_blank" class="inline-block bg-brand-green text-white px-6 py-2 rounded-full font-bold hover:bg-brand-dark transition">
+                            <i class="fab fa-whatsapp mr-1"></i> +505 5836 7648
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- VISTA: TARIFAS -->
+    <div id="view-pricing" class="view-section hidden flex-grow py-16 bg-brand-gray">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2">Tarifas de Envío</h2>
+            <p class="text-gray-500 mb-8">+ 1.50% de Comisión sobre el total de la compra</p>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+                    <div class="text-brand-green text-3xl mb-2"><i class="fas fa-city"></i></div>
+                    <h3 class="text-lg font-bold mb-2">Granada</h3>
+                    <p class="text-2xl font-bold text-brand-green">$10.99</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+                    <div class="text-brand-green text-3xl mb-2"><i class="fas fa-store-alt"></i></div>
+                    <h3 class="text-lg font-bold mb-2">Masaya</h3>
+                    <p class="text-2xl font-bold text-brand-green">$10.99</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+                    <div class="text-brand-green text-3xl mb-2"><i class="fas fa-road"></i></div>
+                    <h3 class="text-lg font-bold mb-2">Carretera Masaya</h3>
+                    <p class="text-2xl font-bold text-brand-green">$10.99</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+                    <div class="text-brand-green text-3xl mb-2"><i class="fas fa-building"></i></div>
+                    <h3 class="text-lg font-bold mb-2">Managua</h3>
+                    <p class="text-2xl font-bold text-brand-green">$9.99</p>
+                </div>
+            </div>
+            <div class="mt-8 p-4 bg-white rounded-lg inline-block shadow-sm">
+                <p class="text-gray-600 font-medium">Otros departamentos sujetos a cotización.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA: AUTENTICACIÓN -->
+    <div id="view-auth" class="view-section hidden pt-20 pb-20 bg-gray-100 flex-grow">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg m-4">
+            <h2 id="authTitle" class="text-2xl font-bold text-center mb-6 text-brand-green">Iniciar Sesión</h2>
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Correo Electrónico</label>
+                    <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="email" type="email" required placeholder="tu@correo.com">
+                </div>
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-bold mb-2">Contraseña</label>
+                    <input class="shadow border rounded w-full py-2 px-3 text-gray-700 mb-3 focus:outline-none focus:border-brand-green" id="password" type="password" required placeholder="********">
+                    <p id="passwordHelp" class="hidden text-xs text-gray-500 mt-1">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
+                </div>
+                <div id="authError" class="hidden text-red-500 text-sm mb-4 text-center"></div>
+                <div id="authSuccess" class="hidden text-green-500 text-sm mb-4 text-center"></div>
+                
+                <button id="authBtn" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-2 px-4 rounded transition" type="button" onclick="login()">Entrar</button>
+                
+                <div class="mt-4 text-center text-sm">
+                    <span id="authToggleText">¿No tienes cuenta?</span>
+                    <a href="#" id="authToggleLink" onclick="toggleAuthMode()" class="text-brand-green font-bold hover:underline">Regístrate aquí</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- VISTA: NUEVO PEDIDO -->
+    <div id="view-create-order" class="view-section hidden bg-gray-50 py-10 flex-grow">
+        <div class="max-w-3xl mx-auto px-4">
+            
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800">Crear Nueva Orden</h2>
+                    <p class="text-gray-500 text-sm">Código Cliente: <span id="orderClientCodeDisplay" class="font-mono font-bold text-brand-green">---</span></p>
+                </div>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm relative">
+                <div id="sendingOverlay" class="hidden absolute inset-0 bg-white bg-opacity-90 z-10 flex flex-col items-center justify-center rounded-xl">
+                    <div class="loader mb-4"></div>
+                    <p class="text-brand-green font-bold">Procesando...</p>
+                </div>
+
+                <form id="orderForm" onsubmit="submitOrder(event)">
+                    <input type="hidden" name="client_code" id="hiddenClientCode">
+                    <input type="hidden" name="full_list_text" id="hiddenFullList">
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm">Tu Nombre Completo</label>
+                            <input type="text" id="orderName" name="full_name" required class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm">Teléfono</label>
+                            <input type="tel" id="orderPhone" name="phone" required value="+505" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm">Zona de Entrega</label>
+                                <select id="orderZone" name="zone" onchange="updateEstimatedFee()" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
+                                    <option value="Granada">Granada ($10.99)</option>
+                                    <option value="Masaya">Masaya ($10.99)</option>
+                                    <option value="Carretera Masaya">Carretera Masaya ($10.99)</option>
+                                    <option value="Managua">Managua ($9.99)</option>
+                                    <option value="Departamento">Otro Departamento (Cotizar)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm">Costo Estimado</label>
+                                <div id="estimatedFee" class="p-2 bg-white rounded text-brand-green font-bold text-center border">$10.99</div>
+                            </div>
+                        </div>
+
+                        <div id="companionOption" class="hidden mb-2">
+                            <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
+                                <input type="checkbox" id="companionCheck" class="form-checkbox text-brand-green h-5 w-5 mt-1" onchange="updateEstimatedFee()">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-gray-800">Servicio de Acompañamiento Personal (+$14.99)</span>
+                                    <span class="text-xs text-gray-500">Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div class="text-xs text-gray-500 mt-2 flex items-center">
+                            <i class="fas fa-info-circle mr-1"></i> Se aplicará una comisión del 1.50% sobre el total de la compra.
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2 text-sm">Dirección Exacta</label>
+                        <textarea id="orderAddress" name="address" rows="2" required placeholder="Barrio, calle, número de casa..." class="w-full border p-2 rounded focus:border-brand-green outline-none"></textarea>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-bold mb-2 text-sm">Lista de Compras</label>
+                        <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-bold mb-2 text-sm">Comentarios / Special Requests</label>
+                        <textarea id="specialRequests" name="comments" rows="2" placeholder="Ej: Llamar antes de llegar, producto sustituto si no hay..." class="w-full border p-2 rounded focus:border-brand-green outline-none text-sm"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-green text-white font-bold py-3 rounded-lg hover:bg-brand-dark transition shadow-lg">
+                        Enviar Pedido
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA: HISTORIAL DE PEDIDOS -->
+    <div id="view-orders" class="view-section hidden bg-gray-50 py-10 flex-grow">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800">Mis Pedidos</h2>
+                <button onclick="downloadHistoryPDF()" class="bg-gray-800 hover:bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow flex items-center transition">
+                    <i class="fas fa-file-pdf mr-2"></i> Descargar Historial PDF
+                </button>
+            </div>
+            
+            <div id="orderHistoryList" class="space-y-4">
+                <div class="p-8 text-center text-gray-400 bg-white rounded-xl shadow-sm">Cargando...</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA: PERFIL USUARIO -->
+    <div id="view-profile" class="view-section hidden bg-gray-50 py-10 flex-grow">
+        <div class="max-w-3xl mx-auto px-4">
+            
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-6 flex flex-col md:flex-row items-center border border-gray-100">
+                <div class="file-upload-wrapper mb-4 md:mb-0 md:mr-6">
+                    <img id="profilePreview" src="https://via.placeholder.com/150?text=Usuario" 
+                         class="h-24 w-24 rounded-full object-cover border-4 border-gray-50 shadow-sm">
+                    <label for="profileUpload" class="file-upload-btn hover:bg-brand-dark transition cursor-pointer">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="profileUpload" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
+                </div>
+                <div class="text-center md:text-left flex-grow">
+                    <h2 class="text-2xl font-bold text-gray-800" id="profileHeaderName">Mi Perfil</h2>
+                    <p class="text-sm text-gray-500" id="profileEmailDisplay">usuario@email.com</p>
+                </div>
+                <div class="mt-4 md:mt-0 text-center">
+                    <span class="block text-xs text-gray-400 uppercase tracking-wide">Código de Cliente</span>
+                    <span class="block text-xl font-mono font-bold text-brand-green bg-green-50 px-3 py-1 rounded" id="displayClientCode">---</span>
+                </div>
+            </div>
+
+            <form id="profileForm" onsubmit="updateProfile(event)">
+                <input type="hidden" id="profileAvatarBase64">
+                <input type="hidden" id="profileClientCodeHidden">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b flex items-center">
+                        <i class="fas fa-user-edit text-brand-green mr-2"></i> Datos Personales
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2">Nombre</label>
+                            <input type="text" id="profileName" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2">Apellido</label>
+                            <input type="text" id="profileSurname" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2">Teléfono</label>
+                            <input type="tel" id="profilePhone" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="+505...">
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2">Zona Habitual</label>
+                            <select id="profileZone" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
+                                <option value="">Seleccionar...</option>
+                                <option value="Granada">Granada</option>
+                                <option value="Masaya">Masaya</option>
+                                <option value="Carretera Masaya">Carretera a Masaya</option>
+                                <option value="Managua">Managua</option>
+                                <option value="Otro">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b flex items-center">
+                        <i class="fas fa-lock text-brand-green mr-2"></i> Seguridad
+                    </h3>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-600 text-sm font-bold mb-2">Contraseña Actual <span class="text-red-500">*</span></label>
+                        <input type="password" id="currentPassword" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Requerido para cambiar contraseña">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-600 text-sm font-bold mb-2">Nueva Contraseña</label>
+                        <input type="password" id="profilePassword" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Dejar en blanco para no cambiar">
+                        <p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="block text-gray-600 text-sm font-bold mb-2">Confirmar Nueva Contraseña</label>
+                        <input type="password" id="profilePasswordConfirm" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Repite la contraseña">
+                    </div>
+                </div>
+
+                <button type="submit" id="profileBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded-lg hover:bg-brand-dark transition shadow-lg text-lg">
+                    Guardar Cambios
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center mb-4">
+                <i class="fas fa-shopping-basket text-brand-green text-2xl mr-2"></i>
+                <span class="font-bold text-xl tracking-tight text-white">
+                    Shop Delivery <span class="text-brand-green">Nic</span>
+                </span>
+            </div>
+            <div class="mt-2 text-xs text-gray-500">&copy; 2026 Shop Delivery Nic.</div>
+        </div>
+    </footer>
+
+    <!-- JAVASCRIPT LÓGICA -->
+    <script>
+        const CONFIG = {
+            SUPABASE_URL: "https://dltpvajfltfzayhomufx.supabase.co", 
+            SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdHB2YWpmbHRmemF5aG9tdWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzkyOTAsImV4cCI6MjA4NTQ1NTI5MH0.HCldnUI4sm9BHepUDgcqs4v4a5yVa20VWSzt2lNQ_Vo",
+            EMAILJS_SERVICE_ID: "service_2d0eluh",  
+            EMAILJS_TEMPLATE_ID: "template_x0j9v2k", 
+            EMAILJS_PUBLIC_KEY: "rAM3EqlS8DZuZW84Q"    
+        };
+
+        const DEFAULT_AVATAR = "https://via.placeholder.com/150?text=Usuario"; 
+        
+        const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@$]).{8,}$/;
+
+        let supabaseClient = null;
+        let currentUser = null;
+        let isLoginMode = true;
+        let currentOrders = [];
+        let carouselInterval = null;
+
+        function initApp() {
+            // Asegura que los botones se muestren inmediatamente al cargar
+            updateNav(false); 
+            startCarousel();
+
+            if (CONFIG.SUPABASE_URL === "TU_SUPABASE_PROJECT_URL_AQUI") {
+                alert("Error de Configuración: Faltan credenciales.");
+                return;
+            }
+            try {
+                supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+                emailjs.init(CONFIG.EMAILJS_PUBLIC_KEY);
+
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                        if (session) {
+                            currentUser = session.user;
+                            if(currentUser.user_metadata && currentUser.user_metadata.avatar_url) {
+                                updateAvatarUI(currentUser.user_metadata.avatar_url);
+                            }
+                            updateNav(true);
+                            if(!document.getElementById('view-auth').classList.contains('hidden')) {
+                                showView('create-order');
+                            }
+                        } else {
+                            currentUser = null;
+                            updateNav(false);
+                        }
+                    } else if (event === 'SIGNED_OUT') {
+                        currentUser = null;
+                        updateAvatarUI(null);
+                        updateNav(false);
+                        showView('home');
+                    }
+                });
+            } catch (error) { console.error("Error inicializando:", error); }
+        }
+
+        // --- CARRUSEL ---
+        let currentSlide = 0;
+        function showSlide(index) {
+            const slides = document.querySelectorAll('.carousel-slide');
+            if(slides.length === 0) return;
+            
+            // Wrap index logic handles negatives correctly now
+            if (index >= slides.length) currentSlide = 0;
+            else if (index < 0) currentSlide = slides.length - 1;
+            else currentSlide = index;
+
+            slides.forEach((slide) => {
+                slide.classList.remove('active');
+                slide.style.opacity = 0; 
+            });
+            
+            slides[currentSlide].classList.add('active');
+            slides[currentSlide].style.opacity = 1;
+        }
+
+        function nextSlide() {
+            showSlide(currentSlide + 1);
+            resetTimer();
+        }
+
+        function prevSlide() {
+            showSlide(currentSlide - 1);
+            resetTimer();
+        }
+
+        function resetTimer() {
+            clearInterval(carouselInterval);
+            carouselInterval = setInterval(nextSlide, 5000);
+        }
+
+        function startCarousel() {
+            const slides = document.querySelectorAll('.carousel-slide');
+            if(slides.length > 0) {
+                slides[0].classList.add('active');
+                slides[0].style.opacity = 1;
+            }
+            resetTimer();
+        }
+
+        // --- UI & Navegación ---
+        function showView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            
+            if (viewName === 'create-order' && currentUser) { prefillOrderForm(); } 
+            else if (viewName === 'create-order') { showView('auth'); return; }
+
+            if (viewName === 'orders') {
+                if (!currentUser) { showView('auth'); return; }
+                loadOrderHistory();
+            }
+            if (viewName === 'profile') {
+                if (!currentUser) { showView('auth'); return; }
+                loadProfile();
+            }
+            window.scrollTo(0,0);
+            document.getElementById('mobileMenu').classList.add('hidden');
+        }
+
+        function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
+
+        function updateAvatarUI(url) {
+            const navImg = document.getElementById('navProfileImg');
+            if(url) { navImg.src = url; navImg.classList.remove('hidden'); } else { navImg.classList.add('hidden'); }
+        }
+
+        function updateNav(isLoggedIn) {
+            const navUser = document.getElementById('navUserLinks');
+            const navAuth = document.getElementById('navAuthButtons');
+            const mobUser = document.getElementById('mobileUserLinks');
+            const mobAuth = document.getElementById('mobileAuthButtons');
+            const mobHeaderAuth = document.getElementById('mobileHeaderAuth');
+
+            if (isLoggedIn) {
+                navUser.innerHTML = `<button onclick="showView('create-order')" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow">Hacer Pedido</button><button onclick="showView('orders')" class="text-gray-600 hover:text-brand-green font-semibold">Mis Pedidos</button><button onclick="showView('profile')" class="text-gray-600 hover:text-brand-green font-semibold">Mi Perfil</button>`;
+                navAuth.innerHTML = `<button onclick="logout()" class="text-red-500 text-sm hover:underline">Salir</button>`;
+                mobHeaderAuth.innerHTML = `<button onclick="showView('orders')" class="text-brand-green font-bold mr-2 text-sm flex items-center bg-green-50 px-2 py-1 rounded-lg"><i class="fas fa-list-alt mr-1"></i></button>`;
+                mobUser.innerHTML = `<button onclick="showView('create-order')" class="block w-full text-left py-3 text-brand-green font-bold border-b border-gray-100">Hacer Pedido</button><button onclick="showView('orders')" class="block w-full text-left py-3 text-gray-600 border-b border-gray-100">Mis Pedidos</button><button onclick="showView('profile')" class="block w-full text-left py-3 text-gray-600 border-b border-gray-100">Mi Perfil</button>`;
+                mobAuth.innerHTML = `<button onclick="logout()" class="block w-full text-left py-3 text-red-500">Cerrar Sesión</button>`;
+            } else {
+                navUser.innerHTML = '';
+                // Botones Desktop: Iniciar Sesión Y Registrarse
+                navAuth.innerHTML = `
+                    <button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow mr-3 whitespace-nowrap">Iniciar Sesión</button>
+                    <button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition whitespace-nowrap">Registrarse</button>
+                `;
+                mobHeaderAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="text-brand-green font-bold mr-2 flex flex-col items-center justify-center"><i class="fas fa-user-circle text-2xl"></i><span class="text-[10px] leading-none mt-1">Entrar</span></button>`;
+                mobUser.innerHTML = '';
+                mobAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="block w-full text-left py-3 font-bold text-brand-green border-b border-gray-100">Iniciar Sesión</button><button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="block w-full text-left py-3 font-bold text-gray-600">Registrarse</button>`;
+            }
+        }
+
+        // --- LÓGICA DE PERFIL Y PRE-LLENADO ---
+        
+        function loadProfile() {
+            document.getElementById('profileEmailDisplay').innerText = currentUser.email;
+            const meta = currentUser.user_metadata || {};
+            if(meta.avatar_url) {
+                document.getElementById('profilePreview').src = meta.avatar_url;
+                document.getElementById('profileAvatarBase64').value = meta.avatar_url;
+            } else { document.getElementById('profilePreview').src = DEFAULT_AVATAR; }
+            document.getElementById('profileName').value = meta.first_name || '';
+            document.getElementById('profileSurname').value = meta.last_name || '';
+            document.getElementById('profilePhone').value = meta.phone || '';
+            document.getElementById('profileZone').value = meta.zone || '';
+            let code = meta.client_code;
+            if (!code) { code = 'SDN-' + currentUser.id.substring(0, 6).toUpperCase(); }
+            document.getElementById('displayClientCode').innerText = code;
+            document.getElementById('profileClientCodeHidden').value = code;
+        }
+
+        function prefillOrderForm() {
+            if (!currentUser || !currentUser.user_metadata) return;
+            const meta = currentUser.user_metadata;
+            const fullName = (meta.first_name || '') + ' ' + (meta.last_name || '');
+            if(fullName.trim()) document.getElementById('orderName').value = fullName.trim();
+            if(meta.phone) document.getElementById('orderPhone').value = meta.phone;
+            if(meta.client_code) document.getElementById('orderClientCodeDisplay').innerText = meta.client_code;
+            if(meta.client_code) document.getElementById('hiddenClientCode').value = meta.client_code;
+            
+            if(meta.zone) {
+                const zoneSelect = document.getElementById('orderZone');
+                let targetValue = "Managua Centro";
+                if (meta.zone === "Granada") targetValue = "Granada";
+                else if (meta.zone === "Masaya") targetValue = "Masaya";
+                else if (meta.zone === "Carretera Masaya") targetValue = "Carretera Masaya";
+                else if (meta.zone === "Managua") targetValue = "Managua";
+                else if (meta.zone === "Otro") targetValue = "Departamento";
+                zoneSelect.value = targetValue;
+                updateEstimatedFee();
+            }
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const maxSize = 200; 
+                    let width = img.width; let height = img.height;
+                    if (width > height) { if (width > maxSize) { height *= maxSize / width; width = maxSize; } } 
+                    else { if (height > maxSize) { width *= maxSize / height; height = maxSize; } }
+                    canvas.width = width; canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('profilePreview').src = dataUrl;
+                    document.getElementById('profileAvatarBase64').value = dataUrl;
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        async function updateProfile(e) {
+            e.preventDefault();
+            const btn = document.getElementById('profileBtn');
+            const originalText = btn.innerText;
+            btn.innerText = "Guardando...";
+            btn.disabled = true;
+
+            const newAvatar = document.getElementById('profileAvatarBase64').value;
+            const firstName = document.getElementById('profileName').value;
+            const lastName = document.getElementById('profileSurname').value;
+            const phone = document.getElementById('profilePhone').value;
+            const zone = document.getElementById('profileZone').value;
+            const clientCode = document.getElementById('profileClientCodeHidden').value;
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('profilePassword').value;
+            const confirmPassword = document.getElementById('profilePasswordConfirm').value;
+
+            if (newPassword) {
+                if (!currentPassword) {
+                    alert("Error: Debes ingresar tu contraseña actual para realizar cambios de seguridad.");
+                    btn.innerText = originalText; btn.disabled = false; return;
+                }
+                
+                const { error: signInError } = await supabaseClient.auth.signInWithPassword({ 
+                    email: currentUser.email, 
+                    password: currentPassword 
+                });
+
+                if (signInError) {
+                    alert("Error: La contraseña actual es incorrecta.");
+                    btn.innerText = originalText; btn.disabled = false; return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    alert("Error: Las nuevas contraseñas no coinciden.");
+                    btn.innerText = originalText; btn.disabled = false; return;
+                }
+                if (!PASSWORD_REGEX.test(newPassword)) {
+                    alert("Error: La nueva contraseña no es segura. Debe tener 8+ caracteres, mayúscula, minúscula, número y símbolo (!, @, $).");
+                    btn.innerText = originalText; btn.disabled = false; return;
+                }
+            }
+
+            const updates = { 
+                data: { avatar_url: newAvatar, first_name: firstName, last_name: lastName, phone: phone, zone: zone, client_code: clientCode } 
+            };
+            if(newPassword) updates.password = newPassword;
+
+            const { user, error } = await supabaseClient.auth.updateUser(updates);
+
+            if(error) {
+                alert("Error al actualizar: " + error.message);
+            } else {
+                alert("Perfil actualizado correctamente.");
+                if(newAvatar) updateAvatarUI(newAvatar);
+                if(firstName) document.getElementById('profileHeaderName').innerText = firstName;
+                document.getElementById('profilePassword').value = "";
+                document.getElementById('profilePasswordConfirm').value = "";
+                document.getElementById('currentPassword').value = "";
+                currentUser = user || currentUser; 
+                if(user) currentUser.user_metadata = user.user_metadata;
+                loadProfile();
+            }
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+
+        // --- Funciones PDF de Historial ---
+        function downloadHistoryPDF() {
+            if (!currentOrders || currentOrders.length === 0) { alert("No hay historial para descargar."); return; }
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.setFillColor(10, 173, 10); doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFontSize(18); doc.text("Shop Delivery Nic - Historial de Compras", 14, 20);
+            doc.setTextColor(0,0,0); doc.setFontSize(10);
+            doc.text(`Cliente: ${currentUser.email}`, 14, 40); doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 45);
+            const tableBody = currentOrders.map(order => {
+                const date = new Date(order.created_at).toLocaleDateString('es-NI');
+                let listPreview = order.shopping_list.length > 30 ? order.shopping_list.substring(0, 30) + "..." : order.shopping_list;
+                return [date, order.id.slice(0,8), order.delivery_zone, order.status.toUpperCase(), listPreview];
+            });
+            doc.autoTable({ head: [['Fecha', 'ID', 'Zona', 'Estado', 'Resumen']], body: tableBody, startY: 50, theme: 'grid', headStyles: { fillColor: [10, 173, 10] }, styles: { fontSize: 8 } });
+            doc.save(`Historial_Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        // --- Auth Core ---
+        function checkAuthAndRedirect() {
+            if(currentUser) { showView('create-order'); } 
+            else { showView('auth'); isLoginMode = false; renderAuthForm(); }
+        }
+        function toggleAuthMode() { isLoginMode = !isLoginMode; renderAuthForm(); }
+        function renderAuthForm() {
+            const title = document.getElementById('authTitle'); const btn = document.getElementById('authBtn');
+            const toggleText = document.getElementById('authToggleText'); const toggleLink = document.getElementById('authToggleLink');
+            const passwordHelp = document.getElementById('passwordHelp');
+            document.getElementById('authError').classList.add('hidden'); document.getElementById('authSuccess').classList.add('hidden');
+            if (isLoginMode) { 
+                title.innerText = "Iniciar Sesión"; btn.innerText = "Entrar"; btn.onclick = login; 
+                toggleText.innerText = "¿No tienes cuenta?"; toggleLink.innerText = "Regístrate aquí"; 
+                passwordHelp.classList.add('hidden');
+            } else { 
+                title.innerText = "Crear Cuenta"; btn.innerText = "Registrarse"; btn.onclick = signup; 
+                toggleText.innerText = "¿Ya tienes cuenta?"; toggleLink.innerText = "Entra aquí"; 
+                passwordHelp.classList.remove('hidden');
+            }
+        }
+        async function signup() {
+            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
+            if (!em || !pw) return;
+            if (!PASSWORD_REGEX.test(pw)) {
+                const err = document.getElementById('authError');
+                err.innerText = "La contraseña debe tener 8+ caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).";
+                err.classList.remove('hidden');
+                return;
+            }
+            const { data, error } = await supabaseClient.auth.signUp({ email: em, password: pw });
+            if (error) { document.getElementById('authError').innerText = error.message; document.getElementById('authError').classList.remove('hidden'); }
+            else { document.getElementById('authSuccess').innerText = "¡Registro exitoso! Entra ahora."; document.getElementById('authSuccess').classList.remove('hidden'); if (data.session) { currentUser = data.session.user; showView('create-order'); } }
+        }
+        async function login() {
+            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email: em, password: pw });
+            if (error) { document.getElementById('authError').innerText = "Credenciales incorrectas."; document.getElementById('authError').classList.remove('hidden'); }
+            else { currentUser = data.session.user; showView('create-order'); }
+        }
+        async function logout() { await supabaseClient.auth.signOut(); window.location.reload(); }
+
+        function updateEstimatedFee() {
+            const val = document.getElementById('orderZone').value;
+            const companionCheck = document.getElementById('companionCheck');
+            const companionDiv = document.getElementById('companionOption');
+            
+            const fees = { 
+                'Granada': '$10.99', 
+                'Masaya': '$10.99', 
+                'Carretera Masaya': '$10.99', 
+                'Managua': '$9.99', 
+                'Departamento': 'Cotizar' 
+            };
+
+            if (val === 'Granada') {
+                companionDiv.classList.remove('hidden');
+            } else {
+                companionDiv.classList.add('hidden');
+                companionCheck.checked = false; 
+            }
+
+            let text = fees[val] || 'Calculando';
+            if (val === 'Granada' && companionCheck.checked) {
+                text = "$14.99 (Servicio Acompañante)";
+            }
+            document.getElementById('estimatedFee').innerText = text;
+        }
+
+        async function submitOrder(e) {
+            e.preventDefault();
+            document.getElementById('sendingOverlay').classList.remove('hidden');
+            
+            const clientCode = currentUser.user_metadata?.client_code || "N/A";
+            const companionCheck = document.getElementById('companionCheck').checked;
+            const isGranada = document.getElementById('orderZone').value === 'Granada';
+            
+            const manualList = document.getElementById('orderList').value;
+            const specialReq = document.getElementById('specialRequests').value;
+
+            let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
+            if (companionCheck && isGranada) fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99) **\n`;
+            fullList += `COMISIÓN: 1.50% Aceptada\n\n`;
+            fullList += `LISTA:\n${manualList}\n\n`;
+            if(specialReq) fullList += `NOTAS:\n${specialReq}`;
+
+            document.getElementById('hiddenFullList').value = fullList;
+
+            const form = document.getElementById('orderForm');
+            const orderFormObj = {
+                name: document.getElementById('orderName').value,
+                phone: document.getElementById('orderPhone').value,
+                zone: document.getElementById('orderZone').value,
+                address: document.getElementById('orderAddress').value,
+                list: fullList
+            };
+
+            try {
+                const { error } = await supabaseClient.from('orders').insert([{ 
+                    user_id: currentUser.id, user_email: currentUser.email, full_name: orderFormObj.name, phone: orderFormObj.phone,
+                    delivery_zone: orderFormObj.zone, delivery_address: orderFormObj.address, shopping_list: fullList, status: 'pendiente'
+                }]);
+                if (error) throw error;
+
+                if (CONFIG.EMAILJS_SERVICE_ID && CONFIG.EMAILJS_SERVICE_ID !== "TU_SERVICE_ID") {
+                    const templateParams = {
+                        full_name: orderFormObj.name,
+                        phone: orderFormObj.phone,
+                        zone: orderFormObj.zone,
+                        address: orderFormObj.address,
+                        shopping_list: fullList,
+                        user_email: currentUser.email,
+                        my_email: 'nowassistyou@gmail.com'
+                    };
+                    await emailjs.send(CONFIG.EMAILJS_SERVICE_ID, CONFIG.EMAILJS_TEMPLATE_ID, templateParams);
+                }
+
+                alert("¡Pedido enviado con éxito!");
+                document.getElementById('orderForm').reset();
+                showView('orders'); 
+            } catch (err) { console.error(err); alert("Error enviando pedido: " + (err.message || "Intenta nuevamente")); } 
+            finally { document.getElementById('sendingOverlay').classList.add('hidden'); }
+        }
+
+        function toggleOrderDetails(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        async function loadOrderHistory() {
+            const listContainer = document.getElementById('orderHistoryList');
+            listContainer.innerHTML = '<div class="p-8 text-center text-gray-400">Cargando...</div>';
+            const { data, error } = await supabaseClient.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+            if (error || !data || data.length === 0) { listContainer.innerHTML = '<div class="p-8 text-center text-gray-400">No tienes pedidos recientes.</div>'; currentOrders = []; return; }
+            currentOrders = data; 
+            let html = '';
+            data.forEach(order => {
+                const date = new Date(order.created_at).toLocaleDateString('es-NI');
+                let statusClass = "status-pendiente bg-yellow-50 text-yellow-800";
+                if (order.status === 'en camino') statusClass = "status-en-camino bg-blue-50 text-blue-800";
+                if (order.status === 'entregado') statusClass = "status-entregado bg-green-50 text-green-800";
+                if (order.status === 'cancelado') statusClass = "status-cancelado bg-red-50 text-red-800";
+                
+                html += `
+                    <div class="order-card bg-white p-5 rounded-lg shadow-sm mb-4 border border-gray-100 ${statusClass}">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                            <div class="flex-grow mb-3 md:mb-0">
+                                <div class="flex items-center mb-1">
+                                    <span class="bg-white border px-2 py-0.5 rounded text-xs font-mono font-bold mr-2 text-gray-500">#${order.id.slice(0,8)}</span>
+                                    <span class="text-sm text-gray-500"><i class="far fa-calendar-alt mr-1"></i> ${date}</span>
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-lg mb-1">${order.delivery_zone}</h4>
+                                <p class="text-xs text-gray-500 truncate w-full md:w-96">Click en "Ver Detalles" para más información.</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2 w-full md:w-auto">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-white border shadow-sm mb-1 self-start md:self-end">
+                                    ${order.status}
+                                </span>
+                                <button onclick="toggleOrderDetails('order-${order.id}')" class="text-sm text-brand-green hover:underline font-bold self-start md:self-end">
+                                    <i class="fas fa-eye mr-1"></i> Ver Detalles
+                                </button>
+                            </div>
+                        </div>
+                        <div id="order-${order.id}" class="hidden mt-4 pt-4 border-t border-gray-200">
+                            <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                                <div>
+                                    <p class="font-bold text-gray-700">Dirección:</p>
+                                    <p>${order.delivery_address}</p>
+                                    <p class="mt-2 font-bold text-gray-700">Teléfono:</p>
+                                    <p>${order.phone}</p>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-700">Detalles del Pedido:</p>
+                                    <div class="bg-gray-50 p-2 rounded border border-gray-200 mt-1 whitespace-pre-wrap font-mono text-xs">${order.shopping_list}</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+            listContainer.innerHTML = html;
+        }
+
+        initApp();
+    </script>
+</body>
+</html>
