@@ -11,9 +11,6 @@
     <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- EmailJS Library -->
-    <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
-
     <!-- jsPDF & AutoTable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
@@ -106,7 +103,7 @@
         .carousel-container {
             position: relative;
             overflow: hidden;
-            height: 500px; /* Altura fija para el carrusel */
+            height: 500px; 
             background-color: #1a1a1a; 
         }
         .carousel-slide {
@@ -131,7 +128,6 @@
             max-height: 100%;
             object-fit: contain; 
         }
-        /* Botones de navegación con z-index alto */
         .carousel-btn {
             position: absolute;
             top: 50%;
@@ -141,7 +137,7 @@
             padding: 1rem;
             border-radius: 9999px;
             cursor: pointer;
-            z-index: 20; /* Asegurar que estén sobre las imágenes */
+            z-index: 20; 
             transition: all 0.3s;
         }
         .carousel-btn:hover {
@@ -432,7 +428,7 @@
             <div class="bg-white p-6 rounded-xl shadow-sm relative">
                 <div id="sendingOverlay" class="hidden absolute inset-0 bg-white bg-opacity-90 z-10 flex flex-col items-center justify-center rounded-xl">
                     <div class="loader mb-4"></div>
-                    <p class="text-brand-green font-bold">Procesando...</p>
+                    <p class="text-brand-green font-bold">Procesando y enviando...</p>
                 </div>
 
                 <form id="orderForm" onsubmit="submitOrder(event)">
@@ -490,6 +486,10 @@
 
                     <div class="mb-6">
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Lista de Compras</label>
+                        <div class="mb-2">
+                            <label class="block text-gray-600 text-xs mb-1">¿Tienes tu lista en papel? Sube una foto (Opcional)</label>
+                            <input type="file" id="listImage" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-brand-green hover:file:bg-green-100 cursor-pointer border rounded-lg p-1">
+                        </div>
                         <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
                     </div>
 
@@ -626,14 +626,13 @@
         </div>
     </footer>
 
-    <!-- JAVASCRIPT LÓGICA -->
+    <!-- LÓGICA JAVASCRIPT FINAL -->
     <script>
         const CONFIG = {
             SUPABASE_URL: "https://dltpvajfltfzayhomufx.supabase.co", 
             SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdHB2YWpmbHRmemF5aG9tdWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzkyOTAsImV4cCI6MjA4NTQ1NTI5MH0.HCldnUI4sm9BHepUDgcqs4v4a5yVa20VWSzt2lNQ_Vo",
-            EMAILJS_SERVICE_ID: "service_2d0eluh",  
-            EMAILJS_TEMPLATE_ID: "template_x0j9v2k", 
-            EMAILJS_PUBLIC_KEY: "rAM3EqlS8DZuZW84Q"    
+            // URL DE TU SCRIPT EN GOOGLE (BRIDGE)
+            APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwyKzOttwv4aRe127HG_ASaneyfTyG2hyn24U1izJWiCw9RyBExqs-Mn3Tw1eOE2KOEGQ/exec"
         };
 
         const DEFAULT_AVATAR = "https://via.placeholder.com/150?text=Usuario"; 
@@ -647,18 +646,12 @@
         let carouselInterval = null;
 
         function initApp() {
-            // Asegura que los botones se muestren inmediatamente al cargar
             updateNav(false); 
             startCarousel();
 
-            if (CONFIG.SUPABASE_URL === "TU_SUPABASE_PROJECT_URL_AQUI") {
-                alert("Error de Configuración: Faltan credenciales.");
-                return;
-            }
             try {
                 supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
-                emailjs.init(CONFIG.EMAILJS_PUBLIC_KEY);
-
+                
                 supabaseClient.auth.onAuthStateChange((event, session) => {
                     if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
                         if (session) {
@@ -684,47 +677,160 @@
             } catch (error) { console.error("Error inicializando:", error); }
         }
 
+        // --- FUNCIÓN PARA ENVIAR CORREO VÍA PUENTE GOOGLE ---
+        async function sendOrderEmail(orderData, pdfBase64, imageBase64, clientEmail) {
+            const payload = {
+                name: orderData.name,
+                phone: orderData.phone,
+                zone: orderData.zone,
+                address: orderData.address,
+                list: orderData.list,
+                pdfBase64: pdfBase64.split(',')[1], 
+                imageBase64: imageBase64 ? imageBase64.split(',')[1] : null, // Enviamos la imagen si existe
+                clientEmail: clientEmail 
+            };
+            
+            // Enviamos al script de Google que lo reenviará a Mailjet
+            await fetch(CONFIG.APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify(payload)
+            });
+            
+            return true;
+        }
+
+        // --- LECTURA DE ARCHIVO ---
+        const readFileAsBase64 = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // --- GENERADOR DE PDF ---
+        function generateOrderPDF(orderData) {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFillColor(10, 173, 10);
+            doc.rect(0, 0, 210, 25, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.text("SHOP DELIVERY NIC", 14, 17);
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            doc.text(`ORDEN DE COMPRA`, 14, 35);
+            doc.text(`Cliente: ${orderData.name}`, 14, 45);
+            doc.text(`Tel: ${orderData.phone}`, 14, 53);
+            doc.text(`Zona: ${orderData.zone}`, 14, 61);
+            doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 140, 45);
+            
+            doc.setDrawColor(200, 200, 200);
+            doc.line(14, 68, 196, 68);
+            
+            doc.text("DETALLE DEL PEDIDO:", 14, 78);
+            doc.setFontSize(10);
+            
+            const splitText = doc.splitTextToSize(orderData.list, 180);
+            doc.text(splitText, 14, 88);
+            
+            return doc.output('datauristring');
+        }
+
+        // --- ENVIAR PEDIDO ---
+        async function submitOrder(e) {
+            e.preventDefault();
+            document.getElementById('sendingOverlay').classList.remove('hidden');
+            
+            const clientCode = currentUser.user_metadata?.client_code || "N/A";
+            const companionCheck = document.getElementById('companionCheck').checked;
+            const isGranada = document.getElementById('orderZone').value === 'Granada';
+            
+            const manualList = document.getElementById('orderList').value;
+            const specialReq = document.getElementById('specialRequests').value;
+
+            // Procesar Imagen de Lista
+            const imageInput = document.getElementById('listImage');
+            let imageBase64 = null;
+            if (imageInput.files && imageInput.files[0]) {
+                try {
+                    imageBase64 = await readFileAsBase64(imageInput.files[0]);
+                } catch (err) {
+                    console.error("Error leyendo imagen", err);
+                    alert("No se pudo adjuntar la imagen, se enviará sin ella.");
+                }
+            }
+
+            let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
+            if (companionCheck && isGranada) fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99) **\n`;
+            fullList += `COMISIÓN: 1.50% Aceptada\n\n`;
+            if (imageBase64) fullList += `** [IMAGEN ADJUNTA] El cliente ha subido una foto de su lista. **\n\n`;
+            fullList += `LISTA (TEXTO):\n${manualList}\n\n`;
+            if(specialReq) fullList += `NOTAS:\n${specialReq}`;
+
+            const orderFormObj = {
+                name: document.getElementById('orderName').value,
+                phone: document.getElementById('orderPhone').value,
+                zone: document.getElementById('orderZone').value,
+                address: document.getElementById('orderAddress').value,
+                list: fullList
+            };
+
+            try {
+                // 1. Guardar en Supabase
+                const { error } = await supabaseClient.from('orders').insert([{ 
+                    user_id: currentUser.id, 
+                    user_email: currentUser.email, 
+                    full_name: orderFormObj.name, 
+                    phone: orderFormObj.phone,
+                    delivery_zone: orderFormObj.zone, 
+                    delivery_address: orderFormObj.address, 
+                    shopping_list: fullList, 
+                    status: 'pendiente'
+                }]);
+                if (error) throw error;
+
+                // 2. Enviar Correo (Al Cliente y Copia Oculta al Admin)
+                const pdfBase64 = generateOrderPDF(orderFormObj);
+                const userEmail = currentUser.email; 
+                
+                // Pasamos la imagen a la función de envío
+                await sendOrderEmail(orderFormObj, pdfBase64, imageBase64, userEmail);
+
+                alert("¡Pedido enviado con éxito! Recibirás confirmación en tu correo.");
+                document.getElementById('orderForm').reset();
+                showView('orders'); 
+            } catch (err) { 
+                console.error(err); 
+                alert("Hubo un problema al procesar el pedido: " + (err.message || "Intenta de nuevo")); 
+            } finally { 
+                document.getElementById('sendingOverlay').classList.add('hidden'); 
+            }
+        }
+
         // --- CARRUSEL ---
         let currentSlide = 0;
         function showSlide(index) {
             const slides = document.querySelectorAll('.carousel-slide');
             if(slides.length === 0) return;
-            
-            // Wrap index logic handles negatives correctly now
             if (index >= slides.length) currentSlide = 0;
             else if (index < 0) currentSlide = slides.length - 1;
             else currentSlide = index;
-
-            slides.forEach((slide) => {
-                slide.classList.remove('active');
-                slide.style.opacity = 0; 
-            });
-            
+            slides.forEach((slide) => { slide.classList.remove('active'); slide.style.opacity = 0; });
             slides[currentSlide].classList.add('active');
             slides[currentSlide].style.opacity = 1;
         }
-
-        function nextSlide() {
-            showSlide(currentSlide + 1);
-            resetTimer();
-        }
-
-        function prevSlide() {
-            showSlide(currentSlide - 1);
-            resetTimer();
-        }
-
-        function resetTimer() {
-            clearInterval(carouselInterval);
-            carouselInterval = setInterval(nextSlide, 5000);
-        }
-
+        function nextSlide() { showSlide(currentSlide + 1); resetTimer(); }
+        function prevSlide() { showSlide(currentSlide - 1); resetTimer(); }
+        function resetTimer() { clearInterval(carouselInterval); carouselInterval = setInterval(nextSlide, 5000); }
         function startCarousel() {
             const slides = document.querySelectorAll('.carousel-slide');
-            if(slides.length > 0) {
-                slides[0].classList.add('active');
-                slides[0].style.opacity = 1;
-            }
+            if(slides.length > 0) { slides[0].classList.add('active'); slides[0].style.opacity = 1; }
             resetTimer();
         }
 
@@ -770,11 +876,7 @@
                 mobAuth.innerHTML = `<button onclick="logout()" class="block w-full text-left py-3 text-red-500">Cerrar Sesión</button>`;
             } else {
                 navUser.innerHTML = '';
-                // Botones Desktop: Iniciar Sesión Y Registrarse
-                navAuth.innerHTML = `
-                    <button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow mr-3 whitespace-nowrap">Iniciar Sesión</button>
-                    <button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition whitespace-nowrap">Registrarse</button>
-                `;
+                navAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow mr-3 whitespace-nowrap">Iniciar Sesión</button><button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition whitespace-nowrap">Registrarse</button>`;
                 mobHeaderAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="text-brand-green font-bold mr-2 flex flex-col items-center justify-center"><i class="fas fa-user-circle text-2xl"></i><span class="text-[10px] leading-none mt-1">Entrar</span></button>`;
                 mobUser.innerHTML = '';
                 mobAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="block w-full text-left py-3 font-bold text-brand-green border-b border-gray-100">Iniciar Sesión</button><button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="block w-full text-left py-3 font-bold text-gray-600">Registrarse</button>`;
@@ -782,7 +884,6 @@
         }
 
         // --- LÓGICA DE PERFIL Y PRE-LLENADO ---
-        
         function loadProfile() {
             document.getElementById('profileEmailDisplay').innerText = currentUser.email;
             const meta = currentUser.user_metadata || {};
@@ -868,7 +969,6 @@
                     alert("Error: Debes ingresar tu contraseña actual para realizar cambios de seguridad.");
                     btn.innerText = originalText; btn.disabled = false; return;
                 }
-                
                 const { error: signInError } = await supabaseClient.auth.signInWithPassword({ 
                     email: currentUser.email, 
                     password: currentPassword 
@@ -884,7 +984,7 @@
                     btn.innerText = originalText; btn.disabled = false; return;
                 }
                 if (!PASSWORD_REGEX.test(newPassword)) {
-                    alert("Error: La nueva contraseña no es segura. Debe tener 8+ caracteres, mayúscula, minúscula, número y símbolo (!, @, $).");
+                    alert("Error: La nueva contraseña no es segura.");
                     btn.innerText = originalText; btn.disabled = false; return;
                 }
             }
@@ -997,61 +1097,6 @@
                 text = "$14.99 (Servicio Acompañante)";
             }
             document.getElementById('estimatedFee').innerText = text;
-        }
-
-        async function submitOrder(e) {
-            e.preventDefault();
-            document.getElementById('sendingOverlay').classList.remove('hidden');
-            
-            const clientCode = currentUser.user_metadata?.client_code || "N/A";
-            const companionCheck = document.getElementById('companionCheck').checked;
-            const isGranada = document.getElementById('orderZone').value === 'Granada';
-            
-            const manualList = document.getElementById('orderList').value;
-            const specialReq = document.getElementById('specialRequests').value;
-
-            let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
-            if (companionCheck && isGranada) fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99) **\n`;
-            fullList += `COMISIÓN: 1.50% Aceptada\n\n`;
-            fullList += `LISTA:\n${manualList}\n\n`;
-            if(specialReq) fullList += `NOTAS:\n${specialReq}`;
-
-            document.getElementById('hiddenFullList').value = fullList;
-
-            const form = document.getElementById('orderForm');
-            const orderFormObj = {
-                name: document.getElementById('orderName').value,
-                phone: document.getElementById('orderPhone').value,
-                zone: document.getElementById('orderZone').value,
-                address: document.getElementById('orderAddress').value,
-                list: fullList
-            };
-
-            try {
-                const { error } = await supabaseClient.from('orders').insert([{ 
-                    user_id: currentUser.id, user_email: currentUser.email, full_name: orderFormObj.name, phone: orderFormObj.phone,
-                    delivery_zone: orderFormObj.zone, delivery_address: orderFormObj.address, shopping_list: fullList, status: 'pendiente'
-                }]);
-                if (error) throw error;
-
-                if (CONFIG.EMAILJS_SERVICE_ID && CONFIG.EMAILJS_SERVICE_ID !== "TU_SERVICE_ID") {
-                    const templateParams = {
-                        full_name: orderFormObj.name,
-                        phone: orderFormObj.phone,
-                        zone: orderFormObj.zone,
-                        address: orderFormObj.address,
-                        shopping_list: fullList,
-                        user_email: currentUser.email,
-                        my_email: 'nowassistyou@gmail.com'
-                    };
-                    await emailjs.send(CONFIG.EMAILJS_SERVICE_ID, CONFIG.EMAILJS_TEMPLATE_ID, templateParams);
-                }
-
-                alert("¡Pedido enviado con éxito!");
-                document.getElementById('orderForm').reset();
-                showView('orders'); 
-            } catch (err) { console.error(err); alert("Error enviando pedido: " + (err.message || "Intenta nuevamente")); } 
-            finally { document.getElementById('sendingOverlay').classList.add('hidden'); }
         }
 
         function toggleOrderDetails(id) {
