@@ -5,20 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Delivery Nic - Tu Supermercado en Casa</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- jsPDF & AutoTable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
-    <!-- Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Configuración de colores -->
     <script>
         tailwind.config = {
             theme: {
@@ -148,7 +143,6 @@
 </head>
 <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
-    <!-- Navegación -->
     <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
@@ -191,9 +185,7 @@
         </div>
     </nav>
 
-    <!-- VISTA: INICIO -->
     <div id="view-home" class="view-section flex-grow">
-        <!-- Hero Section -->
         <div class="relative h-[550px] flex items-center justify-center text-center hero-pattern text-white">
             <div class="absolute inset-0 hero-overlay"></div>
             <div class="relative z-10 px-4 max-w-4xl">
@@ -210,7 +202,6 @@
             </div>
         </div>
 
-        <!-- SECCIÓN: GALERÍA CARRUSEL -->
         <section class="bg-white pt-8 pb-4">
             <div class="max-w-7xl mx-auto px-4 text-center">
                 <h2 class="text-3xl font-bold text-gray-800 mb-6">Productos Populares</h2>
@@ -218,32 +209,26 @@
             <div class="max-w-5xl mx-auto px-4">
                 <div class="carousel-container rounded-xl shadow-2xl relative group">
                     
-                    <!-- Slide 1 -->
                     <div class="carousel-slide active">
                         <img src="https://scontent.fmga11-2.fna.fbcdn.net/v/t39.30808-6/626643657_25621939290782080_1734958348227725339_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=1OYdj5j8RYYQ7kNvwFTT41J&_nc_oc=AdkfmJBsbUPr08TQdO7RplsYA7MfVWJgZh9qYMsbVmw9nflc3tOU3k_ZgI2nS6vkcVfbIL3SfEBVjDVR4U6GPYOy&_nc_zt=23&_nc_ht=scontent.fmga11-2.fna&_nc_gid=ugM_aTKaqFl_VDmceTj3Vw&oh=00_AftXE49wrqd930oVbjyvzDFU_0VYr1VpozqPoJvMUUpF9g&oe=6985F1CA" class="carousel-img" alt="Producto 1">
                     </div>
                     
-                    <!-- Slide 2 -->
                     <div class="carousel-slide">
                         <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627145422_25621953257447350_7008384717410034584_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=127cfc&_nc_ohc=k0wu6JrdXC0Q7kNvwF_Gi8Q&_nc_oc=AdmGtjATGDDQsjE5_WxCo-Nr5nv834Ty4r_ElVF_fwz8eHfhAmWoUFHr1sSVvKbUfuLeKs79CIO3Kn67YD_gvznn&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=1KDXZHhbWRAvuAcWYxXb5Q&oh=00_AfuvskX0KAsbQaAmic6HSnXKYYY6wLXlGHDBgonN9yo9lQ&oe=6985F509" class="carousel-img" alt="Producto 2">
                     </div>
 
-                    <!-- Slide 3 -->
                     <div class="carousel-slide">
                         <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627184355_25621960950779914_7389725803311426778_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=n9MT2xaB-XwQ7kNvwHsyVUh&_nc_oc=AdnUyff9UaBdgpS6P9tD_lIgcMHphe9L82I4nPffy2kn5p61srlG2_f6my_lHHJmoSZPQ0SBaxl5B5O1rd4BmOL3&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=9RkBuJCgU_W-ode9ZCPUNw&oh=00_AftiXDzdokZNp5OY09U608rZCfhw3FpIqgI7yZ8urU0Qqg&oe=6985DCE1" class="carousel-img" alt="Producto 3">
                     </div>
 
-                    <!-- Slide 4 -->
                     <div class="carousel-slide">
                         <img src="https://scontent.fmga11-2.fna.fbcdn.net/v/t39.30808-6/626886935_25621971240778885_4681874634737483407_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zk4dpUFKJS4Q7kNvwGQQIar&_nc_oc=AdkUCqSzLIKd8KRzkgX299-SNCKUu-qkBXvKEmveXmY4_i9QmLzJKLQERvq4l5ixupipI_Xn-hOmEq999jVTUQCd&_nc_zt=23&_nc_ht=scontent.fmga11-2.fna&_nc_gid=kXuztfxis0kH5P1QsgEaQw&oh=00_AfvIL-qCzzYJ4AxAylU-H7qfPgYjnIQOdy2dOVf8BGOdMA&oe=6985FB5C" class="carousel-img" alt="Producto 4">
                     </div>
 
-                    <!-- Slide 5 -->
                     <div class="carousel-slide">
                         <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627035391_25621977694111573_660820740685578265_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=KHBJCEBAAh4Q7kNvwHPfJK1&_nc_oc=Adk38CLobgljFgHol5d9XmKpURsglO1bVb750tEZ52l28-NBHSCJuQr4kS-KiMDFPPnMhp0i8Smd8eBX-G6IsDDM&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=cEipVaw4remTEYoKeIrWaQ&oh=00_Afs3c0jUetkhuMrOtFdDDEQArUnttREC2Bo662Rz0AY8zA&oe=698609C0" class="carousel-img" alt="Producto 5">
                     </div>
 
-                    <!-- Controles Flechas -->
                     <button class="carousel-btn left-4" onclick="prevSlide()">
                         <i class="fas fa-chevron-left text-2xl"></i>
                     </button>
@@ -254,7 +239,6 @@
             </div>
         </section>
 
-        <!-- Sección Informativa -->
         <section id="about" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 text-center">
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">¿Cómo funciona Shop Delivery Nic?</h2>
@@ -280,7 +264,6 @@
             </div>
         </section>
 
-        <!-- Beneficios -->
         <section class="py-16 bg-brand-gray">
             <div class="max-w-7xl mx-auto px-4">
                 <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -317,7 +300,6 @@
             </div>
         </section>
 
-        <!-- Información de Contacto -->
         <section id="contact" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 text-center">
                 <h2 class="text-3xl font-bold text-gray-800 mb-12">Contáctanos</h2>
@@ -353,7 +335,6 @@
         </section>
     </div>
 
-    <!-- VISTA: TARIFAS -->
     <div id="view-pricing" class="view-section hidden flex-grow py-16 bg-brand-gray">
         <div class="max-w-5xl mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold text-gray-800 mb-2">Tarifas de Envío</h2>
@@ -387,7 +368,6 @@
         </div>
     </div>
 
-    <!-- VISTA: AUTENTICACIÓN -->
     <div id="view-auth" class="view-section hidden pt-20 pb-20 bg-gray-100 flex-grow">
         <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg m-4">
             <h2 id="authTitle" class="text-2xl font-bold text-center mb-6 text-brand-green">Iniciar Sesión</h2>
@@ -414,7 +394,6 @@
         </div>
     </div>
 
-    <!-- VISTA: NUEVO PEDIDO -->
     <div id="view-create-order" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-3xl mx-auto px-4">
             
@@ -487,8 +466,8 @@
                     <div class="mb-6">
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Lista de Compras</label>
                         <div class="mb-2">
-                            <label class="block text-gray-600 text-xs mb-1">¿Tienes tu lista en papel? Sube una foto (Opcional)</label>
-                            <input type="file" id="listImage" accept="image/*" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-brand-green hover:file:bg-green-100 cursor-pointer border rounded-lg p-1">
+                            <label class="block text-gray-600 text-xs mb-1">¿Tienes tu lista en papel? Sube fotos (Máx 5)</label>
+                            <input type="file" id="listImage" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-brand-green hover:file:bg-green-100 cursor-pointer border rounded-lg p-1">
                         </div>
                         <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
                     </div>
@@ -506,7 +485,6 @@
         </div>
     </div>
 
-    <!-- VISTA: HISTORIAL DE PEDIDOS -->
     <div id="view-orders" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-4xl mx-auto px-4">
             <div class="flex justify-between items-center mb-6">
@@ -522,7 +500,6 @@
         </div>
     </div>
 
-    <!-- VISTA: PERFIL USUARIO -->
     <div id="view-profile" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-3xl mx-auto px-4">
             
@@ -613,7 +590,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-8 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <div class="flex items-center justify-center mb-4">
@@ -626,7 +602,6 @@
         </div>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT FINAL -->
     <script>
         const CONFIG = {
             SUPABASE_URL: "https://dltpvajfltfzayhomufx.supabase.co", 
@@ -678,7 +653,7 @@
         }
 
         // --- FUNCIÓN PARA ENVIAR CORREO VÍA PUENTE GOOGLE ---
-        async function sendOrderEmail(orderData, pdfBase64, imageBase64, clientEmail) {
+        async function sendOrderEmail(orderData, pdfBase64, imagesData, clientEmail) {
             const payload = {
                 name: orderData.name,
                 phone: orderData.phone,
@@ -686,7 +661,7 @@
                 address: orderData.address,
                 list: orderData.list,
                 pdfBase64: pdfBase64.split(',')[1], 
-                imageBase64: imageBase64 ? imageBase64.split(',')[1] : null, // Enviamos la imagen si existe
+                images: imagesData, // Array de objetos {name, type, base64}
                 clientEmail: clientEmail 
             };
             
@@ -699,16 +674,6 @@
             });
             
             return true;
-        }
-
-        // --- LECTURA DE ARCHIVO ---
-        const readFileAsBase64 = (file) => {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = error => reject(error);
-                reader.readAsDataURL(file);
-            });
         }
 
         // --- GENERADOR DE PDF ---
@@ -754,22 +719,47 @@
             const manualList = document.getElementById('orderList').value;
             const specialReq = document.getElementById('specialRequests').value;
 
-            // Procesar Imagen de Lista
+            // Procesar Imagenes (Multiple)
             const imageInput = document.getElementById('listImage');
-            let imageBase64 = null;
-            if (imageInput.files && imageInput.files[0]) {
+            
+            // Validacion de cantidad
+            if (imageInput.files.length > 5) {
+                alert("Solo puedes subir un máximo de 5 imágenes.");
+                document.getElementById('sendingOverlay').classList.add('hidden');
+                return;
+            }
+
+            let imagesData = [];
+            
+            if (imageInput.files && imageInput.files.length > 0) {
                 try {
-                    imageBase64 = await readFileAsBase64(imageInput.files[0]);
+                    // Creamos promesas para leer todos los archivos
+                    const promises = Array.from(imageInput.files).map(file => {
+                        return new Promise((resolve, reject) => {
+                            const reader = new FileReader();
+                            reader.onload = (e) => resolve({
+                                name: file.name,
+                                type: file.type,
+                                // Guardamos solo la parte base64 sin el encabezado
+                                base64: e.target.result.split(',')[1] 
+                            });
+                            reader.onerror = reject;
+                            reader.readAsDataURL(file);
+                        });
+                    });
+                    
+                    imagesData = await Promise.all(promises);
+                    
                 } catch (err) {
-                    console.error("Error leyendo imagen", err);
-                    alert("No se pudo adjuntar la imagen, se enviará sin ella.");
+                    console.error("Error leyendo imágenes", err);
+                    alert("Error procesando las imágenes. Se enviará sin ellas.");
                 }
             }
 
             let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
             if (companionCheck && isGranada) fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99) **\n`;
             fullList += `COMISIÓN: 1.50% Aceptada\n\n`;
-            if (imageBase64) fullList += `** [IMAGEN ADJUNTA] El cliente ha subido una foto de su lista. **\n\n`;
+            if (imagesData.length > 0) fullList += `** [IMÁGENES ADJUNTAS] El cliente ha subido ${imagesData.length} foto(s) de su lista. **\n\n`;
             fullList += `LISTA (TEXTO):\n${manualList}\n\n`;
             if(specialReq) fullList += `NOTAS:\n${specialReq}`;
 
@@ -799,8 +789,8 @@
                 const pdfBase64 = generateOrderPDF(orderFormObj);
                 const userEmail = currentUser.email; 
                 
-                // Pasamos la imagen a la función de envío
-                await sendOrderEmail(orderFormObj, pdfBase64, imageBase64, userEmail);
+                // Pasamos el array de imágenes
+                await sendOrderEmail(orderFormObj, pdfBase64, imagesData, userEmail);
 
                 alert("¡Pedido enviado con éxito! Recibirás confirmación en tu correo.");
                 document.getElementById('orderForm').reset();
