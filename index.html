@@ -1047,6 +1047,7 @@
             }
         }
         
+        // --- FUNCIÓN DE REGISTRO CON REDIRECCIÓN FORZADA (SOLUCIÓN GITHUB PAGES) ---
         async function signup() {
             const em = document.getElementById('email').value; 
             const pw = document.getElementById('password').value;
@@ -1057,6 +1058,7 @@
             const formData = new FormData(document.getElementById('authForm'));
             const captchaToken = formData.get('cf-turnstile-response');
 
+            // 2. Verificar Captcha
             if (!captchaToken) {
                 const err = document.getElementById('authError');
                 err.innerText = "Por favor, completa la verificación de seguridad (Captcha).";
@@ -1071,11 +1073,14 @@
                 return;
             }
             
+            // 3. Enviar a Supabase CON redirección explícita a tu index.html
             const { data, error } = await supabaseClient.auth.signUp({ 
                 email: em, 
                 password: pw,
                 options: {
-                    captchaToken: captchaToken 
+                    captchaToken: captchaToken,
+                    // ESTA LÍNEA ES LA QUE SOLUCIONA EL 404
+                    emailRedirectTo: 'https://ddsm14-code.github.io/Shop-Delivery-Nic/index.html'
                 }
             });
 
@@ -1083,16 +1088,13 @@
                 document.getElementById('authError').innerText = error.message; 
                 document.getElementById('authError').classList.remove('hidden'); 
             } else { 
-                document.getElementById('authSuccess').innerText = "¡Registro exitoso! Entra ahora."; 
+                document.getElementById('authSuccess').innerText = "¡Registro exitoso! Revisa tu correo (mira en Spam si no aparece)."; 
                 document.getElementById('authSuccess').classList.remove('hidden'); 
-                if (data.session) { currentUser = data.session.user; showView('create-order'); } 
             }
         }
         
-        // --- FUNCIÓN LOGIN CORREGIDA ---
         async function login() {
-            const em = document.getElementById('email').value; 
-            const pw = document.getElementById('password').value;
+            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
             
             // 1. Obtener Token Captcha TAMBIÉN para login
             const formData = new FormData(document.getElementById('authForm'));
@@ -1102,14 +1104,11 @@
             const { data, error } = await supabaseClient.auth.signInWithPassword({ 
                 email: em, 
                 password: pw,
-                options: { captchaToken: captchaToken } // Añadimos esto
+                options: { captchaToken: captchaToken }
             });
 
             if (error) { 
-                // MOSTRAR ERROR REAL (Importante para saber qué pasa)
                 console.error("Login error:", error);
-                
-                // Traducir errores comunes para que el usuario entienda
                 let msg = error.message;
                 if(msg.includes("Invalid login credentials")) msg = "Correo o contraseña incorrectos.";
                 if(msg.includes("Email not confirmed")) msg = "Debes confirmar tu correo electrónico antes de entrar. Revisa tu bandeja.";
