@@ -1047,7 +1047,6 @@
             }
         }
         
-        // --- MODIFICADO: FUNCIÓN DE REGISTRO CON CAPTCHA ---
         async function signup() {
             const em = document.getElementById('email').value; 
             const pw = document.getElementById('password').value;
@@ -1055,11 +1054,9 @@
             if (!em || !pw) return;
             
             // 1. Obtener el token del Captcha del formulario
-            // Cloudflare inserta un input oculto llamado "cf-turnstile-response"
             const formData = new FormData(document.getElementById('authForm'));
             const captchaToken = formData.get('cf-turnstile-response');
 
-            // 2. Verificar que el usuario resolvió el captcha
             if (!captchaToken) {
                 const err = document.getElementById('authError');
                 err.innerText = "Por favor, completa la verificación de seguridad (Captcha).";
@@ -1074,12 +1071,11 @@
                 return;
             }
             
-            // 3. Enviar a Supabase CON el token de captcha en las opciones
             const { data, error } = await supabaseClient.auth.signUp({ 
                 email: em, 
                 password: pw,
                 options: {
-                    captchaToken: captchaToken // Aquí enviamos el token a Supabase para que lo valide
+                    captchaToken: captchaToken 
                 }
             });
 
@@ -1093,13 +1089,38 @@
             }
         }
         
+        // --- FUNCIÓN LOGIN CORREGIDA ---
         async function login() {
-            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
-            // Para login simple, no exigimos captcha obligatorio en código JS para no bloquear usuarios viejos,
-            // pero el widget está presente por si quieres activarlo en el futuro.
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email: em, password: pw });
-            if (error) { document.getElementById('authError').innerText = "Credenciales incorrectas."; document.getElementById('authError').classList.remove('hidden'); }
-            else { currentUser = data.session.user; showView('create-order'); }
+            const em = document.getElementById('email').value; 
+            const pw = document.getElementById('password').value;
+            
+            // 1. Obtener Token Captcha TAMBIÉN para login
+            const formData = new FormData(document.getElementById('authForm'));
+            const captchaToken = formData.get('cf-turnstile-response');
+
+            // 2. Enviar con Token para satisfacer la seguridad de Supabase
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ 
+                email: em, 
+                password: pw,
+                options: { captchaToken: captchaToken } // Añadimos esto
+            });
+
+            if (error) { 
+                // MOSTRAR ERROR REAL (Importante para saber qué pasa)
+                console.error("Login error:", error);
+                
+                // Traducir errores comunes para que el usuario entienda
+                let msg = error.message;
+                if(msg.includes("Invalid login credentials")) msg = "Correo o contraseña incorrectos.";
+                if(msg.includes("Email not confirmed")) msg = "Debes confirmar tu correo electrónico antes de entrar. Revisa tu bandeja.";
+                if(msg.includes("Captcha")) msg = "Error de seguridad (Captcha). Recarga la página e intenta de nuevo.";
+                
+                document.getElementById('authError').innerText = msg; 
+                document.getElementById('authError').classList.remove('hidden'); 
+            } else { 
+                currentUser = data.session.user; 
+                showView('create-order'); 
+            }
         }
         async function logout() { await supabaseClient.auth.signOut(); window.location.reload(); }
 
