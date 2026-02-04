@@ -9,6 +9,8 @@
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
@@ -381,6 +383,9 @@
                     <input class="shadow border rounded w-full py-2 px-3 text-gray-700 mb-3 focus:outline-none focus:border-brand-green" id="password" type="password" required placeholder="********">
                     <p id="passwordHelp" class="hidden text-xs text-gray-500 mt-1">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
                 </div>
+
+                <div class="cf-turnstile mb-4 flex justify-center" data-sitekey="0x4AAAAAACXbc62TDsPPe09R" data-theme="light"></div>
+
                 <div id="authError" class="hidden text-red-500 text-sm mb-4 text-center"></div>
                 <div id="authSuccess" class="hidden text-green-500 text-sm mb-4 text-center"></div>
                 
@@ -1041,21 +1046,57 @@
                 passwordHelp.classList.remove('hidden');
             }
         }
+        
+        // --- MODIFICADO: FUNCIÓN DE REGISTRO CON CAPTCHA ---
         async function signup() {
-            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
+            const em = document.getElementById('email').value; 
+            const pw = document.getElementById('password').value;
+            
             if (!em || !pw) return;
+            
+            // 1. Obtener el token del Captcha del formulario
+            // Cloudflare inserta un input oculto llamado "cf-turnstile-response"
+            const formData = new FormData(document.getElementById('authForm'));
+            const captchaToken = formData.get('cf-turnstile-response');
+
+            // 2. Verificar que el usuario resolvió el captcha
+            if (!captchaToken) {
+                const err = document.getElementById('authError');
+                err.innerText = "Por favor, completa la verificación de seguridad (Captcha).";
+                err.classList.remove('hidden');
+                return;
+            }
+
             if (!PASSWORD_REGEX.test(pw)) {
                 const err = document.getElementById('authError');
                 err.innerText = "La contraseña debe tener 8+ caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).";
                 err.classList.remove('hidden');
                 return;
             }
-            const { data, error } = await supabaseClient.auth.signUp({ email: em, password: pw });
-            if (error) { document.getElementById('authError').innerText = error.message; document.getElementById('authError').classList.remove('hidden'); }
-            else { document.getElementById('authSuccess').innerText = "¡Registro exitoso! Entra ahora."; document.getElementById('authSuccess').classList.remove('hidden'); if (data.session) { currentUser = data.session.user; showView('create-order'); } }
+            
+            // 3. Enviar a Supabase CON el token de captcha en las opciones
+            const { data, error } = await supabaseClient.auth.signUp({ 
+                email: em, 
+                password: pw,
+                options: {
+                    captchaToken: captchaToken // Aquí enviamos el token a Supabase para que lo valide
+                }
+            });
+
+            if (error) { 
+                document.getElementById('authError').innerText = error.message; 
+                document.getElementById('authError').classList.remove('hidden'); 
+            } else { 
+                document.getElementById('authSuccess').innerText = "¡Registro exitoso! Entra ahora."; 
+                document.getElementById('authSuccess').classList.remove('hidden'); 
+                if (data.session) { currentUser = data.session.user; showView('create-order'); } 
+            }
         }
+        
         async function login() {
             const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
+            // Para login simple, no exigimos captcha obligatorio en código JS para no bloquear usuarios viejos,
+            // pero el widget está presente por si quieres activarlo en el futuro.
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email: em, password: pw });
             if (error) { document.getElementById('authError').innerText = "Credenciales incorrectas."; document.getElementById('authError').classList.remove('hidden'); }
             else { currentUser = data.session.user; showView('create-order'); }
