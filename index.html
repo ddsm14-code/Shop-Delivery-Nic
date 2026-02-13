@@ -5,17 +5,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Delivery Nic - Tu Supermercado en Casa</title>
     
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
+    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-
+    <!-- jsPDF & AutoTable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
+    <!-- Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <!-- Configuración de colores -->
     <script>
         tailwind.config = {
             theme: {
@@ -95,56 +98,11 @@
             font-size: 1.5rem;
             margin: 0 auto 1rem;
         }
-
-        /* Estilos para el Carrusel */
-        .carousel-container {
-            position: relative;
-            overflow: hidden;
-            height: 500px; 
-            background-color: #1a1a1a; 
-        }
-        .carousel-slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 0.8s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
-        }
-        .carousel-slide.active {
-            opacity: 1;
-            z-index: 10;
-        }
-        .carousel-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain; 
-        }
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 1rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            z-index: 20; 
-            transition: all 0.3s;
-        }
-        .carousel-btn:hover {
-            background-color: rgba(255, 255, 255, 0.8);
-            color: #1f2937;
-        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
+    <!-- Navegación -->
     <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
@@ -161,7 +119,10 @@
                 
                 <div class="hidden md:flex space-x-6 items-center flex-grow justify-center">
                     <button onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium">Inicio</button>
-                    <a href="#about" onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium">Servicios</a>
+                    <!-- ENLACE DIRECTO A PRICESMART -->
+                    <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="text-gray-600 hover:text-brand-green font-medium flex items-center">
+                        <i class="fas fa-external-link-alt mr-1"></i> Ir a PriceSmart
+                    </a>
                     <button onclick="showView('pricing')" class="text-gray-600 hover:text-brand-green font-medium">Tarifas</button>
                     <a href="#contact" onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium">Contacto</a>
                     <div id="navUserLinks" class="flex space-x-4"></div>
@@ -181,18 +142,21 @@
 
         <div id="mobileMenu" class="hidden md:hidden bg-white border-t p-4 shadow-lg absolute w-full z-50">
             <button onclick="showView('home'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100">Inicio</button>
+            <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="block py-3 text-brand-green font-bold w-full text-left border-b border-gray-100">Ir a PriceSmart <i class="fas fa-external-link-alt ml-1"></i></a>
             <button onclick="showView('pricing'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100">Tarifas</button>
             <div id="mobileUserLinks" class="my-2 pt-2"></div>
             <div id="mobileAuthButtons" class="mt-2 pt-2"></div>
         </div>
     </nav>
 
+    <!-- VISTA: INICIO -->
     <div id="view-home" class="view-section flex-grow">
+        <!-- Hero Section -->
         <div class="relative h-[550px] flex items-center justify-center text-center hero-pattern text-white">
             <div class="absolute inset-0 hero-overlay"></div>
             <div class="relative z-10 px-4 max-w-4xl">
                 <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight">Hacemos tu Supermercado por ti</h1>
-                <p class="text-xl md:text-2xl mb-8 font-light text-green-50">Compras en PriceSmart y Walmart Nicaragua entregadas en la puerta de tu casa.</p>
+                <p class="text-xl md:text-2xl mb-8 font-light text-green-50">Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <button onclick="checkAuthAndRedirect()" class="bg-brand-orange hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transition transform hover:scale-105">
                         <i class="fas fa-shopping-cart mr-2"></i> Hacer mi Pedido
@@ -204,43 +168,7 @@
             </div>
         </div>
 
-        <section class="bg-white pt-8 pb-4">
-            <div class="max-w-7xl mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Productos Populares</h2>
-            </div>
-            <div class="max-w-5xl mx-auto px-4">
-                <div class="carousel-container rounded-xl shadow-2xl relative group">
-                    
-                    <div class="carousel-slide active">
-                        <img src="https://scontent.fmga11-2.fna.fbcdn.net/v/t39.30808-6/626643657_25621939290782080_1734958348227725339_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=1OYdj5j8RYYQ7kNvwFTT41J&_nc_oc=AdkfmJBsbUPr08TQdO7RplsYA7MfVWJgZh9qYMsbVmw9nflc3tOU3k_ZgI2nS6vkcVfbIL3SfEBVjDVR4U6GPYOy&_nc_zt=23&_nc_ht=scontent.fmga11-2.fna&_nc_gid=ugM_aTKaqFl_VDmceTj3Vw&oh=00_AftXE49wrqd930oVbjyvzDFU_0VYr1VpozqPoJvMUUpF9g&oe=6985F1CA" class="carousel-img" alt="Producto 1">
-                    </div>
-                    
-                    <div class="carousel-slide">
-                        <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627145422_25621953257447350_7008384717410034584_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=127cfc&_nc_ohc=k0wu6JrdXC0Q7kNvwF_Gi8Q&_nc_oc=AdmGtjATGDDQsjE5_WxCo-Nr5nv834Ty4r_ElVF_fwz8eHfhAmWoUFHr1sSVvKbUfuLeKs79CIO3Kn67YD_gvznn&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=1KDXZHhbWRAvuAcWYxXb5Q&oh=00_AfuvskX0KAsbQaAmic6HSnXKYYY6wLXlGHDBgonN9yo9lQ&oe=6985F509" class="carousel-img" alt="Producto 2">
-                    </div>
-
-                    <div class="carousel-slide">
-                        <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627184355_25621960950779914_7389725803311426778_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=n9MT2xaB-XwQ7kNvwHsyVUh&_nc_oc=AdnUyff9UaBdgpS6P9tD_lIgcMHphe9L82I4nPffy2kn5p61srlG2_f6my_lHHJmoSZPQ0SBaxl5B5O1rd4BmOL3&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=9RkBuJCgU_W-ode9ZCPUNw&oh=00_AftiXDzdokZNp5OY09U608rZCfhw3FpIqgI7yZ8urU0Qqg&oe=6985DCE1" class="carousel-img" alt="Producto 3">
-                    </div>
-
-                    <div class="carousel-slide">
-                        <img src="https://scontent.fmga11-2.fna.fbcdn.net/v/t39.30808-6/626886935_25621971240778885_4681874634737483407_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zk4dpUFKJS4Q7kNvwGQQIar&_nc_oc=AdkUCqSzLIKd8KRzkgX299-SNCKUu-qkBXvKEmveXmY4_i9QmLzJKLQERvq4l5ixupipI_Xn-hOmEq999jVTUQCd&_nc_zt=23&_nc_ht=scontent.fmga11-2.fna&_nc_gid=kXuztfxis0kH5P1QsgEaQw&oh=00_AfvIL-qCzzYJ4AxAylU-H7qfPgYjnIQOdy2dOVf8BGOdMA&oe=6985FB5C" class="carousel-img" alt="Producto 4">
-                    </div>
-
-                    <div class="carousel-slide">
-                        <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627035391_25621977694111573_660820740685578265_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=KHBJCEBAAh4Q7kNvwHPfJK1&_nc_oc=Adk38CLobgljFgHol5d9XmKpURsglO1bVb750tEZ52l28-NBHSCJuQr4kS-KiMDFPPnMhp0i8Smd8eBX-G6IsDDM&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=cEipVaw4remTEYoKeIrWaQ&oh=00_Afs3c0jUetkhuMrOtFdDDEQArUnttREC2Bo662Rz0AY8zA&oe=698609C0" class="carousel-img" alt="Producto 5">
-                    </div>
-
-                    <button class="carousel-btn left-4" onclick="prevSlide()">
-                        <i class="fas fa-chevron-left text-2xl"></i>
-                    </button>
-                    <button class="carousel-btn right-4" onclick="nextSlide()">
-                        <i class="fas fa-chevron-right text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
+        <!-- Sección Informativa -->
         <section id="about" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 text-center">
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">¿Cómo funciona Shop Delivery Nic?</h2>
@@ -250,7 +178,7 @@
                     <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
                         <div class="step-icon"><i class="fas fa-list-ol"></i></div>
                         <h3 class="text-xl font-bold text-gray-800 mb-2">1. Envía tu Lista</h3>
-                        <p class="text-gray-600 text-sm">Regístrate y escribe qué productos necesitas de Walmart o PriceSmart. Puedes detallar marcas y cantidades.</p>
+                        <p class="text-gray-600 text-sm">Regístrate y escribe qué productos necesitas de PriceSmart. Puedes detallar marcas y cantidades.</p>
                     </div>
                     <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
                         <div class="step-icon"><i class="fas fa-shopping-basket"></i></div>
@@ -266,6 +194,7 @@
             </div>
         </section>
 
+        <!-- Beneficios -->
         <section class="py-16 bg-brand-gray">
             <div class="max-w-7xl mx-auto px-4">
                 <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -302,6 +231,7 @@
             </div>
         </section>
 
+        <!-- Información de Contacto -->
         <section id="contact" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 text-center">
                 <h2 class="text-3xl font-bold text-gray-800 mb-12">Contáctanos</h2>
@@ -337,6 +267,7 @@
         </section>
     </div>
 
+    <!-- VISTA: TARIFAS -->
     <div id="view-pricing" class="view-section hidden flex-grow py-16 bg-brand-gray">
         <div class="max-w-5xl mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold text-gray-800 mb-2">Tarifas de Envío</h2>
@@ -370,6 +301,7 @@
         </div>
     </div>
 
+    <!-- VISTA: AUTENTICACIÓN -->
     <div id="view-auth" class="view-section hidden pt-20 pb-20 bg-gray-100 flex-grow">
         <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg m-4">
             <h2 id="authTitle" class="text-2xl font-bold text-center mb-6 text-brand-green">Iniciar Sesión</h2>
@@ -383,9 +315,6 @@
                     <input class="shadow border rounded w-full py-2 px-3 text-gray-700 mb-3 focus:outline-none focus:border-brand-green" id="password" type="password" required placeholder="********">
                     <p id="passwordHelp" class="hidden text-xs text-gray-500 mt-1">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
                 </div>
-
-                <div class="cf-turnstile mb-4 flex justify-center" data-sitekey="0x4AAAAAACXbc62TDsPPe09R" data-theme="light"></div>
-
                 <div id="authError" class="hidden text-red-500 text-sm mb-4 text-center"></div>
                 <div id="authSuccess" class="hidden text-green-500 text-sm mb-4 text-center"></div>
                 
@@ -399,6 +328,7 @@
         </div>
     </div>
 
+    <!-- VISTA: NUEVO PEDIDO (ORIGINAL) -->
     <div id="view-create-order" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-3xl mx-auto px-4">
             
@@ -407,6 +337,10 @@
                     <h2 class="text-3xl font-bold text-gray-800">Crear Nueva Orden</h2>
                     <p class="text-gray-500 text-sm">Código Cliente: <span id="orderClientCodeDisplay" class="font-mono font-bold text-brand-green">---</span></p>
                 </div>
+                <!-- BOTÓN DE ACCESO EXTERNO A PRICESMART (NUEVO) -->
+                <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="bg-white border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition shadow-sm flex items-center">
+                    <i class="fas fa-external-link-alt mr-2"></i> Abrir PriceSmart.com
+                </a>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm relative">
@@ -471,7 +405,8 @@
                     <div class="mb-6">
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Lista de Compras</label>
                         <div class="mb-2">
-                            <label class="block text-gray-600 text-xs mb-1">¿Tienes tu lista en papel? Sube fotos (Máx 5)</label>
+                            <label class="block text-gray-600 text-xs mb-1">¿Tienes tu lista en papel? Sube fotos (Máximo 10)</label>
+                            <!-- Input múltiple restaurado -->
                             <input type="file" id="listImage" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-brand-green hover:file:bg-green-100 cursor-pointer border rounded-lg p-1">
                         </div>
                         <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
@@ -490,6 +425,7 @@
         </div>
     </div>
 
+    <!-- VISTA: HISTORIAL DE PEDIDOS -->
     <div id="view-orders" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-4xl mx-auto px-4">
             <div class="flex justify-between items-center mb-6">
@@ -505,6 +441,7 @@
         </div>
     </div>
 
+    <!-- VISTA: PERFIL USUARIO -->
     <div id="view-profile" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-3xl mx-auto px-4">
             
@@ -595,6 +532,7 @@
         </div>
     </div>
 
+    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-8 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <div class="flex items-center justify-center mb-4">
@@ -607,6 +545,7 @@
         </div>
     </footer>
 
+    <!-- LÓGICA JAVASCRIPT FINAL -->
     <script>
         const CONFIG = {
             SUPABASE_URL: "https://dltpvajfltfzayhomufx.supabase.co", 
@@ -623,11 +562,9 @@
         let currentUser = null;
         let isLoginMode = true;
         let currentOrders = [];
-        let carouselInterval = null;
 
         function initApp() {
             updateNav(false); 
-            startCarousel();
 
             try {
                 supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
@@ -658,7 +595,7 @@
         }
 
         // --- FUNCIÓN PARA ENVIAR CORREO VÍA PUENTE GOOGLE ---
-        async function sendOrderEmail(orderData, pdfBase64, imagesData, clientEmail) {
+        async function sendOrderEmail(orderData, pdfBase64, imageAttachments, clientEmail) {
             const payload = {
                 name: orderData.name,
                 phone: orderData.phone,
@@ -666,7 +603,7 @@
                 address: orderData.address,
                 list: orderData.list,
                 pdfBase64: pdfBase64.split(',')[1], 
-                images: imagesData, // Array de objetos {name, type, base64}
+                images: imageAttachments, // Enviamos el array de imágenes
                 clientEmail: clientEmail 
             };
             
@@ -679,6 +616,41 @@
             });
             
             return true;
+        }
+
+        // --- NUEVA LÓGICA: COMPRESIÓN DE IMÁGENES ---
+        // Esto reduce el tamaño de las fotos antes de subirlas
+        const processAndCompressImage = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width;
+                        let height = img.height;
+                        
+                        // Redimensionar si es mayor a 1000px (Suficiente para leer una lista)
+                        const MAX_SIZE = 1000;
+                        if (width > height) {
+                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
+                        } else {
+                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        // Comprimir a JPEG calidad 0.7
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
+                    };
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
         }
 
         // --- GENERADOR DE PDF ---
@@ -724,47 +696,40 @@
             const manualList = document.getElementById('orderList').value;
             const specialReq = document.getElementById('specialRequests').value;
 
-            // Procesar Imagenes (Multiple)
+            // Procesar Múltiples Imágenes con Redimensión
             const imageInput = document.getElementById('listImage');
-            
-            // Validacion de cantidad
-            if (imageInput.files.length > 5) {
-                alert("Solo puedes subir un máximo de 5 imágenes.");
-                document.getElementById('sendingOverlay').classList.add('hidden');
-                return;
-            }
-
-            let imagesData = [];
+            let imageAttachments = [];
             
             if (imageInput.files && imageInput.files.length > 0) {
-                try {
-                    // Creamos promesas para leer todos los archivos
-                    const promises = Array.from(imageInput.files).map(file => {
-                        return new Promise((resolve, reject) => {
-                            const reader = new FileReader();
-                            reader.onload = (e) => resolve({
-                                name: file.name,
-                                type: file.type,
-                                // Guardamos solo la parte base64 sin el encabezado
-                                base64: e.target.result.split(',')[1] 
-                            });
-                            reader.onerror = reject;
-                            reader.readAsDataURL(file);
+                if (imageInput.files.length > 10) {
+                    alert("Solo puedes subir un máximo de 10 imágenes.");
+                    document.getElementById('sendingOverlay').classList.add('hidden');
+                    return;
+                }
+
+                // Actualizar UI para indicar proceso
+                document.querySelector('#sendingOverlay p').innerText = "Comprimiendo imágenes...";
+
+                for (let i = 0; i < imageInput.files.length; i++) {
+                    const file = imageInput.files[i];
+                    try {
+                        // Usar la nueva función que comprime
+                        const base64Content = await processAndCompressImage(file);
+                        imageAttachments.push({
+                            base64: base64Content.split(',')[1],
+                            type: "image/jpeg", // Siempre convertimos a JPEG
+                            name: `Foto_Lista_${i + 1}.jpg`
                         });
-                    });
-                    
-                    imagesData = await Promise.all(promises);
-                    
-                } catch (err) {
-                    console.error("Error leyendo imágenes", err);
-                    alert("Error procesando las imágenes. Se enviará sin ellas.");
+                    } catch (err) {
+                        console.error(`Error procesando imagen ${i}`, err);
+                    }
                 }
             }
 
             let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
             if (companionCheck && isGranada) fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99) **\n`;
             fullList += `COMISIÓN: 1.50% Aceptada\n\n`;
-            if (imagesData.length > 0) fullList += `** [IMÁGENES ADJUNTAS] El cliente ha subido ${imagesData.length} foto(s) de su lista. **\n\n`;
+            if (imageAttachments.length > 0) fullList += `** [IMÁGENES ADJUNTAS] El cliente ha subido ${imageAttachments.length} foto(s). **\n\n`;
             fullList += `LISTA (TEXTO):\n${manualList}\n\n`;
             if(specialReq) fullList += `NOTAS:\n${specialReq}`;
 
@@ -791,11 +756,12 @@
                 if (error) throw error;
 
                 // 2. Enviar Correo (Al Cliente y Copia Oculta al Admin)
+                document.querySelector('#sendingOverlay p').innerText = "Enviando correo...";
                 const pdfBase64 = generateOrderPDF(orderFormObj);
                 const userEmail = currentUser.email; 
                 
-                // Pasamos el array de imágenes
-                await sendOrderEmail(orderFormObj, pdfBase64, imagesData, userEmail);
+                // Pasamos el array de imágenes a la función de envío
+                await sendOrderEmail(orderFormObj, pdfBase64, imageAttachments, userEmail);
 
                 alert("¡Pedido enviado con éxito! Recibirás confirmación en tu correo.");
                 document.getElementById('orderForm').reset();
@@ -805,28 +771,8 @@
                 alert("Hubo un problema al procesar el pedido: " + (err.message || "Intenta de nuevo")); 
             } finally { 
                 document.getElementById('sendingOverlay').classList.add('hidden'); 
+                document.querySelector('#sendingOverlay p').innerText = "Procesando y enviando...";
             }
-        }
-
-        // --- CARRUSEL ---
-        let currentSlide = 0;
-        function showSlide(index) {
-            const slides = document.querySelectorAll('.carousel-slide');
-            if(slides.length === 0) return;
-            if (index >= slides.length) currentSlide = 0;
-            else if (index < 0) currentSlide = slides.length - 1;
-            else currentSlide = index;
-            slides.forEach((slide) => { slide.classList.remove('active'); slide.style.opacity = 0; });
-            slides[currentSlide].classList.add('active');
-            slides[currentSlide].style.opacity = 1;
-        }
-        function nextSlide() { showSlide(currentSlide + 1); resetTimer(); }
-        function prevSlide() { showSlide(currentSlide - 1); resetTimer(); }
-        function resetTimer() { clearInterval(carouselInterval); carouselInterval = setInterval(nextSlide, 5000); }
-        function startCarousel() {
-            const slides = document.querySelectorAll('.carousel-slide');
-            if(slides.length > 0) { slides[0].classList.add('active'); slides[0].style.opacity = 1; }
-            resetTimer();
         }
 
         // --- UI & Navegación ---
@@ -1046,80 +992,24 @@
                 passwordHelp.classList.remove('hidden');
             }
         }
-        
-        // --- FUNCIÓN DE REGISTRO CON REDIRECCIÓN FORZADA (SOLUCIÓN GITHUB PAGES) ---
         async function signup() {
-            const em = document.getElementById('email').value; 
-            const pw = document.getElementById('password').value;
-            
+            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
             if (!em || !pw) return;
-            
-            // 1. Obtener el token del Captcha del formulario
-            const formData = new FormData(document.getElementById('authForm'));
-            const captchaToken = formData.get('cf-turnstile-response');
-
-            // 2. Verificar Captcha
-            if (!captchaToken) {
-                const err = document.getElementById('authError');
-                err.innerText = "Por favor, completa la verificación de seguridad (Captcha).";
-                err.classList.remove('hidden');
-                return;
-            }
-
             if (!PASSWORD_REGEX.test(pw)) {
                 const err = document.getElementById('authError');
                 err.innerText = "La contraseña debe tener 8+ caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).";
                 err.classList.remove('hidden');
                 return;
             }
-            
-            // 3. Enviar a Supabase CON redirección explícita a tu index.html
-            const { data, error } = await supabaseClient.auth.signUp({ 
-                email: em, 
-                password: pw,
-                options: {
-                    captchaToken: captchaToken,
-                    // ESTA LÍNEA ES LA QUE SOLUCIONA EL 404
-                    emailRedirectTo: 'https://ddsm14-code.github.io/Shop-Delivery-Nic/index.html'
-                }
-            });
-
-            if (error) { 
-                document.getElementById('authError').innerText = error.message; 
-                document.getElementById('authError').classList.remove('hidden'); 
-            } else { 
-                document.getElementById('authSuccess').innerText = "¡Registro exitoso! Revisa tu correo (mira en Spam si no aparece)."; 
-                document.getElementById('authSuccess').classList.remove('hidden'); 
-            }
+            const { data, error } = await supabaseClient.auth.signUp({ email: em, password: pw });
+            if (error) { document.getElementById('authError').innerText = error.message; document.getElementById('authError').classList.remove('hidden'); }
+            else { document.getElementById('authSuccess').innerText = "¡Registro exitoso! Entra ahora."; document.getElementById('authSuccess').classList.remove('hidden'); if (data.session) { currentUser = data.session.user; showView('create-order'); } }
         }
-        
         async function login() {
             const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
-            
-            // 1. Obtener Token Captcha TAMBIÉN para login
-            const formData = new FormData(document.getElementById('authForm'));
-            const captchaToken = formData.get('cf-turnstile-response');
-
-            // 2. Enviar con Token para satisfacer la seguridad de Supabase
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ 
-                email: em, 
-                password: pw,
-                options: { captchaToken: captchaToken }
-            });
-
-            if (error) { 
-                console.error("Login error:", error);
-                let msg = error.message;
-                if(msg.includes("Invalid login credentials")) msg = "Correo o contraseña incorrectos.";
-                if(msg.includes("Email not confirmed")) msg = "Debes confirmar tu correo electrónico antes de entrar. Revisa tu bandeja.";
-                if(msg.includes("Captcha")) msg = "Error de seguridad (Captcha). Recarga la página e intenta de nuevo.";
-                
-                document.getElementById('authError').innerText = msg; 
-                document.getElementById('authError').classList.remove('hidden'); 
-            } else { 
-                currentUser = data.session.user; 
-                showView('create-order'); 
-            }
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email: em, password: pw });
+            if (error) { document.getElementById('authError').innerText = "Credenciales incorrectas."; document.getElementById('authError').classList.remove('hidden'); }
+            else { currentUser = data.session.user; showView('create-order'); }
         }
         async function logout() { await supabaseClient.auth.signOut(); window.location.reload(); }
 
