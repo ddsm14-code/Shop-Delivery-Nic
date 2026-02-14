@@ -5,23 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Delivery Nic - Tu Supermercado en Casa</title>
     
-    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Supabase JS Library -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-    <!-- Cloudflare Turnstile (CAPTCHA) -->
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
 
-    <!-- jsPDF & AutoTable -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     
-    <!-- Iconos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Configuración de colores -->
     <script>
         tailwind.config = {
             theme: {
@@ -101,57 +95,10 @@
             font-size: 1.5rem;
             margin: 0 auto 1rem;
         }
-
-        /* Estilos para el Carrusel */
-        .carousel-container {
-            position: relative;
-            overflow: hidden;
-            height: 500px; 
-            background-color: #1a1a1a; 
-        }
-        .carousel-slide {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0;
-            transition: opacity 0.8s ease-in-out;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1;
-        }
-        .carousel-slide.active {
-            opacity: 1;
-            z-index: 10;
-        }
-        .carousel-img {
-            max-width: 100%;
-            max-height: 100%;
-            object-fit: contain; 
-        }
-        .carousel-btn {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: rgba(255, 255, 255, 0.3);
-            color: white;
-            padding: 1rem;
-            border-radius: 9999px;
-            cursor: pointer;
-            z-index: 20; 
-            transition: all 0.3s;
-        }
-        .carousel-btn:hover {
-            background-color: rgba(255, 255, 255, 0.8);
-            color: #1f2937;
-        }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
-    <!-- Navegación -->
     <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
@@ -168,7 +115,6 @@
                 
                 <div class="hidden md:flex space-x-6 items-center flex-grow justify-center">
                     <button onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium">Inicio</button>
-                    <!-- ENLACE DIRECTO A PRICESMART -->
                     <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="text-gray-600 hover:text-brand-green font-medium flex items-center">
                         <i class="fas fa-external-link-alt mr-1"></i> Ir a PriceSmart
                     </a>
@@ -198,9 +144,7 @@
         </div>
     </nav>
 
-    <!-- VISTA: INICIO -->
     <div id="view-home" class="view-section flex-grow">
-        <!-- Hero Section -->
         <div class="relative h-[550px] flex items-center justify-center text-center hero-pattern text-white">
             <div class="absolute inset-0 hero-overlay"></div>
             <div class="relative z-10 px-4 max-w-4xl">
@@ -217,51 +161,6 @@
             </div>
         </div>
 
-        <!-- SECCIÓN: GALERÍA CARRUSEL -->
-        <section class="bg-white pt-8 pb-4">
-            <div class="max-w-7xl mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6">Productos Populares</h2>
-            </div>
-            <div class="max-w-5xl mx-auto px-4">
-                <div class="carousel-container rounded-xl shadow-2xl relative group">
-                    
-                    <!-- Slide 1 -->
-                    <div class="carousel-slide active">
-                        <img src="https://scontent.fmga11-2.fna.fbcdn.net/v/t39.30808-6/626643657_25621939290782080_1734958348227725339_n.jpg?_nc_cat=106&ccb=1-7&_nc_sid=127cfc&_nc_ohc=1OYdj5j8RYYQ7kNvwFTT41J&_nc_oc=AdkfmJBsbUPr08TQdO7RplsYA7MfVWJgZh9qYMsbVmw9nflc3tOU3k_ZgI2nS6vkcVfbIL3SfEBVjDVR4U6GPYOy&_nc_zt=23&_nc_ht=scontent.fmga11-2.fna&_nc_gid=ugM_aTKaqFl_VDmceTj3Vw&oh=00_AftXE49wrqd930oVbjyvzDFU_0VYr1VpozqPoJvMUUpF9g&oe=6985F1CA" class="carousel-img" alt="Producto 1">
-                    </div>
-                    
-                    <!-- Slide 2 -->
-                    <div class="carousel-slide">
-                        <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627145422_25621953257447350_7008384717410034584_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=127cfc&_nc_ohc=k0wu6JrdXC0Q7kNvwF_Gi8Q&_nc_oc=AdmGtjATGDDQsjE5_WxCo-Nr5nv834Ty4r_ElVF_fwz8eHfhAmWoUFHr1sSVvKbUfuLeKs79CIO3Kn67YD_gvznn&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=1KDXZHhbWRAvuAcWYxXb5Q&oh=00_AfuvskX0KAsbQaAmic6HSnXKYYY6wLXlGHDBgonN9yo9lQ&oe=6985F509" class="carousel-img" alt="Producto 2">
-                    </div>
-
-                    <!-- Slide 3 -->
-                    <div class="carousel-slide">
-                        <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627184355_25621960950779914_7389725803311426778_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=n9MT2xaB-XwQ7kNvwHsyVUh&_nc_oc=AdnUyff9UaBdgpS6P9tD_lIgcMHphe9L82I4nPffy2kn5p61srlG2_f6my_lHHJmoSZPQ0SBaxl5B5O1rd4BmOL3&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=9RkBuJCgU_W-ode9ZCPUNw&oh=00_AftiXDzdokZNp5OY09U608rZCfhw3FpIqgI7yZ8urU0Qqg&oe=6985DCE1" class="carousel-img" alt="Producto 3">
-                    </div>
-
-                    <!-- Slide 4 -->
-                    <div class="carousel-slide">
-                        <img src="https://scontent.fmga11-2.fna.fbcdn.net/v/t39.30808-6/626886935_25621971240778885_4681874634737483407_n.jpg?_nc_cat=110&ccb=1-7&_nc_sid=127cfc&_nc_ohc=Zk4dpUFKJS4Q7kNvwGQQIar&_nc_oc=AdkUCqSzLIKd8KRzkgX299-SNCKUu-qkBXvKEmveXmY4_i9QmLzJKLQERvq4l5ixupipI_Xn-hOmEq999jVTUQCd&_nc_zt=23&_nc_ht=scontent.fmga11-2.fna&_nc_gid=kXuztfxis0kH5P1QsgEaQw&oh=00_AfvIL-qCzzYJ4AxAylU-H7qfPgYjnIQOdy2dOVf8BGOdMA&oe=6985FB5C" class="carousel-img" alt="Producto 4">
-                    </div>
-
-                    <!-- Slide 5 -->
-                    <div class="carousel-slide">
-                        <img src="https://scontent.fmga3-2.fna.fbcdn.net/v/t39.30808-6/627035391_25621977694111573_660820740685578265_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=127cfc&_nc_ohc=KHBJCEBAAh4Q7kNvwHPfJK1&_nc_oc=Adk38CLobgljFgHol5d9XmKpURsglO1bVb750tEZ52l28-NBHSCJuQr4kS-KiMDFPPnMhp0i8Smd8eBX-G6IsDDM&_nc_zt=23&_nc_ht=scontent.fmga3-2.fna&_nc_gid=cEipVaw4remTEYoKeIrWaQ&oh=00_Afs3c0jUetkhuMrOtFdDDEQArUnttREC2Bo662Rz0AY8zA&oe=698609C0" class="carousel-img" alt="Producto 5">
-                    </div>
-
-                    <!-- Controles Flechas -->
-                    <button class="carousel-btn left-4" onclick="prevSlide()">
-                        <i class="fas fa-chevron-left text-2xl"></i>
-                    </button>
-                    <button class="carousel-btn right-4" onclick="nextSlide()">
-                        <i class="fas fa-chevron-right text-2xl"></i>
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- Sección Informativa -->
         <section id="about" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 text-center">
                 <h2 class="text-3xl font-bold text-gray-800 mb-4">¿Cómo funciona Shop Delivery Nic?</h2>
@@ -287,7 +186,6 @@
             </div>
         </section>
 
-        <!-- Beneficios -->
         <section class="py-16 bg-brand-gray">
             <div class="max-w-7xl mx-auto px-4">
                 <div class="grid md:grid-cols-2 gap-12 items-center">
@@ -324,7 +222,6 @@
             </div>
         </section>
 
-        <!-- Información de Contacto -->
         <section id="contact" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 text-center">
                 <h2 class="text-3xl font-bold text-gray-800 mb-12">Contáctanos</h2>
@@ -360,7 +257,6 @@
         </section>
     </div>
 
-    <!-- VISTA: TARIFAS -->
     <div id="view-pricing" class="view-section hidden flex-grow py-16 bg-brand-gray">
         <div class="max-w-5xl mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold text-gray-800 mb-2">Tarifas de Envío</h2>
@@ -394,7 +290,6 @@
         </div>
     </div>
 
-    <!-- VISTA: AUTENTICACIÓN -->
     <div id="view-auth" class="view-section hidden pt-20 pb-20 bg-gray-100 flex-grow">
         <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg m-4">
             <h2 id="authTitle" class="text-2xl font-bold text-center mb-6 text-brand-green">Iniciar Sesión</h2>
@@ -409,7 +304,6 @@
                     <p id="passwordHelp" class="hidden text-xs text-gray-500 mt-1">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
                 </div>
 
-                <!-- WIDGET DE CAPTCHA CLOUDFLARE -->
                 <div class="cf-turnstile mb-4" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
 
                 <div id="authError" class="hidden text-red-500 text-sm mb-4 text-center"></div>
@@ -425,7 +319,6 @@
         </div>
     </div>
 
-    <!-- VISTA: NUEVO PEDIDO (ORIGINAL) -->
     <div id="view-create-order" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-3xl mx-auto px-4">
             
@@ -434,7 +327,6 @@
                     <h2 class="text-3xl font-bold text-gray-800">Crear Nueva Orden</h2>
                     <p class="text-gray-500 text-sm">Código Cliente: <span id="orderClientCodeDisplay" class="font-mono font-bold text-brand-green">---</span></p>
                 </div>
-                <!-- BOTÓN DE ACCESO EXTERNO A PRICESMART (NUEVO) -->
                 <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="bg-white border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition shadow-sm flex items-center">
                     <i class="fas fa-external-link-alt mr-2"></i> Abrir PriceSmart.com
                 </a>
@@ -503,7 +395,6 @@
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Lista de Compras</label>
                         <div class="mb-2">
                             <label class="block text-gray-600 text-xs mb-1">¿Tienes tu lista en papel? Sube fotos (Máximo 10)</label>
-                            <!-- Input múltiple restaurado -->
                             <input type="file" id="listImage" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-brand-green hover:file:bg-green-100 cursor-pointer border rounded-lg p-1">
                         </div>
                         <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
@@ -522,7 +413,6 @@
         </div>
     </div>
 
-    <!-- VISTA: HISTORIAL DE PEDIDOS -->
     <div id="view-orders" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-4xl mx-auto px-4">
             <div class="flex justify-between items-center mb-6">
@@ -538,7 +428,6 @@
         </div>
     </div>
 
-    <!-- VISTA: PERFIL USUARIO -->
     <div id="view-profile" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-3xl mx-auto px-4">
             
@@ -629,7 +518,6 @@
         </div>
     </div>
 
-    <!-- Footer -->
     <footer class="bg-gray-800 text-white py-8 mt-auto">
         <div class="max-w-7xl mx-auto px-4 text-center">
             <div class="flex items-center justify-center mb-4">
@@ -642,7 +530,6 @@
         </div>
     </footer>
 
-    <!-- LÓGICA JAVASCRIPT FINAL -->
     <script>
         const CONFIG = {
             SUPABASE_URL: "https://dltpvajfltfzayhomufx.supabase.co", 
@@ -659,11 +546,9 @@
         let currentUser = null;
         let isLoginMode = true;
         let currentOrders = [];
-        let carouselInterval = null;
 
         function initApp() {
             updateNav(false); 
-            startCarousel();
 
             try {
                 supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
@@ -872,27 +757,6 @@
                 document.getElementById('sendingOverlay').classList.add('hidden'); 
                 document.querySelector('#sendingOverlay p').innerText = "Procesando y enviando...";
             }
-        }
-
-        // --- CARRUSEL ---
-        let currentSlide = 0;
-        function showSlide(index) {
-            const slides = document.querySelectorAll('.carousel-slide');
-            if(slides.length === 0) return;
-            if (index >= slides.length) currentSlide = 0;
-            else if (index < 0) currentSlide = slides.length - 1;
-            else currentSlide = index;
-            slides.forEach((slide) => { slide.classList.remove('active'); slide.style.opacity = 0; });
-            slides[currentSlide].classList.add('active');
-            slides[currentSlide].style.opacity = 1;
-        }
-        function nextSlide() { showSlide(currentSlide + 1); resetTimer(); }
-        function prevSlide() { showSlide(currentSlide - 1); resetTimer(); }
-        function resetTimer() { clearInterval(carouselInterval); carouselInterval = setInterval(nextSlide, 5000); }
-        function startCarousel() {
-            const slides = document.querySelectorAll('.carousel-slide');
-            if(slides.length > 0) { slides[0].classList.add('active'); slides[0].style.opacity = 1; }
-            resetTimer();
         }
 
         // --- UI & Navegación ---
