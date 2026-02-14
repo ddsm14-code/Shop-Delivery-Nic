@@ -328,6 +328,21 @@
                         </div>
                     </div>
 
+                    <div id="standardServiceNotice" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-bold text-yellow-800" data-i18n="notice_payment_title">Política de Servicio Estándar</h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p class="mb-1" data-i18n="notice_payment_desc">Para compras realizadas por nosotros, se requiere el 100% de anticipo.</p>
+                                    <p class="font-semibold" data-i18n="notice_schedule_desc">Cierre de pedidos: Jueves 11:00 PM CST. Día de compras: Viernes.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
@@ -381,7 +396,14 @@
                         <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_list">Lista de Compras</label>
                         <div class="mb-2">
                             <label class="block text-gray-600 text-xs mb-1" data-i18n="upload_label">¿Tienes tu lista en papel? Sube fotos (Máximo 10)</label>
-                            <input type="file" id="listImage" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-brand-green hover:file:bg-green-100 cursor-pointer border rounded-lg p-1">
+                            
+                            <div class="flex items-center space-x-3">
+                                <label for="listImage" class="cursor-pointer bg-green-50 text-brand-green px-4 py-2 rounded-lg font-bold text-sm hover:bg-green-100 transition border border-green-100 flex items-center">
+                                    <i class="fas fa-camera mr-2"></i> <span id="fileBtnText" data-i18n="btn_choose_files">Subir Fotos</span>
+                                </label>
+                                <span id="fileCount" class="text-xs text-gray-500 italic"></span>
+                            </div>
+                            <input type="file" id="listImage" accept="image/*" multiple class="hidden" onchange="updateFileCount()">
                         </div>
                         <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." data-i18n-placeholder="placeholder_list" class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
                     </div>
@@ -617,11 +639,18 @@
                 placeholder_address: "Barrio, calle, número de casa...",
                 label_list: "Lista de Compras",
                 upload_label: "¿Tienes tu lista en papel? Sube fotos (Máximo 10)",
+                btn_choose_files: "Subir Fotos",
+                files_selected: "archivos",
+                no_files_selected: "",
                 placeholder_list: "Escribe aquí tu lista detallada (Producto, Marca, Cantidad)...",
                 label_comments: "Comentarios / Special Requests",
                 placeholder_comments: "Ej: Llamar antes de llegar, producto sustituto si no hay...",
                 btn_send_order: "Enviar Pedido",
                 
+                notice_payment_title: "Política de Servicio Estándar",
+                notice_payment_desc: "Para compras realizadas por nosotros, se requiere el 100% de anticipo.",
+                notice_schedule_desc: "Cierre de pedidos: Jueves 11:00 PM CST. Día de compras: Viernes.",
+
                 my_orders_title: "Mis Pedidos",
                 btn_download_pdf: "Descargar Historial PDF",
                 loading: "Cargando...",
@@ -651,8 +680,21 @@
                 companion_service: "(Servicio Acompañante)",
                 alert_order_success: "¡Pedido enviado con éxito! Recibirás confirmación en tu correo.",
                 alert_profile_success: "Perfil actualizado correctamente.",
+                
+                // PDF Headers
                 pdf_title: "ORDEN DE COMPRA",
-                pdf_history_title: "Shop Delivery Nic - Historial de Compras"
+                pdf_history_title: "Shop Delivery Nic - Historial de Compras",
+                pdf_col_date: "Fecha",
+                pdf_col_id: "ID",
+                pdf_col_zone: "Zona",
+                pdf_col_status: "Estado",
+                pdf_col_summary: "Resumen",
+                pdf_col_phone: "Teléfono",
+                pdf_col_address: "Dirección",
+                status_pending: "Pendiente",
+                status_onway: "En camino",
+                status_delivered: "Entregado",
+                status_cancelled: "Cancelado"
             },
             en: {
                 nav_home: "Home",
@@ -737,11 +779,18 @@
                 placeholder_address: "Neighborhood, street, house number...",
                 label_list: "Shopping List",
                 upload_label: "Have a paper list? Upload photos (Max 10)",
+                btn_choose_files: "Upload Photos",
+                files_selected: "files",
+                no_files_selected: "",
                 placeholder_list: "Type your detailed list here (Product, Brand, Quantity)...",
                 label_comments: "Comments / Special Requests",
                 placeholder_comments: "Ex: Call before arriving, substitute product if missing...",
                 btn_send_order: "Send Order",
                 
+                notice_payment_title: "Standard Service Policy",
+                notice_payment_desc: "For shopping done by us, 100% prepayment is required.",
+                notice_schedule_desc: "Order Cut-off: Thursday 11:00 PM CST. Shopping Day: Friday.",
+
                 my_orders_title: "My Orders",
                 btn_download_pdf: "Download History PDF",
                 loading: "Loading...",
@@ -771,8 +820,21 @@
                 companion_service: "(Companion Service)",
                 alert_order_success: "Order sent successfully! You will receive confirmation via email.",
                 alert_profile_success: "Profile updated successfully.",
+
+                // PDF Headers
                 pdf_title: "PURCHASE ORDER",
-                pdf_history_title: "Shop Delivery Nic - Purchase History"
+                pdf_history_title: "Shop Delivery Nic - Purchase History",
+                pdf_col_date: "Date",
+                pdf_col_id: "ID",
+                pdf_col_zone: "Zone",
+                pdf_col_status: "Status",
+                pdf_col_summary: "Summary",
+                pdf_col_phone: "Phone",
+                pdf_col_address: "Address",
+                status_pending: "Pending",
+                status_onway: "On way",
+                status_delivered: "Delivered",
+                status_cancelled: "Cancelled"
             }
         };
 
@@ -830,15 +892,26 @@
                 if (translations[lang][key]) el.placeholder = translations[lang][key];
             });
             
-            // Actualizar textos dinámicos si es necesario
             updateEstimatedFee();
+            updateFileCount(); // Actualizar texto del botón de archivo
             
-            // Re-render auth form text logic
             const authTitle = document.getElementById('authTitle');
             if (authTitle.innerText !== "") renderAuthForm(); 
 
-            // Re-render Nav if logged in/out to update texts
             updateNav(currentUser !== null);
+        }
+
+        // --- MANEJO DE INPUT DE ARCHIVO PERSONALIZADO ---
+        function updateFileCount() {
+            const input = document.getElementById('listImage');
+            const display = document.getElementById('fileCount');
+            const t = translations[currentLang];
+            
+            if (input.files && input.files.length > 0) {
+                display.innerText = `${input.files.length} ${t.files_selected}`;
+            } else {
+                display.innerText = "";
+            }
         }
 
         // --- FUNCIÓN PARA ENVIAR CORREO VÍA PUENTE GOOGLE ---
@@ -998,6 +1071,8 @@
                 alert(t.alert_order_success);
                 document.getElementById('orderForm').reset();
                 document.getElementById('clickGoCheck').checked = false;
+                // Reset file button text
+                document.getElementById('fileCount').innerText = ""; 
                 toggleClickGo();
                 showView('orders'); 
             } catch (err) { 
@@ -1199,13 +1274,51 @@
             doc.setTextColor(255, 255, 255); doc.setFontSize(18); doc.text(t.pdf_history_title, 14, 20);
             doc.setTextColor(0,0,0); doc.setFontSize(10);
             doc.text(`${currentLang === 'es' ? 'Cliente' : 'Client'}: ${currentUser.email}`, 14, 40); doc.text(`${currentLang === 'es' ? 'Fecha' : 'Date'}: ${new Date().toLocaleDateString()}`, 14, 45);
+            
             const tableBody = currentOrders.map(order => {
                 const date = new Date(order.created_at).toLocaleDateString();
                 let listPreview = order.shopping_list.length > 30 ? order.shopping_list.substring(0, 30) + "..." : order.shopping_list;
-                return [date, order.id.slice(0,8), order.delivery_zone, order.status.toUpperCase(), listPreview];
+                
+                // Traducir estado
+                let statusTrans = order.status;
+                if(order.status === 'pendiente') statusTrans = t.status_pending;
+                if(order.status === 'en camino') statusTrans = t.status_onway;
+                if(order.status === 'entregado') statusTrans = t.status_delivered;
+                if(order.status === 'cancelado') statusTrans = t.status_cancelled;
+
+                return [
+                    date, 
+                    order.id.slice(0,8), 
+                    order.delivery_zone, 
+                    statusTrans.toUpperCase(), 
+                    order.phone,
+                    order.delivery_address, 
+                    listPreview
+                ];
             });
-            const headers = currentLang === 'es' ? [['Fecha', 'ID', 'Zona', 'Estado', 'Resumen']] : [['Date', 'ID', 'Zone', 'Status', 'Summary']];
-            doc.autoTable({ head: headers, body: tableBody, startY: 50, theme: 'grid', headStyles: { fillColor: [10, 173, 10] }, styles: { fontSize: 8 } });
+            
+            // Encabezados traducidos
+            const headers = [[
+                t.pdf_col_date, 
+                t.pdf_col_id, 
+                t.pdf_col_zone, 
+                t.pdf_col_status,
+                t.pdf_col_phone,
+                t.pdf_col_address,
+                t.pdf_col_summary
+            ]];
+            
+            doc.autoTable({ 
+                head: headers, 
+                body: tableBody, 
+                startY: 50, 
+                theme: 'grid', 
+                headStyles: { fillColor: [10, 173, 10] }, 
+                styles: { fontSize: 7 },
+                columnStyles: {
+                    6: { cellWidth: 50 } // Columna resumen más ancha
+                }
+            });
             doc.save(`Historial_Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
         }
 
@@ -1297,11 +1410,15 @@
         function toggleClickGo() {
             const isChecked = document.getElementById('clickGoCheck').checked;
             const detailsDiv = document.getElementById('clickGoDetails');
+            const noticeDiv = document.getElementById('standardServiceNotice');
+            
             if (isChecked) {
                 detailsDiv.classList.remove('hidden');
+                noticeDiv.classList.add('hidden'); // Ocultar aviso de pago 100%
                 document.getElementById('memberId').required = true;
             } else {
                 detailsDiv.classList.add('hidden');
+                noticeDiv.classList.remove('hidden'); // Mostrar aviso
                 document.getElementById('memberId').required = false;
                 document.getElementById('memberId').value = '';
             }
