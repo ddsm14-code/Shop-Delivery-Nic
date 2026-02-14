@@ -50,50 +50,21 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        .file-upload-wrapper {
-            position: relative;
-            display: inline-block;
-        }
+        .file-upload-wrapper { position: relative; display: inline-block; }
         .file-upload-btn {
-            position: absolute;
-            bottom: 0;
-            right: 0;
-            background: #0AAD0A;
-            color: white;
-            border-radius: 50%;
-            width: 32px;
-            height: 32px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border: 2px solid white;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            position: absolute; bottom: 0; right: 0; background: #0AAD0A; color: white; border-radius: 50%; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
-        .order-card {
-            border-left: 4px solid transparent;
-            transition: all 0.3s ease;
-        }
-        .order-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
+        .order-card { border-left: 4px solid transparent; transition: all 0.3s ease; }
+        .order-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
         .status-pendiente { border-left-color: #fbbf24; }
         .status-en-camino { border-left-color: #3b82f6; }
         .status-entregado { border-left-color: #10b981; }
         .status-cancelado { border-left-color: #ef4444; }
         
         .step-icon {
-            width: 60px;
-            height: 60px;
-            background: #e6f4e6;
-            color: #0AAD0A;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            margin: 0 auto 1rem;
+            width: 60px; height: 60px; background: #e6f4e6; color: #0AAD0A; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1rem;
         }
     </style>
 </head>
@@ -114,16 +85,21 @@
                 </div>
                 
                 <div class="hidden md:flex space-x-6 items-center flex-grow justify-center">
-                    <button onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium">Inicio</button>
+                    <button onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium" data-i18n="nav_home">Inicio</button>
                     <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="text-gray-600 hover:text-brand-green font-medium flex items-center">
-                        <i class="fas fa-external-link-alt mr-1"></i> Ir a PriceSmart
+                        <i class="fas fa-external-link-alt mr-1"></i> <span data-i18n="nav_pricesmart">Ir a PriceSmart</span>
                     </a>
-                    <button onclick="showView('pricing')" class="text-gray-600 hover:text-brand-green font-medium">Tarifas</button>
-                    <a href="#contact" onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium">Contacto</a>
+                    <button onclick="showView('pricing')" class="text-gray-600 hover:text-brand-green font-medium" data-i18n="nav_pricing">Tarifas</button>
+                    <a href="#contact" onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium" data-i18n="nav_contact">Contacto</a>
                     <div id="navUserLinks" class="flex space-x-4"></div>
                 </div>
 
                 <div class="flex items-center space-x-2 md:space-x-4">
+                    <button onclick="toggleLanguage()" class="flex items-center space-x-1 px-2 py-1 border rounded hover:bg-gray-100 transition">
+                        <i class="fas fa-globe text-gray-500"></i>
+                        <span id="langDisplay" class="font-bold text-sm text-brand-green">ES</span>
+                    </button>
+
                     <div id="navAuthButtons" class="hidden md:flex items-center space-x-3"></div>
                     <div id="mobileHeaderAuth" class="md:hidden flex items-center"></div>
                     <div class="md:hidden flex items-center">
@@ -136,9 +112,9 @@
         </div>
 
         <div id="mobileMenu" class="hidden md:hidden bg-white border-t p-4 shadow-lg absolute w-full z-50">
-            <button onclick="showView('home'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100">Inicio</button>
-            <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="block py-3 text-brand-green font-bold w-full text-left border-b border-gray-100">Ir a PriceSmart <i class="fas fa-external-link-alt ml-1"></i></a>
-            <button onclick="showView('pricing'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100">Tarifas</button>
+            <button onclick="showView('home'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100" data-i18n="nav_home">Inicio</button>
+            <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="block py-3 text-brand-green font-bold w-full text-left border-b border-gray-100"><span data-i18n="nav_pricesmart">Ir a PriceSmart</span> <i class="fas fa-external-link-alt ml-1"></i></a>
+            <button onclick="showView('pricing'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100" data-i18n="nav_pricing">Tarifas</button>
             <div id="mobileUserLinks" class="my-2 pt-2"></div>
             <div id="mobileAuthButtons" class="mt-2 pt-2"></div>
         </div>
@@ -148,14 +124,14 @@
         <div class="relative h-[550px] flex items-center justify-center text-center hero-pattern text-white">
             <div class="absolute inset-0 hero-overlay"></div>
             <div class="relative z-10 px-4 max-w-4xl">
-                <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight">Hacemos tu Supermercado por ti</h1>
-                <p class="text-xl md:text-2xl mb-8 font-light text-green-50">Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.</p>
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight" data-i18n="hero_title">Compramos por ti</h1>
+                <p class="text-xl md:text-2xl mb-8 font-light text-green-50" data-i18n="hero_subtitle">Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <button onclick="checkAuthAndRedirect()" class="bg-brand-orange hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transition transform hover:scale-105">
-                        <i class="fas fa-shopping-cart mr-2"></i> Hacer mi Pedido
+                        <i class="fas fa-shopping-cart mr-2"></i> <span data-i18n="btn_order">Hacer mi Pedido</span>
                     </button>
                     <button onclick="showView('pricing')" class="bg-white text-brand-green hover:bg-gray-100 font-bold py-4 px-8 rounded-full text-lg shadow-lg transition transform hover:scale-105">
-                        <i class="fas fa-tag mr-2"></i> Ver Tarifas
+                        <i class="fas fa-tag mr-2"></i> <span data-i18n="btn_rates">Ver Tarifas</span>
                     </button>
                 </div>
             </div>
@@ -163,24 +139,24 @@
 
         <section id="about" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-4">¿Cómo funciona Shop Delivery Nic?</h2>
-                <p class="text-gray-600 max-w-2xl mx-auto mb-12">Somos tu asistente personal de compras. Olvídate del tráfico, las filas y el calor. Nosotros seleccionamos los mejores productos para ti.</p>
+                <h2 class="text-3xl font-bold text-gray-800 mb-4" data-i18n="about_title">¿Cómo funciona Shop Delivery Nic?</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto mb-12" data-i18n="about_desc">Somos tu asistente personal de compras. Olvídate del tráfico, las filas y el calor. Nosotros seleccionamos los mejores productos para ti.</p>
                 
                 <div class="grid md:grid-cols-3 gap-8">
                     <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
                         <div class="step-icon"><i class="fas fa-list-ol"></i></div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">1. Envía tu Lista</h3>
-                        <p class="text-gray-600 text-sm">Regístrate y escribe qué productos necesitas de PriceSmart. Puedes detallar marcas y cantidades.</p>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="step1_title">1. Envía tu Lista</h3>
+                        <p class="text-gray-600 text-sm" data-i18n="step1_desc">Regístrate y escribe qué productos necesitas de PriceSmart. Puedes detallar marcas y cantidades.</p>
                     </div>
                     <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
                         <div class="step-icon"><i class="fas fa-shopping-basket"></i></div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">2. Compramos por Ti</h3>
-                        <p class="text-gray-600 text-sm">Nuestro equipo va al supermercado y selecciona los mejores productos.</p>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="step2_title">2. Compramos por Ti</h3>
+                        <p class="text-gray-600 text-sm" data-i18n="step2_desc">Nuestro equipo va al supermercado y selecciona los mejores productos.</p>
                     </div>
                     <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
                         <div class="step-icon"><i class="fas fa-truck"></i></div>
-                        <h3 class="text-xl font-bold text-gray-800 mb-2">3. Recibe en Casa</h3>
-                        <p class="text-gray-600 text-sm">Llevamos todo hasta la puerta de tu hogar en Granada, Masaya, Managua y más.</p>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="step3_title">3. Recibe en Casa</h3>
+                        <p class="text-gray-600 text-sm" data-i18n="step3_desc">Llevamos todo hasta la puerta de tu hogar en Granada, Masaya, Managua y más.</p>
                     </div>
                 </div>
             </div>
@@ -190,27 +166,27 @@
             <div class="max-w-7xl mx-auto px-4">
                 <div class="grid md:grid-cols-2 gap-12 items-center">
                     <div>
-                        <h2 class="text-3xl font-bold text-gray-800 mb-6">¿Por qué elegirnos?</h2>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6" data-i18n="why_title">¿Por qué elegirnos?</h2>
                         <ul class="space-y-4">
                             <li class="flex items-start">
                                 <i class="fas fa-check-circle text-brand-green text-xl mr-3 mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-gray-800">Ahorra Tiempo y Combustible</h4>
-                                    <p class="text-gray-600 text-sm">No gastes horas en el tráfico ni en filas. Nosotros nos encargamos.</p>
+                                    <h4 class="font-bold text-gray-800" data-i18n="ben1_title">Ahorra Tiempo y Combustible</h4>
+                                    <p class="text-gray-600 text-sm" data-i18n="ben1_desc">No gastes horas en el tráfico ni en filas. Nosotros nos encargamos.</p>
                                 </div>
                             </li>
                             <li class="flex items-start">
                                 <i class="fas fa-check-circle text-brand-green text-xl mr-3 mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-gray-800">Sin Membresía Requerida</h4>
-                                    <p class="text-gray-600 text-sm">Compramos en PriceSmart por ti, no necesitas tener tu propia membresía.</p>
+                                    <h4 class="font-bold text-gray-800" data-i18n="ben2_title">Sin Membresía Requerida</h4>
+                                    <p class="text-gray-600 text-sm" data-i18n="ben2_desc">Compramos en PriceSmart por ti, no necesitas tener tu propia membresía.</p>
                                 </div>
                             </li>
                             <li class="flex items-start">
                                 <i class="fas fa-check-circle text-brand-green text-xl mr-3 mt-1"></i>
                                 <div>
-                                    <h4 class="font-bold text-gray-800">Atención Personalizada</h4>
-                                    <p class="text-gray-600 text-sm">Si no hay un producto, te llamamos para ofrecerte alternativas al instante.</p>
+                                    <h4 class="font-bold text-gray-800" data-i18n="ben3_title">Atención Personalizada</h4>
+                                    <p class="text-gray-600 text-sm" data-i18n="ben3_desc">Si no hay un producto, te llamamos para ofrecerte alternativas al instante.</p>
                                 </div>
                             </li>
                         </ul>
@@ -224,30 +200,30 @@
 
         <section id="contact" class="py-16 bg-white">
             <div class="max-w-7xl mx-auto px-4 text-center">
-                <h2 class="text-3xl font-bold text-gray-800 mb-12">Contáctanos</h2>
+                <h2 class="text-3xl font-bold text-gray-800 mb-12" data-i18n="contact_title">Contáctanos</h2>
                 
                 <div class="grid md:grid-cols-3 gap-8">
                     <div class="bg-gray-50 p-8 rounded-xl shadow-sm">
                         <div class="text-brand-green text-4xl mb-4"><i class="fas fa-map-marker-alt"></i></div>
-                        <h3 class="text-xl font-bold mb-2">Ubicación</h3>
+                        <h3 class="text-xl font-bold mb-2" data-i18n="location_title">Ubicación</h3>
                         <p class="text-gray-600 font-medium">Granada, Nicaragua</p>
-                        <p class="text-gray-500 text-sm mt-2">Gasolinera UNO Guapinol<br>5 cuadras al norte.</p>
+                        <p class="text-gray-500 text-sm mt-2" data-i18n="location_desc">Gasolinera UNO Guapinol<br>5 cuadras al norte.</p>
                     </div>
                     
                     <div class="bg-gray-50 p-8 rounded-xl shadow-sm">
                         <div class="text-brand-green text-4xl mb-4"><i class="fas fa-clock"></i></div>
-                        <h3 class="text-xl font-bold mb-2">Horario de Atención</h3>
+                        <h3 class="text-xl font-bold mb-2" data-i18n="hours_title">Horario de Atención</h3>
                         <ul class="text-gray-600 text-sm space-y-2">
-                            <li class="flex justify-between border-b pb-1"><span>Lunes - Viernes:</span> <strong>8:00 AM - 6:00 PM</strong></li>
-                            <li class="flex justify-between border-b pb-1"><span>Sábados:</span> <strong>8:00 AM - 2:00 PM</strong></li>
-                            <li class="flex justify-between text-red-500"><span>Domingos:</span> <strong>Cerrado</strong></li>
+                            <li class="flex justify-between border-b pb-1"><span data-i18n="days_mon_fri">Lunes - Viernes:</span> <strong>8:00 AM - 6:00 PM</strong></li>
+                            <li class="flex justify-between border-b pb-1"><span data-i18n="days_sat">Sábados:</span> <strong>8:00 AM - 2:00 PM</strong></li>
+                            <li class="flex justify-between text-red-500"><span data-i18n="days_sun">Domingos:</span> <strong data-i18n="closed">Cerrado</strong></li>
                         </ul>
                     </div>
 
                     <div class="bg-gray-50 p-8 rounded-xl shadow-sm">
                         <div class="text-brand-green text-4xl mb-4"><i class="fas fa-phone-alt"></i></div>
-                        <h3 class="text-xl font-bold mb-2">Contacto Directo</h3>
-                        <p class="text-gray-600 mb-4">¿Tienes dudas o quieres cotizar?</p>
+                        <h3 class="text-xl font-bold mb-2" data-i18n="direct_contact_title">Contacto Directo</h3>
+                        <p class="text-gray-600 mb-4" data-i18n="direct_contact_desc">¿Tienes dudas o quieres cotizar?</p>
                         <a href="https://wa.me/50558367648" target="_blank" class="inline-block bg-brand-green text-white px-6 py-2 rounded-full font-bold hover:bg-brand-dark transition">
                             <i class="fab fa-whatsapp mr-1"></i> +505 5836 7648
                         </a>
@@ -259,7 +235,8 @@
 
     <div id="view-pricing" class="view-section hidden flex-grow py-16 bg-brand-gray">
         <div class="max-w-5xl mx-auto px-4 text-center">
-            <h2 class="text-3xl font-bold text-gray-800 mb-2">Tarifas de Envío</h2>
+            <h2 class="text-3xl font-bold text-gray-800 mb-2" data-i18n="pricing_title">Tarifas de Envío</h2>
+            
             <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
                 <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
                     <div class="text-brand-green text-3xl mb-2"><i class="fas fa-city"></i></div>
@@ -283,23 +260,23 @@
                 </div>
             </div>
             <div class="mt-8 p-4 bg-white rounded-lg inline-block shadow-sm">
-                <p class="text-gray-600 font-medium">Otros departamentos sujetos a cotización.</p>
+                <p class="text-gray-600 font-medium" data-i18n="pricing_other">Otros departamentos sujetos a cotización.</p>
             </div>
         </div>
     </div>
 
     <div id="view-auth" class="view-section hidden pt-20 pb-20 bg-gray-100 flex-grow">
         <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg m-4">
-            <h2 id="authTitle" class="text-2xl font-bold text-center mb-6 text-brand-green">Iniciar Sesión</h2>
+            <h2 id="authTitle" class="text-2xl font-bold text-center mb-6 text-brand-green" data-i18n="auth_login_title">Iniciar Sesión</h2>
             <form id="authForm" onsubmit="handleAuth(event)">
                 <div class="mb-4">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Correo Electrónico</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_email">Correo Electrónico</label>
                     <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="email" type="email" required placeholder="tu@correo.com">
                 </div>
                 <div class="mb-6">
-                    <label class="block text-gray-700 text-sm font-bold mb-2">Contraseña</label>
+                    <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_password">Contraseña</label>
                     <input class="shadow border rounded w-full py-2 px-3 text-gray-700 mb-3 focus:outline-none focus:border-brand-green" id="password" type="password" required placeholder="********">
-                    <p id="passwordHelp" class="hidden text-xs text-gray-500 mt-1">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
+                    <p id="passwordHelp" class="hidden text-xs text-gray-500 mt-1" data-i18n="password_help">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
                 </div>
 
                 <div class="cf-turnstile mb-4" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
@@ -307,11 +284,11 @@
                 <div id="authError" class="hidden text-red-500 text-sm mb-4 text-center"></div>
                 <div id="authSuccess" class="hidden text-green-500 text-sm mb-4 text-center"></div>
                 
-                <button id="authBtn" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-2 px-4 rounded transition" type="button" onclick="login()">Entrar</button>
+                <button id="authBtn" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-2 px-4 rounded transition" type="button" onclick="login()" data-i18n="btn_enter">Entrar</button>
                 
                 <div class="mt-4 text-center text-sm">
-                    <span id="authToggleText">¿No tienes cuenta?</span>
-                    <a href="#" id="authToggleLink" onclick="toggleAuthMode()" class="text-brand-green font-bold hover:underline">Regístrate aquí</a>
+                    <span id="authToggleText" data-i18n="no_account">¿No tienes cuenta?</span>
+                    <a href="#" id="authToggleLink" onclick="toggleAuthMode()" class="text-brand-green font-bold hover:underline" data-i18n="register_here">Regístrate aquí</a>
                 </div>
             </form>
         </div>
@@ -322,18 +299,18 @@
             
             <div class="flex justify-between items-center mb-6">
                 <div>
-                    <h2 class="text-3xl font-bold text-gray-800">Crear Nueva Orden</h2>
-                    <p class="text-gray-500 text-sm">Código Cliente: <span id="orderClientCodeDisplay" class="font-mono font-bold text-brand-green">---</span></p>
+                    <h2 class="text-3xl font-bold text-gray-800" data-i18n="new_order_title">Crear Nueva Orden</h2>
+                    <p class="text-gray-500 text-sm"><span data-i18n="client_code_label">Código Cliente:</span> <span id="orderClientCodeDisplay" class="font-mono font-bold text-brand-green">---</span></p>
                 </div>
                 <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="bg-white border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition shadow-sm flex items-center">
-                    <i class="fas fa-external-link-alt mr-2"></i> Abrir PriceSmart.com
+                    <i class="fas fa-external-link-alt mr-2"></i> <span data-i18n="open_pricesmart">Abrir PriceSmart.com</span>
                 </a>
             </div>
 
             <div class="bg-white p-6 rounded-xl shadow-sm relative">
                 <div id="sendingOverlay" class="hidden absolute inset-0 bg-white bg-opacity-90 z-10 flex flex-col items-center justify-center rounded-xl">
                     <div class="loader mb-4"></div>
-                    <p class="text-brand-green font-bold">Procesando y enviando...</p>
+                    <p class="text-brand-green font-bold" data-i18n="processing">Procesando y enviando...</p>
                 </div>
 
                 <form id="orderForm" onsubmit="submitOrder(event)">
@@ -342,11 +319,11 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-gray-700 font-bold mb-2 text-sm">Tu Nombre Completo</label>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_fullname">Tu Nombre Completo</label>
                             <input type="text" id="orderName" name="full_name" required class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
                         </div>
                         <div>
-                            <label class="block text-gray-700 font-bold mb-2 text-sm">Teléfono</label>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_phone">Teléfono</label>
                             <input type="tel" id="orderPhone" name="phone" required value="+505" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
                         </div>
                     </div>
@@ -354,17 +331,17 @@
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <label class="block text-gray-700 font-bold mb-2 text-sm">Zona de Entrega</label>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_zone">Zona de Entrega</label>
                                 <select id="orderZone" name="zone" onchange="updateEstimatedFee()" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
                                     <option value="Granada">Granada ($10.99)</option>
                                     <option value="Masaya">Masaya ($10.99)</option>
                                     <option value="Carretera Masaya">Carretera Masaya ($10.99)</option>
                                     <option value="Managua">Managua ($9.99)</option>
-                                    <option value="Departamento">Otro Departamento (Cotizar)</option>
+                                    <option value="Departamento" data-i18n="option_other">Otro Departamento (Cotizar)</option>
                                 </select>
                             </div>
                             <div>
-                                <label class="block text-gray-700 font-bold mb-2 text-sm">Costo Estimado</label>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_cost">Costo Estimado</label>
                                 <div id="estimatedFee" class="p-2 bg-white rounded text-brand-green font-bold text-center border">$10.99</div>
                             </div>
                         </div>
@@ -373,8 +350,8 @@
                             <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
                                 <input type="checkbox" id="companionCheck" class="form-checkbox text-brand-green h-5 w-5 mt-1" onchange="updateEstimatedFee()">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-800">Servicio de Acompañamiento Personal (+$14.99)</span>
-                                    <span class="text-xs text-gray-500">Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.</span>
+                                    <span class="text-sm font-bold text-gray-800" data-i18n="companion_title">Servicio de Acompañamiento Personal (+$14.99)</span>
+                                    <span class="text-xs text-gray-500" data-i18n="companion_desc">Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.</span>
                                 </div>
                             </label>
                         </div>
@@ -383,39 +360,38 @@
                             <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
                                 <input type="checkbox" id="clickGoCheck" class="form-checkbox text-brand-green h-5 w-5 mt-1" onchange="toggleClickGo()">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-800">Servicio Click & Go (Solo Recogida)</span>
-                                    <span class="text-xs text-gray-500">Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.</span>
+                                    <span class="text-sm font-bold text-gray-800" data-i18n="clickgo_title">Servicio Click & Go (Solo Recogida)</span>
+                                    <span class="text-xs text-gray-500" data-i18n="clickgo_desc">Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.</span>
                                 </div>
                             </label>
                         </div>
 
                         <div id="clickGoDetails" class="hidden mb-4 ml-8">
-                            <label class="block text-gray-700 font-bold mb-2 text-sm">Número de Membresía PriceSmart (Titular de la compra)</label>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_memberid">Número de Membresía PriceSmart (Titular de la compra)</label>
                             <input type="text" id="memberId" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="Ej: 100012345678">
                         </div>
-
-                        </div>
+                    </div>
 
                     <div class="mb-4">
-                        <label class="block text-gray-700 font-bold mb-2 text-sm">Dirección Exacta</label>
-                        <textarea id="orderAddress" name="address" rows="2" required placeholder="Barrio, calle, número de casa..." class="w-full border p-2 rounded focus:border-brand-green outline-none"></textarea>
+                        <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_address">Dirección Exacta</label>
+                        <textarea id="orderAddress" name="address" rows="2" required placeholder="Barrio, calle, número de casa..." data-i18n-placeholder="placeholder_address" class="w-full border p-2 rounded focus:border-brand-green outline-none"></textarea>
                     </div>
 
                     <div class="mb-6">
-                        <label class="block text-gray-700 font-bold mb-2 text-sm">Lista de Compras</label>
+                        <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_list">Lista de Compras</label>
                         <div class="mb-2">
-                            <label class="block text-gray-600 text-xs mb-1">¿Tienes tu lista en papel? Sube fotos (Máximo 10)</label>
+                            <label class="block text-gray-600 text-xs mb-1" data-i18n="upload_label">¿Tienes tu lista en papel? Sube fotos (Máximo 10)</label>
                             <input type="file" id="listImage" accept="image/*" multiple class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-green-50 file:text-brand-green hover:file:bg-green-100 cursor-pointer border rounded-lg p-1">
                         </div>
-                        <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
+                        <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." data-i18n-placeholder="placeholder_list" class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
                     </div>
 
                     <div class="mb-6">
-                        <label class="block text-gray-700 font-bold mb-2 text-sm">Comentarios / Special Requests</label>
-                        <textarea id="specialRequests" name="comments" rows="2" placeholder="Ej: Llamar antes de llegar, producto sustituto si no hay..." class="w-full border p-2 rounded focus:border-brand-green outline-none text-sm"></textarea>
+                        <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_comments">Comentarios / Special Requests</label>
+                        <textarea id="specialRequests" name="comments" rows="2" placeholder="Ej: Llamar antes de llegar, producto sustituto si no hay..." data-i18n-placeholder="placeholder_comments" class="w-full border p-2 rounded focus:border-brand-green outline-none text-sm"></textarea>
                     </div>
 
-                    <button type="submit" class="w-full bg-brand-green text-white font-bold py-3 rounded-lg hover:bg-brand-dark transition shadow-lg">
+                    <button type="submit" class="w-full bg-brand-green text-white font-bold py-3 rounded-lg hover:bg-brand-dark transition shadow-lg" data-i18n="btn_send_order">
                         Enviar Pedido
                     </button>
                 </form>
@@ -426,14 +402,14 @@
     <div id="view-orders" class="view-section hidden bg-gray-50 py-10 flex-grow">
         <div class="max-w-4xl mx-auto px-4">
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-bold text-gray-800">Mis Pedidos</h2>
+                <h2 class="text-3xl font-bold text-gray-800" data-i18n="my_orders_title">Mis Pedidos</h2>
                 <button onclick="downloadHistoryPDF()" class="bg-gray-800 hover:bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow flex items-center transition">
-                    <i class="fas fa-file-pdf mr-2"></i> Descargar Historial PDF
+                    <i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn_download_pdf">Descargar Historial PDF</span>
                 </button>
             </div>
             
             <div id="orderHistoryList" class="space-y-4">
-                <div class="p-8 text-center text-gray-400 bg-white rounded-xl shadow-sm">Cargando...</div>
+                <div class="p-8 text-center text-gray-400 bg-white rounded-xl shadow-sm" data-i18n="loading">Cargando...</div>
             </div>
         </div>
     </div>
@@ -451,11 +427,11 @@
                     <input type="file" id="profileUpload" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
                 </div>
                 <div class="text-center md:text-left flex-grow">
-                    <h2 class="text-2xl font-bold text-gray-800" id="profileHeaderName">Mi Perfil</h2>
+                    <h2 class="text-2xl font-bold text-gray-800" id="profileHeaderName" data-i18n="profile_title">Mi Perfil</h2>
                     <p class="text-sm text-gray-500" id="profileEmailDisplay">usuario@email.com</p>
                 </div>
                 <div class="mt-4 md:mt-0 text-center">
-                    <span class="block text-xs text-gray-400 uppercase tracking-wide">Código de Cliente</span>
+                    <span class="block text-xs text-gray-400 uppercase tracking-wide" data-i18n="client_code_label">Código de Cliente</span>
                     <span class="block text-xl font-mono font-bold text-brand-green bg-green-50 px-3 py-1 rounded" id="displayClientCode">---</span>
                 </div>
             </div>
@@ -466,34 +442,34 @@
 
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
                     <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b flex items-center">
-                        <i class="fas fa-user-edit text-brand-green mr-2"></i> Datos Personales
+                        <i class="fas fa-user-edit text-brand-green mr-2"></i> <span data-i18n="personal_data_title">Datos Personales</span>
                     </h3>
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
-                            <label class="block text-gray-600 text-sm font-bold mb-2">Nombre</label>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_firstname">Nombre</label>
                             <input type="text" id="profileName" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
                         </div>
                         <div>
-                            <label class="block text-gray-600 text-sm font-bold mb-2">Apellido</label>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_lastname">Apellido</label>
                             <input type="text" id="profileSurname" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
                         </div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
-                            <label class="block text-gray-600 text-sm font-bold mb-2">Teléfono</label>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_phone">Teléfono</label>
                             <input type="tel" id="profilePhone" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="+505...">
                         </div>
                         <div>
-                            <label class="block text-gray-600 text-sm font-bold mb-2">Zona Habitual</label>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_usual_zone">Zona Habitual</label>
                             <select id="profileZone" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
-                                <option value="">Seleccionar...</option>
+                                <option value="" data-i18n="select">Seleccionar...</option>
                                 <option value="Granada">Granada</option>
                                 <option value="Masaya">Masaya</option>
                                 <option value="Carretera Masaya">Carretera a Masaya</option>
                                 <option value="Managua">Managua</option>
-                                <option value="Otro">Otro</option>
+                                <option value="Otro" data-i18n="option_other_simple">Otro</option>
                             </select>
                         </div>
                     </div>
@@ -501,27 +477,27 @@
 
                 <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
                     <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b flex items-center">
-                        <i class="fas fa-lock text-brand-green mr-2"></i> Seguridad
+                        <i class="fas fa-lock text-brand-green mr-2"></i> <span data-i18n="security_title">Seguridad</span>
                     </h3>
 
                     <div class="mb-4">
-                        <label class="block text-gray-600 text-sm font-bold mb-2">Contraseña Actual <span class="text-red-500">*</span></label>
-                        <input type="password" id="currentPassword" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Requerido para cambiar contraseña">
+                        <label class="block text-gray-600 text-sm font-bold mb-2"><span data-i18n="label_current_password">Contraseña Actual</span> <span class="text-red-500">*</span></label>
+                        <input type="password" id="currentPassword" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Requerido para cambiar contraseña" data-i18n-placeholder="placeholder_req_password">
                     </div>
 
                     <div class="mb-4">
-                        <label class="block text-gray-600 text-sm font-bold mb-2">Nueva Contraseña</label>
-                        <input type="password" id="profilePassword" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Dejar en blanco para no cambiar">
-                        <p class="text-xs text-gray-400 mt-1">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
+                        <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_new_password">Nueva Contraseña</label>
+                        <input type="password" id="profilePassword" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Dejar en blanco para no cambiar" data-i18n-placeholder="placeholder_blank_password">
+                        <p class="text-xs text-gray-400 mt-1" data-i18n="password_help">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
                     </div>
                     
                     <div class="mb-2">
-                        <label class="block text-gray-600 text-sm font-bold mb-2">Confirmar Nueva Contraseña</label>
-                        <input type="password" id="profilePasswordConfirm" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Repite la contraseña">
+                        <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_confirm_password">Confirmar Nueva Contraseña</label>
+                        <input type="password" id="profilePasswordConfirm" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Repite la contraseña" data-i18n-placeholder="placeholder_repeat_password">
                     </div>
                 </div>
 
-                <button type="submit" id="profileBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded-lg hover:bg-brand-dark transition shadow-lg text-lg">
+                <button type="submit" id="profileBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded-lg hover:bg-brand-dark transition shadow-lg text-lg" data-i18n="btn_save_changes">
                     Guardar Cambios
                 </button>
             </form>
@@ -544,20 +520,264 @@
         const CONFIG = {
             SUPABASE_URL: "https://dltpvajfltfzayhomufx.supabase.co", 
             SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdHB2YWpmbHRmemF5aG9tdWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzkyOTAsImV4cCI6MjA4NTQ1NTI5MH0.HCldnUI4sm9BHepUDgcqs4v4a5yVa20VWSzt2lNQ_Vo",
-            // URL DE TU SCRIPT EN GOOGLE (BRIDGE)
             APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwyKzOttwv4aRe127HG_ASaneyfTyG2hyn24U1izJWiCw9RyBExqs-Mn3Tw1eOE2KOEGQ/exec"
         };
 
         const DEFAULT_AVATAR = "https://via.placeholder.com/150?text=Usuario"; 
-        
         const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@$]).{8,}$/;
 
         let supabaseClient = null;
         let currentUser = null;
         let isLoginMode = true;
         let currentOrders = [];
+        let currentLang = localStorage.getItem('shopLang') || 'es';
+
+        // --- DICCIONARIO DE TRADUCCIONES ---
+        const translations = {
+            es: {
+                nav_home: "Inicio",
+                nav_pricesmart: "Ir a PriceSmart",
+                nav_pricing: "Tarifas",
+                nav_contact: "Contacto",
+                nav_login: "Iniciar Sesión",
+                nav_register: "Registrarse",
+                nav_enter: "Entrar",
+                nav_make_order: "Hacer Pedido",
+                nav_my_orders: "Mis Pedidos",
+                nav_profile: "Mi Perfil",
+                nav_logout: "Salir",
+                nav_logout_full: "Cerrar Sesión",
+                
+                hero_title: "Compramos por ti",
+                hero_subtitle: "Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.",
+                btn_order: "Hacer mi Pedido",
+                btn_rates: "Ver Tarifas",
+
+                about_title: "¿Cómo funciona Shop Delivery Nic?",
+                about_desc: "Somos tu asistente personal de compras. Olvídate del tráfico, las filas y el calor. Nosotros seleccionamos los mejores productos para ti.",
+                step1_title: "1. Envía tu Lista",
+                step1_desc: "Regístrate y escribe qué productos necesitas de PriceSmart. Puedes detallar marcas y cantidades.",
+                step2_title: "2. Compramos por Ti",
+                step2_desc: "Nuestro equipo va al supermercado y selecciona los mejores productos.",
+                step3_title: "3. Recibe en Casa",
+                step3_desc: "Llevamos todo hasta la puerta de tu hogar en Granada, Masaya, Managua y más.",
+
+                why_title: "¿Por qué elegirnos?",
+                ben1_title: "Ahorra Tiempo y Combustible",
+                ben1_desc: "No gastes horas en el tráfico ni en filas. Nosotros nos encargamos.",
+                ben2_title: "Sin Membresía Requerida",
+                ben2_desc: "Compramos en PriceSmart por ti, no necesitas tener tu propia membresía.",
+                ben3_title: "Atención Personalizada",
+                ben3_desc: "Si no hay un producto, te llamamos para ofrecerte alternativas al instante.",
+
+                contact_title: "Contáctanos",
+                location_title: "Ubicación",
+                location_desc: "Gasolinera UNO Guapinol<br>5 cuadras al norte.",
+                hours_title: "Horario de Atención",
+                days_mon_fri: "Lunes - Viernes:",
+                days_sat: "Sábados:",
+                days_sun: "Domingos:",
+                closed: "Cerrado",
+                direct_contact_title: "Contacto Directo",
+                direct_contact_desc: "¿Tienes dudas o quieres cotizar?",
+
+                pricing_title: "Tarifas de Envío",
+                pricing_other: "Otros departamentos sujetos a cotización.",
+
+                auth_login_title: "Iniciar Sesión",
+                auth_register_title: "Crear Cuenta",
+                label_email: "Correo Electrónico",
+                label_password: "Contraseña",
+                password_help: "Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).",
+                btn_enter: "Entrar",
+                btn_register: "Registrarse",
+                no_account: "¿No tienes cuenta?",
+                have_account: "¿Ya tienes cuenta?",
+                register_here: "Regístrate aquí",
+                enter_here: "Entra aquí",
+                auth_success_reg: "¡Registro exitoso! Entra ahora.",
+                auth_error_creds: "Credenciales incorrectas.",
+
+                new_order_title: "Crear Nueva Orden",
+                client_code_label: "Código Cliente",
+                open_pricesmart: "Abrir PriceSmart.com",
+                processing: "Procesando y enviando...",
+                label_fullname: "Tu Nombre Completo",
+                label_phone: "Teléfono",
+                label_zone: "Zona de Entrega",
+                label_cost: "Costo Estimado",
+                option_other: "Otro Departamento (Cotizar)",
+                option_other_simple: "Otro",
+                companion_title: "Servicio de Acompañamiento Personal (+$14.99)",
+                companion_desc: "Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.",
+                clickgo_title: "Servicio Click & Go (Solo Recogida)",
+                clickgo_desc: "Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.",
+                label_memberid: "Número de Membresía PriceSmart (Titular de la compra)",
+                label_address: "Dirección Exacta",
+                placeholder_address: "Barrio, calle, número de casa...",
+                label_list: "Lista de Compras",
+                upload_label: "¿Tienes tu lista en papel? Sube fotos (Máximo 10)",
+                placeholder_list: "Escribe aquí tu lista detallada (Producto, Marca, Cantidad)...",
+                label_comments: "Comentarios / Special Requests",
+                placeholder_comments: "Ej: Llamar antes de llegar, producto sustituto si no hay...",
+                btn_send_order: "Enviar Pedido",
+                
+                my_orders_title: "Mis Pedidos",
+                btn_download_pdf: "Descargar Historial PDF",
+                loading: "Cargando...",
+                no_orders: "No tienes pedidos recientes.",
+                order_view_details: "Ver Detalles",
+                order_address_label: "Dirección:",
+                order_phone_label: "Teléfono:",
+                order_details_label: "Detalles del Pedido:",
+                
+                profile_title: "Mi Perfil",
+                personal_data_title: "Datos Personales",
+                label_firstname: "Nombre",
+                label_lastname: "Apellido",
+                label_usual_zone: "Zona Habitual",
+                select: "Seleccionar...",
+                security_title: "Seguridad",
+                label_current_password: "Contraseña Actual",
+                placeholder_req_password: "Requerido para cambiar contraseña",
+                label_new_password: "Nueva Contraseña",
+                placeholder_blank_password: "Dejar en blanco para no cambiar",
+                label_confirm_password: "Confirmar Nueva Contraseña",
+                placeholder_repeat_password: "Repite la contraseña",
+                btn_save_changes: "Guardar Cambios",
+                btn_saving: "Guardando...",
+                
+                calculating: "Calculando",
+                companion_service: "(Servicio Acompañante)",
+                alert_order_success: "¡Pedido enviado con éxito! Recibirás confirmación en tu correo.",
+                alert_profile_success: "Perfil actualizado correctamente.",
+                pdf_title: "ORDEN DE COMPRA",
+                pdf_history_title: "Shop Delivery Nic - Historial de Compras"
+            },
+            en: {
+                nav_home: "Home",
+                nav_pricesmart: "Go to PriceSmart",
+                nav_pricing: "Rates",
+                nav_contact: "Contact",
+                nav_login: "Login",
+                nav_register: "Register",
+                nav_enter: "Login",
+                nav_make_order: "Place Order",
+                nav_my_orders: "My Orders",
+                nav_profile: "My Profile",
+                nav_logout: "Logout",
+                nav_logout_full: "Logout",
+                
+                hero_title: "We do your Grocery Shopping for you",
+                hero_subtitle: "PriceSmart Nicaragua shopping delivered to your doorstep.",
+                btn_order: "Place Order",
+                btn_rates: "View Rates",
+
+                about_title: "How does Shop Delivery Nic work?",
+                about_desc: "We are your personal shopping assistant. Forget traffic, lines, and heat. We select the best products for you.",
+                step1_title: "1. Send your List",
+                step1_desc: "Register and write down what you need from PriceSmart. You can detail brands and quantities.",
+                step2_title: "2. We Shop for You",
+                step2_desc: "Our team goes to the supermarket and selects the best products.",
+                step3_title: "3. Receive at Home",
+                step3_desc: "We bring everything to your door in Granada, Masaya, Managua, and more.",
+
+                why_title: "Why choose us?",
+                ben1_title: "Save Time and Fuel",
+                ben1_desc: "Don't spend hours in traffic or lines. We handle it.",
+                ben2_title: "No Membership Required",
+                ben2_desc: "We shop at PriceSmart for you, you don't need your own membership.",
+                ben3_title: "Personalized Attention",
+                ben3_desc: "If a product is missing, we call you to offer alternatives instantly.",
+
+                contact_title: "Contact Us",
+                location_title: "Location",
+                location_desc: "UNO Guapinol Gas Station<br>5 blocks north.",
+                hours_title: "Opening Hours",
+                days_mon_fri: "Monday - Friday:",
+                days_sat: "Saturdays:",
+                days_sun: "Sundays:",
+                closed: "Closed",
+                direct_contact_title: "Direct Contact",
+                direct_contact_desc: "Have questions or need a quote?",
+
+                pricing_title: "Delivery Rates",
+                pricing_other: "Other departments subject to quotation.",
+
+                auth_login_title: "Login",
+                auth_register_title: "Create Account",
+                label_email: "Email",
+                label_password: "Password",
+                password_help: "Minimum 8 chars, 1 uppercase, 1 lowercase, 1 number, and 1 symbol (!, @, $).",
+                btn_enter: "Login",
+                btn_register: "Register",
+                no_account: "Don't have an account?",
+                have_account: "Already have an account?",
+                register_here: "Register here",
+                enter_here: "Login here",
+                auth_success_reg: "Registration successful! Login now.",
+                auth_error_creds: "Invalid credentials.",
+
+                new_order_title: "Create New Order",
+                client_code_label: "Client Code",
+                open_pricesmart: "Open PriceSmart.com",
+                processing: "Processing and sending...",
+                label_fullname: "Full Name",
+                label_phone: "Phone",
+                label_zone: "Delivery Zone",
+                label_cost: "Estimated Cost",
+                option_other: "Other Department (Quote)",
+                option_other_simple: "Other",
+                companion_title: "Personal Companion Service (+$14.99)",
+                companion_desc: "Check this box if you wish to go with us to the supermarket to shop personally. We pick you up at your home.",
+                clickgo_title: "Click & Go Service (Pickup Only)",
+                clickgo_desc: "Select if you already bought online at PriceSmart.com and just need us to pick it up.",
+                label_memberid: "PriceSmart Membership Number (Purchase Holder)",
+                label_address: "Exact Address",
+                placeholder_address: "Neighborhood, street, house number...",
+                label_list: "Shopping List",
+                upload_label: "Have a paper list? Upload photos (Max 10)",
+                placeholder_list: "Type your detailed list here (Product, Brand, Quantity)...",
+                label_comments: "Comments / Special Requests",
+                placeholder_comments: "Ex: Call before arriving, substitute product if missing...",
+                btn_send_order: "Send Order",
+                
+                my_orders_title: "My Orders",
+                btn_download_pdf: "Download History PDF",
+                loading: "Loading...",
+                no_orders: "No recent orders.",
+                order_view_details: "View Details",
+                order_address_label: "Address:",
+                order_phone_label: "Phone:",
+                order_details_label: "Order Details:",
+                
+                profile_title: "My Profile",
+                personal_data_title: "Personal Data",
+                label_firstname: "First Name",
+                label_lastname: "Last Name",
+                label_usual_zone: "Usual Zone",
+                select: "Select...",
+                security_title: "Security",
+                label_current_password: "Current Password",
+                placeholder_req_password: "Required to change password",
+                label_new_password: "New Password",
+                placeholder_blank_password: "Leave blank to keep current",
+                label_confirm_password: "Confirm New Password",
+                placeholder_repeat_password: "Repeat password",
+                btn_save_changes: "Save Changes",
+                btn_saving: "Saving...",
+                
+                calculating: "Calculating",
+                companion_service: "(Companion Service)",
+                alert_order_success: "Order sent successfully! You will receive confirmation via email.",
+                alert_profile_success: "Profile updated successfully.",
+                pdf_title: "PURCHASE ORDER",
+                pdf_history_title: "Shop Delivery Nic - Purchase History"
+            }
+        };
 
         function initApp() {
+            applyLanguage(currentLang); // Aplicar idioma al inicio
             updateNav(false); 
 
             try {
@@ -588,6 +808,39 @@
             } catch (error) { console.error("Error inicializando:", error); }
         }
 
+        // --- I18N FUNCTIONS ---
+        function toggleLanguage() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            localStorage.setItem('shopLang', currentLang);
+            applyLanguage(currentLang);
+        }
+
+        function applyLanguage(lang) {
+            document.getElementById('langDisplay').innerText = lang.toUpperCase();
+            
+            // Text Content
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) el.innerHTML = translations[lang][key];
+            });
+
+            // Placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) el.placeholder = translations[lang][key];
+            });
+            
+            // Actualizar textos dinámicos si es necesario
+            updateEstimatedFee();
+            
+            // Re-render auth form text logic
+            const authTitle = document.getElementById('authTitle');
+            if (authTitle.innerText !== "") renderAuthForm(); 
+
+            // Re-render Nav if logged in/out to update texts
+            updateNav(currentUser !== null);
+        }
+
         // --- FUNCIÓN PARA ENVIAR CORREO VÍA PUENTE GOOGLE ---
         async function sendOrderEmail(orderData, pdfBase64, imageAttachments, clientEmail) {
             const payload = {
@@ -597,23 +850,20 @@
                 address: orderData.address,
                 list: orderData.list,
                 pdfBase64: pdfBase64.split(',')[1], 
-                images: imageAttachments, // Enviamos el array de imágenes
+                images: imageAttachments, 
                 clientEmail: clientEmail 
             };
             
-            // Enviamos al script de Google que lo reenviará a Mailjet
             await fetch(CONFIG.APPS_SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors', 
                 headers: { "Content-Type": "text/plain" },
                 body: JSON.stringify(payload)
             });
-            
             return true;
         }
 
-        // --- NUEVA LÓGICA: COMPRESIÓN DE IMÁGENES ---
-        // Esto reduce el tamaño de las fotos antes de subirlas
+        // --- COMPRESIÓN DE IMÁGENES ---
         const processAndCompressImage = (file) => {
             return new Promise((resolve, reject) => {
                 const reader = new FileReader();
@@ -621,23 +871,13 @@
                     const img = new Image();
                     img.onload = () => {
                         const canvas = document.createElement('canvas');
-                        let width = img.width;
-                        let height = img.height;
-                        
-                        // Redimensionar si es mayor a 1000px (Suficiente para leer una lista)
+                        let width = img.width; let height = img.height;
                         const MAX_SIZE = 1000;
-                        if (width > height) {
-                            if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; }
-                        } else {
-                            if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; }
-                        }
-                        
-                        canvas.width = width;
-                        canvas.height = height;
+                        if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+                        else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                        canvas.width = width; canvas.height = height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0, width, height);
-                        
-                        // Comprimir a JPEG calidad 0.7
                         resolve(canvas.toDataURL('image/jpeg', 0.7));
                     };
                     img.src = e.target.result;
@@ -649,6 +889,7 @@
 
         // --- GENERADOR DE PDF ---
         function generateOrderPDF(orderData) {
+            const t = translations[currentLang];
             const { jsPDF } = window.jspdf;
             const doc = new jsPDF();
             
@@ -660,16 +901,16 @@
             
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(12);
-            doc.text(`ORDEN DE COMPRA`, 14, 35);
-            doc.text(`Cliente: ${orderData.name}`, 14, 45);
-            doc.text(`Tel: ${orderData.phone}`, 14, 53);
-            doc.text(`Zona: ${orderData.zone}`, 14, 61);
-            doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 140, 45);
+            doc.text(t.pdf_title, 14, 35);
+            doc.text(`${currentLang === 'es' ? 'Cliente' : 'Client'}: ${orderData.name}`, 14, 45);
+            doc.text(`${currentLang === 'es' ? 'Tel' : 'Phone'}: ${orderData.phone}`, 14, 53);
+            doc.text(`${currentLang === 'es' ? 'Zona' : 'Zone'}: ${orderData.zone}`, 14, 61);
+            doc.text(`${currentLang === 'es' ? 'Fecha' : 'Date'}: ${new Date().toLocaleDateString()}`, 140, 45);
             
             doc.setDrawColor(200, 200, 200);
             doc.line(14, 68, 196, 68);
             
-            doc.text("DETALLE DEL PEDIDO:", 14, 78);
+            doc.text(currentLang === 'es' ? "DETALLE DEL PEDIDO:" : "ORDER DETAILS:", 14, 78);
             doc.setFontSize(10);
             
             const splitText = doc.splitTextToSize(orderData.list, 180);
@@ -681,6 +922,7 @@
         // --- ENVIAR PEDIDO ---
         async function submitOrder(e) {
             e.preventDefault();
+            const t = translations[currentLang];
             document.getElementById('sendingOverlay').classList.remove('hidden');
             
             const clientCode = currentUser.user_metadata?.client_code || "N/A";
@@ -692,33 +934,26 @@
             const specialReq = document.getElementById('specialRequests').value;
             const memberId = document.getElementById('memberId').value;
 
-            // Procesar Múltiples Imágenes con Redimensión
             const imageInput = document.getElementById('listImage');
             let imageAttachments = [];
             
             if (imageInput.files && imageInput.files.length > 0) {
                 if (imageInput.files.length > 10) {
-                    alert("Solo puedes subir un máximo de 10 imágenes.");
+                    alert(currentLang === 'es' ? "Solo puedes subir un máximo de 10 imágenes." : "You can only upload a maximum of 10 images.");
                     document.getElementById('sendingOverlay').classList.add('hidden');
                     return;
                 }
-
-                // Actualizar UI para indicar proceso
-                document.querySelector('#sendingOverlay p').innerText = "Comprimiendo imágenes...";
-
+                document.querySelector('#sendingOverlay p').innerText = currentLang === 'es' ? "Comprimiendo imágenes..." : "Compressing images...";
                 for (let i = 0; i < imageInput.files.length; i++) {
                     const file = imageInput.files[i];
                     try {
-                        // Usar la nueva función que comprime
                         const base64Content = await processAndCompressImage(file);
                         imageAttachments.push({
                             base64: base64Content.split(',')[1],
-                            type: "image/jpeg", // Siempre convertimos a JPEG
+                            type: "image/jpeg", 
                             name: `Foto_Lista_${i + 1}.jpg`
                         });
-                    } catch (err) {
-                        console.error(`Error procesando imagen ${i}`, err);
-                    }
+                    } catch (err) { console.error(`Error procesando imagen ${i}`, err); }
                 }
             }
 
@@ -728,7 +963,6 @@
                 fullList += `** SERVICIO CLICK & GO (Recogida) **\n`;
                 fullList += `MEMBRESÍA: ${memberId}\n\n`;
             }
-            // Comisión Eliminada
             
             if (imageAttachments.length > 0) fullList += `** [IMÁGENES ADJUNTAS] El cliente ha subido ${imageAttachments.length} foto(s). **\n\n`;
             fullList += `LISTA (TEXTO):\n${manualList}\n\n`;
@@ -743,7 +977,6 @@
             };
 
             try {
-                // 1. Guardar en Supabase
                 const { error } = await supabaseClient.from('orders').insert([{ 
                     user_id: currentUser.id, 
                     user_email: currentUser.email, 
@@ -756,26 +989,23 @@
                 }]);
                 if (error) throw error;
 
-                // 2. Enviar Correo (Al Cliente y Copia Oculta al Admin)
-                document.querySelector('#sendingOverlay p').innerText = "Enviando correo...";
+                document.querySelector('#sendingOverlay p').innerText = currentLang === 'es' ? "Enviando correo..." : "Sending email...";
                 const pdfBase64 = generateOrderPDF(orderFormObj);
                 const userEmail = currentUser.email; 
                 
-                // Pasamos el array de imágenes a la función de envío
                 await sendOrderEmail(orderFormObj, pdfBase64, imageAttachments, userEmail);
 
-                alert("¡Pedido enviado con éxito! Recibirás confirmación en tu correo.");
+                alert(t.alert_order_success);
                 document.getElementById('orderForm').reset();
-                // Reset manual de checkbox
                 document.getElementById('clickGoCheck').checked = false;
                 toggleClickGo();
                 showView('orders'); 
             } catch (err) { 
                 console.error(err); 
-                alert("Hubo un problema al procesar el pedido: " + (err.message || "Intenta de nuevo")); 
+                alert("Error: " + (err.message || "Intenta de nuevo")); 
             } finally { 
                 document.getElementById('sendingOverlay').classList.add('hidden'); 
-                document.querySelector('#sendingOverlay p').innerText = "Procesando y enviando...";
+                document.querySelector('#sendingOverlay p').innerText = t.processing;
             }
         }
 
@@ -807,6 +1037,7 @@
         }
 
         function updateNav(isLoggedIn) {
+            const t = translations[currentLang];
             const navUser = document.getElementById('navUserLinks');
             const navAuth = document.getElementById('navAuthButtons');
             const mobUser = document.getElementById('mobileUserLinks');
@@ -814,17 +1045,17 @@
             const mobHeaderAuth = document.getElementById('mobileHeaderAuth');
 
             if (isLoggedIn) {
-                navUser.innerHTML = `<button onclick="showView('create-order')" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow">Hacer Pedido</button><button onclick="showView('orders')" class="text-gray-600 hover:text-brand-green font-semibold">Mis Pedidos</button><button onclick="showView('profile')" class="text-gray-600 hover:text-brand-green font-semibold">Mi Perfil</button>`;
-                navAuth.innerHTML = `<button onclick="logout()" class="text-red-500 text-sm hover:underline">Salir</button>`;
+                navUser.innerHTML = `<button onclick="showView('create-order')" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow">${t.nav_make_order}</button><button onclick="showView('orders')" class="text-gray-600 hover:text-brand-green font-semibold">${t.nav_my_orders}</button><button onclick="showView('profile')" class="text-gray-600 hover:text-brand-green font-semibold">${t.nav_profile}</button>`;
+                navAuth.innerHTML = `<button onclick="logout()" class="text-red-500 text-sm hover:underline">${t.nav_logout}</button>`;
                 mobHeaderAuth.innerHTML = `<button onclick="showView('orders')" class="text-brand-green font-bold mr-2 text-sm flex items-center bg-green-50 px-2 py-1 rounded-lg"><i class="fas fa-list-alt mr-1"></i></button>`;
-                mobUser.innerHTML = `<button onclick="showView('create-order')" class="block w-full text-left py-3 text-brand-green font-bold border-b border-gray-100">Hacer Pedido</button><button onclick="showView('orders')" class="block w-full text-left py-3 text-gray-600 border-b border-gray-100">Mis Pedidos</button><button onclick="showView('profile')" class="block w-full text-left py-3 text-gray-600 border-b border-gray-100">Mi Perfil</button>`;
-                mobAuth.innerHTML = `<button onclick="logout()" class="block w-full text-left py-3 text-red-500">Cerrar Sesión</button>`;
+                mobUser.innerHTML = `<button onclick="showView('create-order')" class="block w-full text-left py-3 text-brand-green font-bold border-b border-gray-100">${t.nav_make_order}</button><button onclick="showView('orders')" class="block w-full text-left py-3 text-gray-600 border-b border-gray-100">${t.nav_my_orders}</button><button onclick="showView('profile')" class="block w-full text-left py-3 text-gray-600 border-b border-gray-100">${t.nav_profile}</button>`;
+                mobAuth.innerHTML = `<button onclick="logout()" class="block w-full text-left py-3 text-red-500">${t.nav_logout_full}</button>`;
             } else {
                 navUser.innerHTML = '';
-                navAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow mr-3 whitespace-nowrap">Iniciar Sesión</button><button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition whitespace-nowrap">Registrarse</button>`;
-                mobHeaderAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="text-brand-green font-bold mr-2 flex flex-col items-center justify-center"><i class="fas fa-user-circle text-2xl"></i><span class="text-[10px] leading-none mt-1">Entrar</span></button>`;
+                navAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow mr-3 whitespace-nowrap">${t.nav_login}</button><button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition whitespace-nowrap">${t.nav_register}</button>`;
+                mobHeaderAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="text-brand-green font-bold mr-2 flex flex-col items-center justify-center"><i class="fas fa-user-circle text-2xl"></i><span class="text-[10px] leading-none mt-1">${t.nav_enter}</span></button>`;
                 mobUser.innerHTML = '';
-                mobAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="block w-full text-left py-3 font-bold text-brand-green border-b border-gray-100">Iniciar Sesión</button><button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="block w-full text-left py-3 font-bold text-gray-600">Registrarse</button>`;
+                mobAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="block w-full text-left py-3 font-bold text-brand-green border-b border-gray-100">${t.nav_login}</button><button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="block w-full text-left py-3 font-bold text-gray-600">${t.nav_register}</button>`;
             }
         }
 
@@ -894,9 +1125,10 @@
 
         async function updateProfile(e) {
             e.preventDefault();
+            const t = translations[currentLang];
             const btn = document.getElementById('profileBtn');
             const originalText = btn.innerText;
-            btn.innerText = "Guardando...";
+            btn.innerText = t.btn_saving;
             btn.disabled = true;
 
             const newAvatar = document.getElementById('profileAvatarBase64').value;
@@ -911,7 +1143,7 @@
 
             if (newPassword) {
                 if (!currentPassword) {
-                    alert("Error: Debes ingresar tu contraseña actual para realizar cambios de seguridad.");
+                    alert("Error: " + t.label_current_password);
                     btn.innerText = originalText; btn.disabled = false; return;
                 }
                 const { error: signInError } = await supabaseClient.auth.signInWithPassword({ 
@@ -920,16 +1152,16 @@
                 });
 
                 if (signInError) {
-                    alert("Error: La contraseña actual es incorrecta.");
+                    alert("Error: " + t.auth_error_creds);
                     btn.innerText = originalText; btn.disabled = false; return;
                 }
 
                 if (newPassword !== confirmPassword) {
-                    alert("Error: Las nuevas contraseñas no coinciden.");
+                    alert("Error: Passwords do not match.");
                     btn.innerText = originalText; btn.disabled = false; return;
                 }
                 if (!PASSWORD_REGEX.test(newPassword)) {
-                    alert("Error: La nueva contraseña no es segura.");
+                    alert("Error: Weak password.");
                     btn.innerText = originalText; btn.disabled = false; return;
                 }
             }
@@ -942,9 +1174,9 @@
             const { user, error } = await supabaseClient.auth.updateUser(updates);
 
             if(error) {
-                alert("Error al actualizar: " + error.message);
+                alert("Error: " + error.message);
             } else {
-                alert("Perfil actualizado correctamente.");
+                alert(t.alert_profile_success);
                 if(newAvatar) updateAvatarUI(newAvatar);
                 if(firstName) document.getElementById('profileHeaderName').innerText = firstName;
                 document.getElementById('profilePassword').value = "";
@@ -960,18 +1192,20 @@
 
         // --- Funciones PDF de Historial ---
         function downloadHistoryPDF() {
-            if (!currentOrders || currentOrders.length === 0) { alert("No hay historial para descargar."); return; }
+            const t = translations[currentLang];
+            if (!currentOrders || currentOrders.length === 0) { alert(t.no_orders); return; }
             const { jsPDF } = window.jspdf; const doc = new jsPDF();
             doc.setFillColor(10, 173, 10); doc.rect(0, 0, 210, 30, 'F');
-            doc.setTextColor(255, 255, 255); doc.setFontSize(18); doc.text("Shop Delivery Nic - Historial de Compras", 14, 20);
+            doc.setTextColor(255, 255, 255); doc.setFontSize(18); doc.text(t.pdf_history_title, 14, 20);
             doc.setTextColor(0,0,0); doc.setFontSize(10);
-            doc.text(`Cliente: ${currentUser.email}`, 14, 40); doc.text(`Fecha: ${new Date().toLocaleDateString()}`, 14, 45);
+            doc.text(`${currentLang === 'es' ? 'Cliente' : 'Client'}: ${currentUser.email}`, 14, 40); doc.text(`${currentLang === 'es' ? 'Fecha' : 'Date'}: ${new Date().toLocaleDateString()}`, 14, 45);
             const tableBody = currentOrders.map(order => {
-                const date = new Date(order.created_at).toLocaleDateString('es-NI');
+                const date = new Date(order.created_at).toLocaleDateString();
                 let listPreview = order.shopping_list.length > 30 ? order.shopping_list.substring(0, 30) + "..." : order.shopping_list;
                 return [date, order.id.slice(0,8), order.delivery_zone, order.status.toUpperCase(), listPreview];
             });
-            doc.autoTable({ head: [['Fecha', 'ID', 'Zona', 'Estado', 'Resumen']], body: tableBody, startY: 50, theme: 'grid', headStyles: { fillColor: [10, 173, 10] }, styles: { fontSize: 8 } });
+            const headers = currentLang === 'es' ? [['Fecha', 'ID', 'Zona', 'Estado', 'Resumen']] : [['Date', 'ID', 'Zone', 'Status', 'Summary']];
+            doc.autoTable({ head: headers, body: tableBody, startY: 50, theme: 'grid', headStyles: { fillColor: [10, 173, 10] }, styles: { fontSize: 8 } });
             doc.save(`Historial_Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
         }
 
@@ -982,58 +1216,58 @@
         }
         function toggleAuthMode() { isLoginMode = !isLoginMode; renderAuthForm(); }
         function renderAuthForm() {
+            const t = translations[currentLang];
             const title = document.getElementById('authTitle'); const btn = document.getElementById('authBtn');
             const toggleText = document.getElementById('authToggleText'); const toggleLink = document.getElementById('authToggleLink');
             const passwordHelp = document.getElementById('passwordHelp');
             document.getElementById('authError').classList.add('hidden'); document.getElementById('authSuccess').classList.add('hidden');
             if (isLoginMode) { 
-                title.innerText = "Iniciar Sesión"; btn.innerText = "Entrar"; btn.onclick = login; 
-                toggleText.innerText = "¿No tienes cuenta?"; toggleLink.innerText = "Regístrate aquí"; 
+                title.innerText = t.auth_login_title; btn.innerText = t.btn_enter; btn.onclick = login; 
+                toggleText.innerText = t.no_account; toggleLink.innerText = t.register_here; 
                 passwordHelp.classList.add('hidden');
             } else { 
-                title.innerText = "Crear Cuenta"; btn.innerText = "Registrarse"; btn.onclick = signup; 
-                toggleText.innerText = "¿Ya tienes cuenta?"; toggleLink.innerText = "Entra aquí"; 
+                title.innerText = t.auth_register_title; btn.innerText = t.btn_register; btn.onclick = signup; 
+                toggleText.innerText = t.have_account; toggleLink.innerText = t.enter_here; 
                 passwordHelp.classList.remove('hidden');
             }
         }
         async function signup() {
+            const t = translations[currentLang];
             const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
-            // Get the token from the widget
             const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
             if (!em || !pw) return;
             if (!PASSWORD_REGEX.test(pw)) {
                 const err = document.getElementById('authError');
-                err.innerText = "La contraseña debe tener 8+ caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).";
+                err.innerText = t.password_help;
                 err.classList.remove('hidden');
                 return;
             }
-            // Pass the token to Supabase options
             const { data, error } = await supabaseClient.auth.signUp({
                 email: em,
                 password: pw,
                 options: { captchaToken }
             });
             if (error) { document.getElementById('authError').innerText = error.message; document.getElementById('authError').classList.remove('hidden'); }
-            else { document.getElementById('authSuccess').innerText = "¡Registro exitoso! Entra ahora."; document.getElementById('authSuccess').classList.remove('hidden'); if (data.session) { currentUser = data.session.user; showView('create-order'); } }
+            else { document.getElementById('authSuccess').innerText = t.auth_success_reg; document.getElementById('authSuccess').classList.remove('hidden'); if (data.session) { currentUser = data.session.user; showView('create-order'); } }
         }
         async function login() {
+            const t = translations[currentLang];
             const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
-            // Get the token from the widget
             const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
             
-            // Pass the token to Supabase options
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: em,
                 password: pw,
                 options: { captchaToken }
             });
-            if (error) { document.getElementById('authError').innerText = "Credenciales incorrectas."; document.getElementById('authError').classList.remove('hidden'); }
+            if (error) { document.getElementById('authError').innerText = t.auth_error_creds; document.getElementById('authError').classList.remove('hidden'); }
             else { currentUser = data.session.user; showView('create-order'); }
         }
         async function logout() { await supabaseClient.auth.signOut(); window.location.reload(); }
 
         function updateEstimatedFee() {
+            const t = translations[currentLang];
             const val = document.getElementById('orderZone').value;
             const companionCheck = document.getElementById('companionCheck');
             const companionDiv = document.getElementById('companionOption');
@@ -1053,14 +1287,13 @@
                 companionCheck.checked = false; 
             }
 
-            let text = fees[val] || 'Calculando';
+            let text = fees[val] || t.calculating;
             if (val === 'Granada' && companionCheck.checked) {
-                text = "$14.99 (Servicio Acompañante)";
+                text = `$14.99 ${t.companion_service}`;
             }
             document.getElementById('estimatedFee').innerText = text;
         }
 
-        // Nueva función para Click & Go
         function toggleClickGo() {
             const isChecked = document.getElementById('clickGoCheck').checked;
             const detailsDiv = document.getElementById('clickGoDetails');
@@ -1084,14 +1317,15 @@
         }
 
         async function loadOrderHistory() {
+            const t = translations[currentLang];
             const listContainer = document.getElementById('orderHistoryList');
-            listContainer.innerHTML = '<div class="p-8 text-center text-gray-400">Cargando...</div>';
+            listContainer.innerHTML = `<div class="p-8 text-center text-gray-400">${t.loading}</div>`;
             const { data, error } = await supabaseClient.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
-            if (error || !data || data.length === 0) { listContainer.innerHTML = '<div class="p-8 text-center text-gray-400">No tienes pedidos recientes.</div>'; currentOrders = []; return; }
+            if (error || !data || data.length === 0) { listContainer.innerHTML = `<div class="p-8 text-center text-gray-400">${t.no_orders}</div>`; currentOrders = []; return; }
             currentOrders = data; 
             let html = '';
             data.forEach(order => {
-                const date = new Date(order.created_at).toLocaleDateString('es-NI');
+                const date = new Date(order.created_at).toLocaleDateString();
                 let statusClass = "status-pendiente bg-yellow-50 text-yellow-800";
                 if (order.status === 'en camino') statusClass = "status-en-camino bg-blue-50 text-blue-800";
                 if (order.status === 'entregado') statusClass = "status-entregado bg-green-50 text-green-800";
@@ -1106,27 +1340,27 @@
                                     <span class="text-sm text-gray-500"><i class="far fa-calendar-alt mr-1"></i> ${date}</span>
                                 </div>
                                 <h4 class="font-bold text-gray-800 text-lg mb-1">${order.delivery_zone}</h4>
-                                <p class="text-xs text-gray-500 truncate w-full md:w-96">Click en "Ver Detalles" para más información.</p>
+                                <p class="text-xs text-gray-500 truncate w-full md:w-96">Click "${t.order_view_details}"</p>
                             </div>
                             <div class="flex flex-col items-end gap-2 w-full md:w-auto">
                                 <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-white border shadow-sm mb-1 self-start md:self-end">
                                     ${order.status}
                                 </span>
                                 <button onclick="toggleOrderDetails('order-${order.id}')" class="text-sm text-brand-green hover:underline font-bold self-start md:self-end">
-                                    <i class="fas fa-eye mr-1"></i> Ver Detalles
+                                    <i class="fas fa-eye mr-1"></i> ${t.order_view_details}
                                 </button>
                             </div>
                         </div>
                         <div id="order-${order.id}" class="hidden mt-4 pt-4 border-t border-gray-200">
                             <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
                                 <div>
-                                    <p class="font-bold text-gray-700">Dirección:</p>
+                                    <p class="font-bold text-gray-700">${t.order_address_label}</p>
                                     <p>${order.delivery_address}</p>
-                                    <p class="mt-2 font-bold text-gray-700">Teléfono:</p>
+                                    <p class="mt-2 font-bold text-gray-700">${t.order_phone_label}</p>
                                     <p>${order.phone}</p>
                                 </div>
                                 <div>
-                                    <p class="font-bold text-gray-700">Detalles del Pedido:</p>
+                                    <p class="font-bold text-gray-700">${t.order_details_label}</p>
                                     <div class="bg-gray-50 p-2 rounded border border-gray-200 mt-1 whitespace-pre-wrap font-mono text-xs">${order.shopping_list}</div>
                                 </div>
                             </div>
