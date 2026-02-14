@@ -260,9 +260,7 @@
     <div id="view-pricing" class="view-section hidden flex-grow py-16 bg-brand-gray">
         <div class="max-w-5xl mx-auto px-4 text-center">
             <h2 class="text-3xl font-bold text-gray-800 mb-2">Tarifas de Envío</h2>
-            <p class="text-gray-500 mb-8">+ 1.50% de Comisión sobre el total de la compra</p>
-            
-            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
                 <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
                     <div class="text-brand-green text-3xl mb-2"><i class="fas fa-city"></i></div>
                     <h3 class="text-lg font-bold mb-2">Granada</h3>
@@ -380,11 +378,23 @@
                                 </div>
                             </label>
                         </div>
-
-                        <div class="text-xs text-gray-500 mt-2 flex items-center">
-                            <i class="fas fa-info-circle mr-1"></i> Se aplicará una comisión del 1.50% sobre el total de la compra.
+                        
+                        <div class="mb-2">
+                            <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
+                                <input type="checkbox" id="clickGoCheck" class="form-checkbox text-brand-green h-5 w-5 mt-1" onchange="toggleClickGo()">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-gray-800">Servicio Click & Go (Solo Recogida)</span>
+                                    <span class="text-xs text-gray-500">Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.</span>
+                                </div>
+                            </label>
                         </div>
-                    </div>
+
+                        <div id="clickGoDetails" class="hidden mb-4 ml-8">
+                            <label class="block text-gray-700 font-bold mb-2 text-sm">Número de Membresía PriceSmart (Titular de la compra)</label>
+                            <input type="text" id="memberId" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="Ej: 100012345678">
+                        </div>
+
+                        </div>
 
                     <div class="mb-4">
                         <label class="block text-gray-700 font-bold mb-2 text-sm">Dirección Exacta</label>
@@ -675,10 +685,12 @@
             
             const clientCode = currentUser.user_metadata?.client_code || "N/A";
             const companionCheck = document.getElementById('companionCheck').checked;
+            const clickGoCheck = document.getElementById('clickGoCheck').checked;
             const isGranada = document.getElementById('orderZone').value === 'Granada';
             
             const manualList = document.getElementById('orderList').value;
             const specialReq = document.getElementById('specialRequests').value;
+            const memberId = document.getElementById('memberId').value;
 
             // Procesar Múltiples Imágenes con Redimensión
             const imageInput = document.getElementById('listImage');
@@ -712,7 +724,12 @@
 
             let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
             if (companionCheck && isGranada) fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99) **\n`;
-            fullList += `COMISIÓN: 1.50% Aceptada\n\n`;
+            if (clickGoCheck) {
+                fullList += `** SERVICIO CLICK & GO (Recogida) **\n`;
+                fullList += `MEMBRESÍA: ${memberId}\n\n`;
+            }
+            // Comisión Eliminada
+            
             if (imageAttachments.length > 0) fullList += `** [IMÁGENES ADJUNTAS] El cliente ha subido ${imageAttachments.length} foto(s). **\n\n`;
             fullList += `LISTA (TEXTO):\n${manualList}\n\n`;
             if(specialReq) fullList += `NOTAS:\n${specialReq}`;
@@ -749,6 +766,9 @@
 
                 alert("¡Pedido enviado con éxito! Recibirás confirmación en tu correo.");
                 document.getElementById('orderForm').reset();
+                // Reset manual de checkbox
+                document.getElementById('clickGoCheck').checked = false;
+                toggleClickGo();
                 showView('orders'); 
             } catch (err) { 
                 console.error(err); 
@@ -1038,6 +1058,20 @@
                 text = "$14.99 (Servicio Acompañante)";
             }
             document.getElementById('estimatedFee').innerText = text;
+        }
+
+        // Nueva función para Click & Go
+        function toggleClickGo() {
+            const isChecked = document.getElementById('clickGoCheck').checked;
+            const detailsDiv = document.getElementById('clickGoDetails');
+            if (isChecked) {
+                detailsDiv.classList.remove('hidden');
+                document.getElementById('memberId').required = true;
+            } else {
+                detailsDiv.classList.add('hidden');
+                document.getElementById('memberId').required = false;
+                document.getElementById('memberId').value = '';
+            }
         }
 
         function toggleOrderDetails(id) {
