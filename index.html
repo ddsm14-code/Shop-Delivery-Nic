@@ -273,10 +273,26 @@
                     <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_email">Correo Electrónico</label>
                     <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="email" type="email" required placeholder="tu@correo.com">
                 </div>
-                <div class="mb-6">
+                
+                <div class="mb-4 relative">
                     <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_password">Contraseña</label>
-                    <input class="shadow border rounded w-full py-2 px-3 text-gray-700 mb-3 focus:outline-none focus:border-brand-green" id="password" type="password" required placeholder="********">
+                    <div class="relative">
+                        <input class="shadow border rounded w-full py-2 px-3 text-gray-700 mb-1 focus:outline-none focus:border-brand-green" id="password" type="password" required placeholder="********">
+                        <button type="button" onclick="togglePasswordVisibility('password', 'iconPass1')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-brand-green">
+                            <i id="iconPass1" class="fas fa-eye"></i>
+                        </button>
+                    </div>
                     <p id="passwordHelp" class="hidden text-xs text-gray-500 mt-1" data-i18n="password_help">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
+                </div>
+
+                <div id="confirmPasswordGroup" class="mb-6 relative hidden">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_confirm_password_auth">Confirmar Contraseña</label>
+                    <div class="relative">
+                        <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="confirmPasswordAuth" type="password" placeholder="********">
+                        <button type="button" onclick="togglePasswordVisibility('confirmPasswordAuth', 'iconPass2')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-brand-green">
+                            <i id="iconPass2" class="fas fa-eye"></i>
+                        </button>
+                    </div>
                 </div>
 
                 <div class="cf-turnstile mb-4" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
@@ -610,6 +626,7 @@
                 auth_register_title: "Crear Cuenta",
                 label_email: "Correo Electrónico",
                 label_password: "Contraseña",
+                label_confirm_password_auth: "Confirmar Contraseña",
                 password_help: "Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).",
                 btn_enter: "Entrar",
                 btn_register: "Registrarse",
@@ -619,6 +636,7 @@
                 enter_here: "Entra aquí",
                 auth_success_reg: "¡Registro exitoso! Entra ahora.",
                 auth_error_creds: "Credenciales incorrectas.",
+                auth_error_pass_mismatch: "Las contraseñas no coinciden.",
 
                 new_order_title: "Crear Nueva Orden",
                 client_code_label: "Código Cliente",
@@ -710,7 +728,7 @@
                 nav_logout: "Logout",
                 nav_logout_full: "Logout",
                 
-                hero_title: "We do your Grocery Shopping",
+                hero_title: "We do your Grocery Shopping for you",
                 hero_subtitle: "PriceSmart Nicaragua shopping delivered to your doorstep.",
                 btn_order: "Place Order",
                 btn_rates: "View Rates",
@@ -750,6 +768,7 @@
                 auth_register_title: "Create Account",
                 label_email: "Email",
                 label_password: "Password",
+                label_confirm_password_auth: "Confirm Password",
                 password_help: "Minimum 8 chars, 1 uppercase, 1 lowercase, 1 number, and 1 symbol (!, @, $).",
                 btn_enter: "Login",
                 btn_register: "Register",
@@ -759,6 +778,7 @@
                 enter_here: "Login here",
                 auth_success_reg: "Registration successful! Login now.",
                 auth_error_creds: "Invalid credentials.",
+                auth_error_pass_mismatch: "Passwords do not match.",
 
                 new_order_title: "Create New Order",
                 client_code_label: "Client Code",
@@ -899,6 +919,21 @@
             if (authTitle.innerText !== "") renderAuthForm(); 
 
             updateNav(currentUser !== null);
+        }
+
+        // --- MANEJO DE PASSWORD TOGGLE ---
+        function togglePasswordVisibility(fieldId, iconId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+            if(field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
         }
 
         // --- MANEJO DE INPUT DE ARCHIVO PERSONALIZADO ---
@@ -1333,23 +1368,46 @@
             const title = document.getElementById('authTitle'); const btn = document.getElementById('authBtn');
             const toggleText = document.getElementById('authToggleText'); const toggleLink = document.getElementById('authToggleLink');
             const passwordHelp = document.getElementById('passwordHelp');
+            const confirmGroup = document.getElementById('confirmPasswordGroup');
+
             document.getElementById('authError').classList.add('hidden'); document.getElementById('authSuccess').classList.add('hidden');
+            
             if (isLoginMode) { 
-                title.innerText = t.auth_login_title; btn.innerText = t.btn_enter; btn.onclick = login; 
-                toggleText.innerText = t.no_account; toggleLink.innerText = t.register_here; 
+                title.innerText = t.auth_login_title; 
+                btn.innerText = t.btn_enter; 
+                btn.onclick = login; 
+                toggleText.innerText = t.no_account; 
+                toggleLink.innerText = t.register_here; 
                 passwordHelp.classList.add('hidden');
+                confirmGroup.classList.add('hidden');
+                document.getElementById('confirmPasswordAuth').required = false;
             } else { 
-                title.innerText = t.auth_register_title; btn.innerText = t.btn_register; btn.onclick = signup; 
-                toggleText.innerText = t.have_account; toggleLink.innerText = t.enter_here; 
+                title.innerText = t.auth_register_title; 
+                btn.innerText = t.btn_register; 
+                btn.onclick = signup; 
+                toggleText.innerText = t.have_account; 
+                toggleLink.innerText = t.enter_here; 
                 passwordHelp.classList.remove('hidden');
+                confirmGroup.classList.remove('hidden');
+                document.getElementById('confirmPasswordAuth').required = true;
             }
         }
         async function signup() {
             const t = translations[currentLang];
             const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
+            const confirmPw = document.getElementById('confirmPasswordAuth').value;
             const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
             if (!em || !pw) return;
+            
+            // VALIDACIÓN CONTRASEÑA COINCIDE
+            if (pw !== confirmPw) {
+                const err = document.getElementById('authError');
+                err.innerText = t.auth_error_pass_mismatch;
+                err.classList.remove('hidden');
+                return;
+            }
+
             if (!PASSWORD_REGEX.test(pw)) {
                 const err = document.getElementById('authError');
                 err.innerText = t.password_help;
