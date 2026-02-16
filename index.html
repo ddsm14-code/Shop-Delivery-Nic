@@ -247,22 +247,22 @@
                 <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
                     <div class="text-brand-green text-3xl mb-2"><i class="fas fa-city"></i></div>
                     <h3 class="text-lg font-bold mb-2">Granada</h3>
-                    <p class="text-2xl font-bold text-brand-green">$10.99</p>
+                    <p class="text-2xl font-bold text-brand-green">$10.99 / C$ 402.50</p>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
                     <div class="text-brand-green text-3xl mb-2"><i class="fas fa-store-alt"></i></div>
                     <h3 class="text-lg font-bold mb-2">Masaya</h3>
-                    <p class="text-2xl font-bold text-brand-green">$10.99</p>
+                    <p class="text-2xl font-bold text-brand-green">$10.99 / C$ 402.50</p>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
                     <div class="text-brand-green text-3xl mb-2"><i class="fas fa-road"></i></div>
                     <h3 class="text-lg font-bold mb-2">Carretera Masaya</h3>
-                    <p class="text-2xl font-bold text-brand-green">$10.99</p>
+                    <p class="text-2xl font-bold text-brand-green">$10.99 / C$ 402.50</p>
                 </div>
                 <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
                     <div class="text-brand-green text-3xl mb-2"><i class="fas fa-building"></i></div>
                     <h3 class="text-lg font-bold mb-2">Managua</h3>
-                    <p class="text-2xl font-bold text-brand-green">$9.99</p>
+                    <p class="text-2xl font-bold text-brand-green">$9.99 / C$ 365.88</p>
                 </div>
             </div>
             <div class="mt-8 p-4 bg-white rounded-lg inline-block shadow-sm">
@@ -447,16 +447,16 @@
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_zone">Zona de Entrega</label>
                                 <select id="orderZone" name="zone" onchange="updateEstimatedFee()" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
-                                    <option value="Granada">Granada ($10.99)</option>
-                                    <option value="Masaya">Masaya ($10.99)</option>
-                                    <option value="Carretera Masaya">Carretera Masaya ($10.99)</option>
-                                    <option value="Managua">Managua ($9.99)</option>
+                                    <option value="Granada">Granada ($10.99 / C$ 402.50)</option>
+                                    <option value="Masaya">Masaya ($10.99 / C$ 402.50)</option>
+                                    <option value="Carretera Masaya">Carretera Masaya ($10.99 / C$ 402.50)</option>
+                                    <option value="Managua">Managua ($9.99 / C$ 365.88)</option>
                                     <option value="Departamento" data-i18n="option_other">Otro Departamento (Cotizar)</option>
                                 </select>
                             </div>
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_cost">Costo Estimado</label>
-                                <div id="estimatedFee" class="p-2 bg-white rounded text-brand-green font-bold text-center border">$10.99</div>
+                                <div id="estimatedFee" class="p-2 bg-white rounded text-brand-green font-bold text-center border">$10.99 / C$ 402.50</div>
                             </div>
                         </div>
 
@@ -464,7 +464,7 @@
                             <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
                                 <input type="checkbox" id="companionCheck" class="form-checkbox text-brand-green h-5 w-5 mt-1" onchange="updateEstimatedFee()">
                                 <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-800" data-i18n="companion_title">Servicio de Acompañamiento Personal (+$14.99)</span>
+                                    <span class="text-sm font-bold text-gray-800" data-i18n="companion_title">Servicio de Acompañamiento Personal (+$14.99 / C$ 549.00)</span>
                                     <span class="text-xs text-gray-500" data-i18n="companion_desc">Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.</span>
                                 </div>
                             </label>
@@ -666,7 +666,7 @@
                 nav_make_order: "Hacer Pedido",
                 nav_my_orders: "Mis Pedidos",
                 nav_profile: "Mi Perfil",
-                nav_payment: "Métodos de Pago", // NUEVO
+                nav_payment: "Métodos de Pago", 
                 nav_logout: "Salir",
                 nav_logout_full: "Cerrar Sesión",
                 
@@ -732,7 +732,7 @@
                 label_cost: "Costo Estimado",
                 option_other: "Otro Departamento (Cotizar)",
                 option_other_simple: "Otro",
-                companion_title: "Servicio de Acompañamiento Personal (+$14.99)",
+                companion_title: "Servicio de Acompañamiento Personal (+$14.99 / C$ 549.00)",
                 companion_desc: "Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.",
                 clickgo_title: "Servicio Click & Go (Solo Recogida)",
                 clickgo_desc: "Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.",
@@ -821,11 +821,11 @@
                 nav_make_order: "Place Order",
                 nav_my_orders: "My Orders",
                 nav_profile: "My Profile",
-                nav_payment: "Payment Methods", // NUEVO
+                nav_payment: "Payment Methods", 
                 nav_logout: "Logout",
                 nav_logout_full: "Logout",
                 
-                hero_title: "We do your Grocery Shopping for you",
+                hero_title: "We Shop For You",
                 hero_subtitle: "PriceSmart Nicaragua shopping delivered to your doorstep.",
                 btn_order: "Place Order",
                 btn_rates: "View Rates",
@@ -887,7 +887,7 @@
                 label_cost: "Estimated Cost",
                 option_other: "Other Department (Quote)",
                 option_other_simple: "Other",
-                companion_title: "Personal Companion Service (+$14.99)",
+                companion_title: "Personal Companion Service (+$14.99 / C$ 549.00)",
                 companion_desc: "Check this box if you wish to go with us to the supermarket to shop personally. We pick you up at your home.",
                 clickgo_title: "Click & Go Service (Pickup Only)",
                 clickgo_desc: "Select if you already bought online at PriceSmart.com and just need us to pick it up.",
@@ -1175,7 +1175,7 @@
             }
 
             let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
-            if (companionCheck && isGranada) fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99) **\n`;
+            if (companionCheck && isGranada) fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99 / C$ 549.00) **\n`;
             if (clickGoCheck) {
                 fullList += `** SERVICIO CLICK & GO (Recogida) **\n`;
                 fullList += `MEMBRESÍA: ${memberId}\n\n`;
@@ -1553,10 +1553,10 @@
             const companionDiv = document.getElementById('companionOption');
             
             const fees = { 
-                'Granada': '$10.99', 
-                'Masaya': '$10.99', 
-                'Carretera Masaya': '$10.99', 
-                'Managua': '$9.99', 
+                'Granada': '$10.99 / C$ 402.50', 
+                'Masaya': '$10.99 / C$ 402.50', 
+                'Carretera Masaya': '$10.99 / C$ 402.50', 
+                'Managua': '$9.99 / C$ 365.88', 
                 'Departamento': 'Cotizar' 
             };
 
@@ -1569,7 +1569,7 @@
 
             let text = fees[val] || t.calculating;
             if (val === 'Granada' && companionCheck.checked) {
-                text = `$14.99 ${t.companion_service}`;
+                text = `$14.99 / C$ 549.00 ${t.companion_service}`;
             }
             document.getElementById('estimatedFee').innerText = text;
         }
