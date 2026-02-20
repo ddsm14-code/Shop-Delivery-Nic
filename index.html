@@ -1,6 +1,15 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+    <!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-6B9E2LFH8R"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-6B9E2LFH8R');
+</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shop Delivery Nic - Tu Supermercado en Casa</title>
@@ -414,11 +423,7 @@
 
                 <form id="orderForm" onsubmit="submitOrder(event)">
                     <input type="hidden" name="client_code" id="hiddenClientCode">
-                    
-                    <div class="mb-4">
-                        <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_shopping_date">Fecha de Compra (Solo Miércoles o Viernes)</label>
-                        <input type="date" id="shoppingDate" required onchange="validateDate()" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
-                    </div>
+                    <input type="hidden" name="full_list_text" id="hiddenFullList">
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
@@ -440,50 +445,14 @@
                                 <h3 class="text-sm font-bold text-yellow-800" data-i18n="notice_payment_title">Política de Servicio Estándar</h3>
                                 <div class="mt-2 text-sm text-yellow-700">
                                     <p class="mb-1" data-i18n="notice_payment_desc">Para compras realizadas por nosotros, se requiere el 100% de anticipo.</p>
-                                    <p class="font-semibold" data-i18n="notice_schedule_desc">Cortes: Martes 11 PM (para miércoles) y Jueves 11 PM (para viernes).</p>
+                                    <p class="font-semibold" data-i18n="notice_schedule_desc">Cierre de pedidos: Jueves 11:00 PM CST. Día de compras: Viernes.</p>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
-                        
-                        <div class="mb-6 border-b pb-4">
-                            <label class="block text-gray-700 font-bold mb-3 text-sm" data-i18n="label_service_type">Tipo de Servicio</label>
-                            
-                            <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100 mb-2">
-                                <input type="radio" name="serviceType" value="shopForMe" id="serviceShopForMe" class="form-radio text-brand-green h-5 w-5 mt-1" checked onchange="handleServiceChange()">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-800" data-i18n="shopforme_title">Shop For Me!</span>
-                                    <span class="text-xs text-gray-500" data-i18n="shopforme_desc">Nosotros hacemos la compra por ti en el supermercado.</span>
-                                </div>
-                            </label>
-
-                            <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100 mb-2">
-                                <input type="radio" name="serviceType" value="clickGo" id="serviceClickGo" class="form-radio text-brand-green h-5 w-5 mt-1" onchange="handleServiceChange()">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-800" data-i18n="clickgo_title">Servicio Click & Go (Solo Recogida)</span>
-                                    <span class="text-xs text-gray-500" data-i18n="clickgo_desc">Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.</span>
-                                </div>
-                            </label>
-
-                            <div id="clickGoDetails" class="hidden mb-2 ml-8 mt-2">
-                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_memberid">Número de Membresía PriceSmart (Titular de la compra)</label>
-                                <input type="text" id="memberId" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white shadow-inner" placeholder="Ej: 100012345678">
-                            </div>
-
-                            <div id="companionOption" class="hidden">
-                                <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
-                                    <input type="radio" name="serviceType" value="companion" id="serviceCompanion" class="form-radio text-brand-green h-5 w-5 mt-1" onchange="handleServiceChange()">
-                                    <div class="flex flex-col">
-                                        <span class="text-sm font-bold text-gray-800" data-i18n="companion_title">Servicio de Acompañamiento Personal (+$14.99 / C$ 549.00)</span>
-                                        <span class="text-xs text-gray-500" data-i18n="companion_desc">Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.</span>
-                                    </div>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                                 <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_zone">Zona de Entrega</label>
                                 <select id="orderZone" name="zone" onchange="updateEstimatedFee()" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
@@ -499,6 +468,31 @@
                                 <div id="estimatedFee" class="p-2 bg-white rounded text-brand-green font-bold text-center border">$10.99 / C$ 402.50</div>
                             </div>
                         </div>
+
+                        <div id="companionOption" class="hidden mb-2">
+                            <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
+                                <input type="checkbox" id="companionCheck" class="form-checkbox text-brand-green h-5 w-5 mt-1" onchange="updateEstimatedFee()">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-gray-800" data-i18n="companion_title">Servicio de Acompañamiento Personal (+$14.99 / C$ 549.00)</span>
+                                    <span class="text-xs text-gray-500" data-i18n="companion_desc">Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.</span>
+                                </div>
+                            </label>
+                        </div>
+                        
+                        <div class="mb-2">
+                            <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
+                                <input type="checkbox" id="clickGoCheck" class="form-checkbox text-brand-green h-5 w-5 mt-1" onchange="toggleClickGo()">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-gray-800" data-i18n="clickgo_title">Servicio Click & Go (Solo Recogida)</span>
+                                    <span class="text-xs text-gray-500" data-i18n="clickgo_desc">Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.</span>
+                                </div>
+                            </label>
+                        </div>
+
+                        <div id="clickGoDetails" class="hidden mb-4 ml-8">
+                            <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_memberid">Número de Membresía PriceSmart (Titular de la compra)</label>
+                            <input type="text" id="memberId" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="Ej: 100012345678">
+                        </div>
                     </div>
 
                     <div class="mb-4">
@@ -510,6 +504,7 @@
                         <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_list">Lista de Compras</label>
                         <div class="mb-2">
                             <label class="block text-gray-600 text-xs mb-1" data-i18n="upload_label">¿Tienes tu lista en papel? Sube fotos (Máximo 10)</label>
+                            
                             <div class="flex items-center space-x-3">
                                 <label for="listImage" class="cursor-pointer bg-green-50 text-brand-green px-4 py-2 rounded-lg font-bold text-sm hover:bg-green-100 transition border border-green-100 flex items-center">
                                     <i class="fas fa-camera mr-2"></i> <span id="fileBtnText" data-i18n="btn_choose_files">Subir Fotos</span>
@@ -684,7 +679,7 @@
                 nav_logout: "Salir",
                 nav_logout_full: "Cerrar Sesión",
                 
-                hero_title: "We Shop For You", // Cambiado según solicitud
+                hero_title: "Compramos por ti",
                 hero_subtitle: "Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.",
                 btn_order: "Hacer mi Pedido",
                 btn_rates: "Ver Tarifas",
@@ -740,13 +735,8 @@
                 client_code_label: "Código Cliente",
                 open_pricesmart: "Abrir PriceSmart.com",
                 processing: "Procesando y enviando...",
-                label_shopping_date: "Fecha de Compra (Solo Miércoles o Viernes)",
-                date_error: "Solo realizamos compras los Miércoles y Viernes. Por favor selecciona uno de estos días.",
                 label_fullname: "Tu Nombre Completo",
                 label_phone: "Teléfono",
-                label_service_type: "Tipo de Servicio",
-                shopforme_title: "Shop For Me!",
-                shopforme_desc: "Nosotros hacemos la compra por ti en el supermercado.",
                 label_zone: "Zona de Entrega",
                 label_cost: "Costo Estimado",
                 option_other: "Otro Departamento (Cotizar)",
@@ -770,7 +760,7 @@
                 
                 notice_payment_title: "Política de Servicio Estándar",
                 notice_payment_desc: "Para compras realizadas por nosotros, se requiere el 100% de anticipo.",
-                notice_schedule_desc: "Cortes: Martes 11 PM (para miércoles) y Jueves 11 PM (para viernes).",
+                notice_schedule_desc: "Cierre de pedidos: Jueves 11:00 PM CST. Día de compras: Viernes.",
 
                 // PAYMENT METHODS SECTION
                 payment_title: "Métodos de Pago",
@@ -900,13 +890,8 @@
                 client_code_label: "Client Code",
                 open_pricesmart: "Open PriceSmart.com",
                 processing: "Processing and sending...",
-                label_shopping_date: "Shopping Date (Wednesdays or Fridays only)",
-                date_error: "We only shop on Wednesdays and Fridays. Please select one of these days.",
                 label_fullname: "Full Name",
                 label_phone: "Phone",
-                label_service_type: "Service Type",
-                shopforme_title: "Shop For Me!",
-                shopforme_desc: "We do the shopping for you at the supermarket.",
                 label_zone: "Delivery Zone",
                 label_cost: "Estimated Cost",
                 option_other: "Other Department (Quote)",
@@ -930,7 +915,7 @@
                 
                 notice_payment_title: "Standard Service Policy",
                 notice_payment_desc: "For shopping done by us, 100% prepayment is required.",
-                notice_schedule_desc: "Cut-offs: Tuesday 11 PM (for Wednesday) and Thursday 11 PM (for Friday).",
+                notice_schedule_desc: "Order Cut-off: Thursday 11:00 PM CST. Shopping Day: Friday.",
 
                 // PAYMENT METHODS SECTION
                 payment_title: "Payment Methods",
@@ -994,7 +979,6 @@
         function initApp() {
             applyLanguage(currentLang); // Aplicar idioma al inicio
             updateNav(false); 
-            setMinDate(); // Configura calendario para no aceptar fechas pasadas
 
             try {
                 supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
@@ -1022,30 +1006,6 @@
                     }
                 });
             } catch (error) { console.error("Error inicializando:", error); }
-        }
-
-        // --- CALENDARIO VALIDACIÓN ---
-        function setMinDate() {
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            document.getElementById('shoppingDate').min = `${yyyy}-${mm}-${dd}`;
-        }
-
-        function validateDate() {
-            const t = translations[currentLang];
-            const dateInput = document.getElementById('shoppingDate');
-            if (dateInput.value) {
-                // Previene problemas de zona horaria parseando YYYY-MM-DD
-                const d = new Date(dateInput.value + 'T00:00:00');
-                const day = d.getDay(); // 0 es Domingo, 3 es Miércoles, 5 es Viernes
-                
-                if (day !== 3 && day !== 5) {
-                    alert(t.date_error);
-                    dateInput.value = '';
-                }
-            }
         }
 
         // --- I18N FUNCTIONS ---
@@ -1189,17 +1149,11 @@
         async function submitOrder(e) {
             e.preventDefault();
             const t = translations[currentLang];
-            
-            const dateVal = document.getElementById('shoppingDate').value;
-            if(!dateVal) {
-                alert(t.date_error);
-                return;
-            }
-
             document.getElementById('sendingOverlay').classList.remove('hidden');
             
             const clientCode = currentUser.user_metadata?.client_code || "N/A";
-            const serviceType = document.querySelector('input[name="serviceType"]:checked').value;
+            const companionCheck = document.getElementById('companionCheck').checked;
+            const clickGoCheck = document.getElementById('clickGoCheck').checked;
             const isGranada = document.getElementById('orderZone').value === 'Granada';
             
             const manualList = document.getElementById('orderList').value;
@@ -1230,16 +1184,9 @@
             }
 
             let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
-            fullList += `FECHA DE COMPRA: ${dateVal}\n\n`;
-
-            if (serviceType === 'shopForMe') {
-                fullList += `** SERVICIO SHOP FOR ME! (Hacemos la compra) **\n\n`;
-            }
-            if (serviceType === 'companion' && isGranada) {
-                fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99 / C$ 549.00) **\n\n`;
-            }
-            if (serviceType === 'clickGo') {
-                fullList += `** SERVICIO CLICK & GO (Solo Recogida) **\n`;
+            if (companionCheck && isGranada) fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99 / C$ 549.00) **\n`;
+            if (clickGoCheck) {
+                fullList += `** SERVICIO CLICK & GO (Recogida) **\n`;
                 fullList += `MEMBRESÍA: ${memberId}\n\n`;
             }
             
@@ -1276,9 +1223,10 @@
 
                 alert(t.alert_order_success);
                 document.getElementById('orderForm').reset();
-                document.getElementById('serviceShopForMe').checked = true;
-                handleServiceChange();
+                document.getElementById('clickGoCheck').checked = false;
+                // Reset file button text
                 document.getElementById('fileCount').innerText = ""; 
+                toggleClickGo();
                 showView('orders'); 
             } catch (err) { 
                 console.error(err); 
@@ -1294,10 +1242,7 @@
             document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
             document.getElementById(`view-${viewName}`).classList.remove('hidden');
             
-            if (viewName === 'create-order' && currentUser) { 
-                prefillOrderForm(); 
-                setMinDate(); // Aseguramos que el min date este seteado
-            } 
+            if (viewName === 'create-order' && currentUser) { prefillOrderForm(); } 
             else if (viewName === 'create-order') { showView('auth'); return; }
 
             if (viewName === 'orders') {
@@ -1613,8 +1558,8 @@
         function updateEstimatedFee() {
             const t = translations[currentLang];
             const val = document.getElementById('orderZone').value;
-            const companionOption = document.getElementById('companionOption');
-            const serviceCompanion = document.getElementById('serviceCompanion');
+            const companionCheck = document.getElementById('companionCheck');
+            const companionDiv = document.getElementById('companionOption');
             
             const fees = { 
                 'Granada': '$10.99 / C$ 402.50', 
@@ -1625,31 +1570,27 @@
             };
 
             if (val === 'Granada') {
-                companionOption.classList.remove('hidden');
+                companionDiv.classList.remove('hidden');
             } else {
-                companionOption.classList.add('hidden');
-                if (serviceCompanion.checked) {
-                    document.getElementById('serviceShopForMe').checked = true;
-                    handleServiceChange(); // Forzar actualización de UI si estaba marcado
-                }
+                companionDiv.classList.add('hidden');
+                companionCheck.checked = false; 
             }
 
             let text = fees[val] || t.calculating;
-            if (val === 'Granada' && serviceCompanion.checked) {
+            if (val === 'Granada' && companionCheck.checked) {
                 text = `$14.99 / C$ 549.00 ${t.companion_service}`;
             }
             document.getElementById('estimatedFee').innerText = text;
         }
 
-        // --- MANEJO DE CAMBIO DE SERVICIO (RADIO BUTTONS) ---
-        function handleServiceChange() {
-            const type = document.querySelector('input[name="serviceType"]:checked').value;
+        function toggleClickGo() {
+            const isChecked = document.getElementById('clickGoCheck').checked;
             const detailsDiv = document.getElementById('clickGoDetails');
             const noticeDiv = document.getElementById('standardServiceNotice');
             
-            if (type === 'clickGo') {
+            if (isChecked) {
                 detailsDiv.classList.remove('hidden');
-                noticeDiv.classList.add('hidden'); // Ocultar aviso de pago
+                noticeDiv.classList.add('hidden'); // Ocultar aviso de pago 100%
                 document.getElementById('memberId').required = true;
             } else {
                 detailsDiv.classList.add('hidden');
@@ -1657,9 +1598,6 @@
                 document.getElementById('memberId').required = false;
                 document.getElementById('memberId').value = '';
             }
-
-            // Actualizar precio si es que cambiaron a o desde Acompañante
-            updateEstimatedFee();
         }
 
         function toggleOrderDetails(id) {
