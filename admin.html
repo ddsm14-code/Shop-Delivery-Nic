@@ -15,7 +15,6 @@
     </script>
     <style>
         .super-zoom { transform: scale(2.5); cursor: zoom-out !important; }
-        /* Mejora para el scroll en móviles */
         ::-webkit-scrollbar { height: 6px; width: 6px; }
         ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
@@ -205,6 +204,11 @@
         const ENVIO_USD = 10.99;
         const ENVIO_NIO = ENVIO_USD * TASA_CAMBIO;
 
+        const ADMIN_EMAILS = [
+            "ddsm14@gmail.com",
+            "correo_asistente@gmail.com" 
+        ];
+
         function showGlobalError(msg) {
             document.getElementById('globalErrorText').innerText = msg;
             document.getElementById('globalError').classList.remove('hidden');
@@ -217,7 +221,6 @@
         try {
             const SUPABASE_URL = "https://dltpvajfltfzayhomufx.supabase.co"; 
             const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdHB2YWpmbHRmemF5aG9tdWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzkyOTAsImV4cCI6MjA4NTQ1NTI5MH0.HCldnUI4sm9BHepUDgcqs4v4a5yVa20VWSzt2lNQ_Vo";
-            const ADMIN_EMAIL = "ddsm14@gmail.com";
 
             if (!window.supabase) throw new Error("La librería de Supabase no cargó correctamente.");
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -228,7 +231,7 @@
                 if (error) throw error;
                 const session = data?.session;
                 if (session && session.user && session.user.email) {
-                    if (session.user.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
+                    if (ADMIN_EMAILS.includes(session.user.email.toLowerCase())) {
                         showDashboard();
                     } else { supabase.auth.signOut(); }
                 }
@@ -243,7 +246,10 @@
 
                 document.getElementById('globalError').classList.add('hidden');
 
-                if (email !== ADMIN_EMAIL.toLowerCase()) { showGlobalError("Acceso denegado: Este correo no tiene permisos."); return; }
+                if (!ADMIN_EMAILS.includes(email)) { 
+                    showGlobalError("Acceso denegado: Este correo no tiene permisos."); 
+                    return; 
+                }
                 if (!captchaToken) { showGlobalError("Por favor, marca la casilla de seguridad."); return; }
 
                 btn.innerText = "Verificando..."; btn.disabled = true;
@@ -638,7 +644,7 @@
                 document.getElementById('modalContent').innerHTML = html;
                 document.getElementById('detailsModal').classList.remove('hidden');
                 calcFinances(orderId); 
-                document.body.style.overflow = 'hidden'; // Evita que se mueva el fondo al scrollear el modal en móvil
+                document.body.style.overflow = 'hidden'; 
             };
 
             window.closeModal = function() { 
@@ -740,6 +746,7 @@
                 }
             };
 
+            // ACTUALIZACIÓN: RECIBO CON SELLO DE "CANCELADO"
             window.printReceipt = function(orderId) {
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
@@ -749,8 +756,19 @@
                 
                 const totalNio = subtotal + iva + ENVIO_NIO;
                 const totalUsd = totalNio / TASA_CAMBIO;
-
                 const dateStr = new Date().toLocaleString('es-ES');
+                
+                // Lógica del Sello
+                const isPaid = document.getElementById(`finStatus-${orderId}`).value === 'Pagado';
+                const stampHtml = isPaid ? `
+                    <div style="display: flex; justify-content: center; margin: 25px 0 15px 0;">
+                        <div style="width: 130px; height: 130px; border: 3px solid #000; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: rotate(-12deg); box-shadow: inset 0 0 0 2px #000;">
+                            <span style="font-size: 11px; letter-spacing: 1px; font-weight: bold;">SHOP DELIVERY</span>
+                            <span style="font-size: 18px; font-weight: bold; margin: 6px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 2px 0;">CANCELADO</span>
+                            <span style="font-size: 11px; font-weight: bold;">GRANADA, NIC</span>
+                        </div>
+                    </div>
+                ` : '<div style="margin-top: 30px;"></div>';
                 
                 const printWindow = window.open('', '_blank', 'width=350,height=600');
                 
@@ -813,6 +831,8 @@
                             <span>(Equivalente: $ ${totalUsd.toFixed(2)})</span>
                         </div>
                         
+                        ${stampHtml}
+                        
                         <div class="divider"></div>
                         
                         <div class="text-center" style="font-size:12px;">
@@ -827,9 +847,7 @@
                 printWindow.document.close();
                 
                 printWindow.focus();
-                setTimeout(() => {
-                    printWindow.print();
-                }, 500);
+                setTimeout(() => { printWindow.print(); }, 500);
             };
 
         } catch(error) { showGlobalError("Fallo general: " + error.message); }
