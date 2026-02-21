@@ -15,19 +15,22 @@
     </script>
     <style>
         .super-zoom { transform: scale(2.5); cursor: zoom-out !important; }
+        /* Mejora para el scroll en móviles */
+        ::-webkit-scrollbar { height: 6px; width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen">
 
     <nav class="bg-gray-900 text-white shadow-md sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-16 items-center">
-                <div class="flex items-center font-bold text-xl">
-                    <i class="fas fa-cogs text-brand-green mr-2"></i> Shop Delivery Nic
+            <div class="flex flex-col md:flex-row justify-between min-h-[4rem] py-3 items-center gap-3">
+                <div class="flex items-center font-bold text-lg md:text-xl w-full justify-center md:justify-start md:w-auto">
+                    <i class="fas fa-cogs text-brand-green mr-2"></i> Shop Delivery Admin
                 </div>
                 
-                <div class="flex items-center gap-6">
-                    <div id="mainNavMenu" class="hidden gap-4">
+                <div class="flex items-center gap-4 w-full justify-center md:justify-end md:w-auto overflow-x-auto">
+                    <div id="mainNavMenu" class="hidden gap-4 items-center whitespace-nowrap">
                         <button onclick="showDashboard()" id="tabOrders" class="text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm">Órdenes</button>
                         <button onclick="showFinances()" id="tabFinances" class="text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm">Finanzas</button>
                     </div>
@@ -37,74 +40,74 @@
         </div>
     </nav>
 
-    <div id="globalError" class="hidden max-w-md mx-auto mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm">
-        <p class="font-bold">Error del sistema:</p>
-        <p id="globalErrorText" class="text-sm"></p>
+    <div id="globalError" class="hidden max-w-md mx-auto mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm mx-4 md:mx-auto">
+        <p class="font-bold text-sm">Error del sistema:</p>
+        <p id="globalErrorText" class="text-xs"></p>
     </div>
 
-    <div id="loginView" class="max-w-md mx-auto mt-10 bg-white p-8 rounded-xl shadow-lg">
-        <h2 class="text-2xl font-bold text-center mb-6 text-brand-green">Acceso Administrativo</h2>
+    <div id="loginView" class="max-w-md mx-auto mt-10 bg-white p-6 md:p-8 rounded-xl shadow-lg mx-4 md:mx-auto">
+        <h2 class="text-xl md:text-2xl font-bold text-center mb-6 text-brand-green">Acceso Administrativo</h2>
         <form onsubmit="handleLogin(event)">
-            <input type="email" id="adminEmail" placeholder="Correo electrónico" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green">
-            <input type="password" id="adminPassword" placeholder="Contraseña" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green">
-            <div class="cf-turnstile mb-6 flex justify-center" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
+            <input type="email" id="adminEmail" placeholder="Correo electrónico" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green text-sm md:text-base">
+            <input type="password" id="adminPassword" placeholder="Contraseña" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green text-sm md:text-base">
+            <div class="cf-turnstile mb-6 flex justify-center w-full overflow-hidden" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
             <button type="submit" id="loginBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded hover:bg-brand-dark transition shadow-lg">Entrar al Panel</button>
         </form>
     </div>
 
-    <div id="financesView" class="hidden max-w-7xl mx-auto px-4 mt-8 pb-10">
-        <div class="flex justify-between items-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-800">Reporte Financiero</h1>
+    <div id="financesView" class="hidden max-w-7xl mx-auto px-4 mt-6 md:mt-8 pb-10">
+        <div class="flex justify-between items-center mb-4 md:mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Reporte Financiero</h1>
         </div>
 
-        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row gap-4 items-end">
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Desde (Fecha Inicio)</label>
-                <input type="date" id="reportStart" class="border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
+        <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-end">
+            <div class="w-full md:w-auto">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Desde (Inicio)</label>
+                <input type="date" id="reportStart" class="w-full md:w-auto border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
             </div>
-            <div>
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Hasta (Fecha Fin)</label>
-                <input type="date" id="reportEnd" class="border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
+            <div class="w-full md:w-auto">
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Hasta (Fin)</label>
+                <input type="date" id="reportEnd" class="w-full md:w-auto border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
             </div>
-            <div class="flex gap-2">
-                <button onclick="generateFinancialReport()" class="bg-brand-green hover:bg-brand-dark text-white font-bold py-2 px-6 rounded shadow transition">
-                    <i class="fas fa-filter mr-2"></i> Calcular
+            <div class="flex gap-2 w-full md:w-auto">
+                <button onclick="generateFinancialReport()" class="flex-1 md:flex-none bg-brand-green hover:bg-brand-dark text-white font-bold py-2 px-4 rounded shadow transition text-sm">
+                    <i class="fas fa-filter md:mr-2"></i> <span class="hidden md:inline">Calcular</span>
                 </button>
-                <button onclick="clearFinancialFilters()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded shadow-sm transition">
+                <button onclick="clearFinancialFilters()" class="flex-1 md:flex-none bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded shadow-sm transition text-sm">
                     Ver Todo
                 </button>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-md">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-md">
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="bg-gray-100 p-3 rounded-full text-gray-600"><i class="fas fa-shopping-cart text-xl"></i></div>
-                    <h3 class="font-bold text-gray-700 text-lg">Compras PriceSmart</h3>
+                    <div class="bg-gray-100 p-2 md:p-3 rounded-full text-gray-600"><i class="fas fa-shopping-cart text-lg md:text-xl"></i></div>
+                    <h3 class="font-bold text-gray-700 text-base md:text-lg">Compras PriceSmart</h3>
                 </div>
-                <p class="text-xs text-gray-500 mb-4">Total gastado en supermercado (Subtotal + IVA)</p>
-                <p class="text-3xl font-bold text-gray-800">C$ <span id="finReportPSNio">0.00</span></p>
-                <p class="text-sm font-mono text-gray-500 mt-1">Ref: $ <span id="finReportPSUsd">0.00</span></p>
+                <p class="text-xs text-gray-500 mb-2 md:mb-4">Total gastado (Subtotal + IVA)</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800">C$ <span id="finReportPSNio">0.00</span></p>
+                <p class="text-xs md:text-sm font-mono text-gray-500 mt-1">Ref: $ <span id="finReportPSUsd">0.00</span></p>
             </div>
 
-            <div class="bg-white p-6 rounded-xl border border-green-200 shadow-md relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Tu Dinero</div>
+            <div class="bg-white p-5 rounded-xl border border-green-200 shadow-md relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-brand-green text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded-bl-lg">Tu Dinero</div>
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="bg-green-100 p-3 rounded-full text-brand-green"><i class="fas fa-chart-line text-xl"></i></div>
-                    <h3 class="font-bold text-gray-700 text-lg">Ganancias Netas</h3>
+                    <div class="bg-green-100 p-2 md:p-3 rounded-full text-brand-green"><i class="fas fa-chart-line text-lg md:text-xl"></i></div>
+                    <h3 class="font-bold text-gray-700 text-base md:text-lg">Ganancias Netas</h3>
                 </div>
-                <p class="text-xs text-gray-500 mb-4">Ingresos por tarifa de entrega ($10.99 por orden)</p>
-                <p class="text-3xl font-bold text-brand-green">C$ <span id="finReportEarnNio">0.00</span></p>
-                <p class="text-sm font-mono text-green-600 mt-1 font-bold">Ref: $ <span id="finReportEarnUsd">0.00</span></p>
+                <p class="text-xs text-gray-500 mb-2 md:mb-4">Ingresos por tarifa ($10.99)</p>
+                <p class="text-2xl md:text-3xl font-bold text-brand-green">C$ <span id="finReportEarnNio">0.00</span></p>
+                <p class="text-xs md:text-sm font-mono text-green-600 mt-1 font-bold">Ref: $ <span id="finReportEarnUsd">0.00</span></p>
             </div>
 
-            <div class="bg-gray-800 p-6 rounded-xl border border-gray-900 shadow-md text-white">
+            <div class="bg-gray-800 p-5 rounded-xl border border-gray-900 shadow-md text-white sm:col-span-2 md:col-span-1">
                 <div class="flex items-center gap-3 mb-2">
-                    <div class="bg-gray-700 p-3 rounded-full text-yellow-400"><i class="fas fa-coins text-xl"></i></div>
-                    <h3 class="font-bold text-white text-lg">Flujo de Caja Total</h3>
+                    <div class="bg-gray-700 p-2 md:p-3 rounded-full text-yellow-400"><i class="fas fa-coins text-lg md:text-xl"></i></div>
+                    <h3 class="font-bold text-white text-base md:text-lg">Flujo Total</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-4">Dinero total movido (PriceSmart + Envíos)</p>
-                <p class="text-3xl font-bold">C$ <span id="finReportTotalNio">0.00</span></p>
+                <p class="text-xs text-gray-400 mb-2 md:mb-4">Dinero total movido</p>
+                <p class="text-2xl md:text-3xl font-bold">C$ <span id="finReportTotalNio">0.00</span></p>
                 
                 <div class="mt-4 pt-4 border-t border-gray-700 flex justify-between items-center">
                     <span class="text-sm text-gray-300">Órdenes Exitosas:</span>
@@ -112,86 +115,85 @@
                 </div>
             </div>
         </div>
-        
-        <p class="text-xs text-gray-500 mt-6 text-center"><i class="fas fa-info-circle"></i> Nota: El reporte excluye automáticamente las órdenes marcadas como "Cancelado". Tasa de cambio aplicada: C$ 36.6243.</p>
     </div>
 
-    <div id="dashboardView" class="hidden max-w-7xl mx-auto px-4 mt-8 pb-10">
+    <div id="dashboardView" class="hidden max-w-7xl mx-auto px-4 mt-6 md:mt-8 pb-10">
         
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-gray-800 flex flex-col justify-center">
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Nuevas (Hoy)</p>
-                <h3 class="text-3xl font-bold text-gray-800" id="metricToday">0</h3>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+            <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-gray-800 flex flex-col justify-center">
+                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">Nuevas (Hoy)</p>
+                <h3 class="text-2xl md:text-3xl font-bold text-gray-800" id="metricToday">0</h3>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-yellow-400 flex flex-col justify-center">
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Pendientes</p>
-                <h3 class="text-3xl font-bold text-yellow-600" id="metricPending">0</h3>
+            <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-yellow-400 flex flex-col justify-center">
+                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">Pendientes</p>
+                <h3 class="text-2xl md:text-3xl font-bold text-yellow-600" id="metricPending">0</h3>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-blue-400 flex flex-col justify-center">
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">En Camino</p>
-                <h3 class="text-3xl font-bold text-blue-600" id="metricOnWay">0</h3>
+            <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-blue-400 flex flex-col justify-center">
+                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">En Camino</p>
+                <h3 class="text-2xl md:text-3xl font-bold text-blue-600" id="metricOnWay">0</h3>
             </div>
-            <div class="bg-white p-4 rounded-xl shadow-sm border-l-4 border-green-500 flex flex-col justify-center">
-                <p class="text-xs text-gray-500 font-bold uppercase tracking-wide">Entregadas</p>
-                <h3 class="text-3xl font-bold text-brand-green" id="metricDelivered">0</h3>
+            <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-green-500 flex flex-col justify-center">
+                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">Entregadas</p>
+                <h3 class="text-2xl md:text-3xl font-bold text-brand-green" id="metricDelivered">0</h3>
             </div>
         </div>
 
-        <div class="flex flex-col md:flex-row justify-between items-center mb-4 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-200">
-            <div class="flex items-center w-full md:w-auto gap-2">
-                <i class="fas fa-search text-gray-400"></i>
-                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Buscar nombre, teléfono o ID..." class="w-full md:w-64 border-none focus:outline-none text-sm bg-transparent">
+        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center mb-4 gap-3 md:gap-4 bg-white p-3 md:p-4 rounded-xl shadow-sm border border-gray-200">
+            <div class="flex items-center w-full md:w-auto gap-2 bg-gray-50 p-2 rounded md:bg-transparent md:p-0">
+                <i class="fas fa-search text-gray-400 ml-2 md:ml-0"></i>
+                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Buscar nombre, teléfono..." class="w-full md:w-64 border-none focus:outline-none text-sm bg-transparent">
             </div>
-            <div class="flex items-center w-full md:w-auto gap-3">
-                <select id="statusFilter" onchange="renderTable()" class="border p-2 rounded text-sm focus:outline-none focus:border-brand-green bg-gray-50">
+            <div class="flex items-center w-full md:w-auto gap-2">
+                <select id="statusFilter" onchange="renderTable()" class="w-full md:w-auto border p-2 rounded text-sm focus:outline-none focus:border-brand-green bg-gray-50">
                     <option value="all">Todos los estados</option>
                     <option value="pendiente">Solo Pendientes</option>
                     <option value="en camino">Solo En Camino</option>
                     <option value="entregado">Solo Entregadas</option>
                     <option value="cancelado">Solo Canceladas</option>
                 </select>
-                <button onclick="loadAllOrders()" class="bg-brand-green text-white px-4 py-2 rounded shadow hover:bg-brand-dark transition flex items-center text-sm font-bold">
-                    <i class="fas fa-sync-alt mr-2"></i> Recargar
+                <button onclick="loadAllOrders()" class="bg-brand-green text-white px-3 py-2 rounded shadow hover:bg-brand-dark transition flex items-center text-sm font-bold">
+                    <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
         </div>
 
         <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse">
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
-                        <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wide border-b border-gray-200">
-                            <th class="p-4 font-semibold">Fecha / ID</th>
-                            <th class="p-4 font-semibold">Cliente</th>
-                            <th class="p-4 font-semibold">Zona / Pago</th>
-                            <th class="p-4 font-semibold text-center">Acciones</th>
-                            <th class="p-4 font-semibold text-center">Estado de Envío</th>
+                        <tr class="bg-gray-50 text-gray-600 text-[11px] md:text-sm uppercase tracking-wide border-b border-gray-200">
+                            <th class="p-3 md:p-4 font-semibold">ID / Fecha</th>
+                            <th class="p-3 md:p-4 font-semibold">Cliente</th>
+                            <th class="p-3 md:p-4 font-semibold">Zona / Pago</th>
+                            <th class="p-3 md:p-4 font-semibold text-center">Acciones</th>
+                            <th class="p-3 md:p-4 font-semibold text-center">Envío</th>
                         </tr>
                     </thead>
-                    <tbody id="ordersTableBody" class="divide-y divide-gray-100 text-sm">
-                        <tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando órdenes desde Supabase...</td></tr>
+                    <tbody id="ordersTableBody" class="divide-y divide-gray-100 text-xs md:text-sm">
+                        <tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando órdenes...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <div id="detailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4">
-        <div class="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden flex flex-col">
-            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
-                <h3 class="font-bold text-lg text-gray-800" id="modalTitle">Gestión de Orden</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-red-500 transition text-2xl leading-none">&times;</button>
+    <div id="detailsModal" class="hidden fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-2 md:p-4">
+        <div class="bg-gray-100 md:bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden">
+            <div class="p-3 md:p-4 border-b bg-white flex justify-between items-center sticky top-0 z-10 shadow-sm">
+                <h3 class="font-bold text-base md:text-lg text-gray-800 truncate pr-2" id="modalTitle">Gestión de Orden</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-red-500 transition text-2xl leading-none px-2">&times;</button>
             </div>
             
-            <div class="p-6 overflow-y-auto flex-grow bg-gray-50/50" id="modalContent"></div>
+            <div class="p-3 md:p-6 overflow-y-auto flex-grow" id="modalContent">
+                </div>
             
-            <div class="p-4 border-t bg-gray-50 flex justify-end gap-3">
-                <button onclick="closeModal()" class="bg-gray-800 text-white px-6 py-2 rounded shadow hover:bg-gray-900 transition font-bold">Cerrar</button>
+            <div class="p-3 md:p-4 border-t bg-white flex justify-end gap-3 sticky bottom-0">
+                <button onclick="closeModal()" class="bg-gray-800 w-full md:w-auto text-white px-6 py-2.5 rounded-lg shadow hover:bg-gray-900 transition font-bold text-sm">Cerrar Ventana</button>
             </div>
         </div>
     </div>
 
-    <div id="imageViewerModal" class="hidden fixed inset-0 z-50 bg-black/95 overflow-auto text-center p-4 md:p-10">
+    <div id="imageViewerModal" class="hidden fixed inset-0 z-50 bg-black/95 overflow-auto text-center p-2 md:p-10">
         <button onclick="closeImageViewer()" class="fixed top-4 right-4 text-white/70 hover:text-white text-4xl z-50 leading-none bg-black/50 rounded-full w-10 h-10 flex items-center justify-center">&times;</button>
         <div class="min-h-full flex items-center justify-center inline-block">
             <img id="imageViewerImg" src="" class="max-w-full max-h-[90vh] object-contain cursor-zoom-in transition-transform duration-300 origin-center" onclick="toggleZoom(this)">
@@ -254,7 +256,6 @@
                 else showDashboard();
             };
 
-            // NAVEGACIÓN Y VISTAS
             window.showDashboard = function() {
                 document.getElementById('loginView').classList.add('hidden');
                 document.getElementById('financesView').classList.add('hidden');
@@ -265,7 +266,7 @@
                 document.getElementById('tabOrders').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
                 document.getElementById('tabFinances').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
                 
-                document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold bg-gray-800 px-4 py-2 rounded transition"><i class="fas fa-sign-out-alt mr-1"></i> Salir</button>`;
+                document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold bg-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded transition"><i class="fas fa-sign-out-alt md:mr-1"></i> <span class="hidden md:inline">Salir</span></button>`;
                 
                 if(currentOrdersData.length === 0) loadAllOrders();
             };
@@ -277,54 +278,36 @@
                 document.getElementById('tabOrders').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
                 document.getElementById('tabFinances').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
                 
-                generateFinancialReport(); // Calcular de inmediato
+                generateFinancialReport(); 
             };
 
             window.logout = async function() { await supabase.auth.signOut(); window.location.reload(); };
 
-            // LÓGICA DE REPORTE FINANCIERO
             window.generateFinancialReport = function() {
                 const startInput = document.getElementById('reportStart').value;
                 const endInput = document.getElementById('reportEnd').value;
                 
-                // Excluir cancelados para el reporte de ganancias
                 let reportOrders = currentOrdersData.filter(o => o.status !== 'cancelado');
 
-                // Filtrar por fechas si existen
-                if (startInput) {
-                    reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) >= startInput);
-                }
-                if (endInput) {
-                    reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) <= endInput);
-                }
+                if (startInput) reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) >= startInput);
+                if (endInput) reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) <= endInput);
 
-                let totalPSNio = 0;
-                let totalEarnNio = 0;
-                let count = 0;
+                let totalPSNio = 0, totalEarnNio = 0, count = 0;
 
                 reportOrders.forEach(o => {
                     const sub = parseFloat(o.subtotal || 0);
                     const iva = parseFloat(o.tax_iva || 0);
-                    
-                    // Solo sumar ganancias si realmente hay una compra/servicio gestionado
-                    // Asumimos que toda orden no cancelada cobra el envío fijo
                     totalPSNio += (sub + iva);
                     totalEarnNio += ENVIO_NIO; 
                     count++;
                 });
 
-                const totalFlujoNio = totalPSNio + totalEarnNio;
-
-                // Escribir en las tarjetas
                 document.getElementById('finReportCount').innerText = count;
-                
                 document.getElementById('finReportPSNio').innerText = totalPSNio.toFixed(2);
                 document.getElementById('finReportPSUsd').innerText = (totalPSNio / TASA_CAMBIO).toFixed(2);
-                
                 document.getElementById('finReportEarnNio').innerText = totalEarnNio.toFixed(2);
                 document.getElementById('finReportEarnUsd').innerText = (totalEarnNio / TASA_CAMBIO).toFixed(2);
-                
-                document.getElementById('finReportTotalNio').innerText = totalFlujoNio.toFixed(2);
+                document.getElementById('finReportTotalNio').innerText = (totalPSNio + totalEarnNio).toFixed(2);
             };
 
             window.clearFinancialFilters = function() {
@@ -333,7 +316,6 @@
                 generateFinancialReport();
             };
 
-            // LÓGICA DE ÓRDENES
             window.loadAllOrders = async function() {
                 const tbody = document.getElementById('ordersTableBody');
                 tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando órdenes...</td></tr>`;
@@ -346,14 +328,11 @@
                 updateMetrics();
                 renderTable();
                 
-                // Si la vista de finanzas está activa, actualizarla también
-                if(!document.getElementById('financesView').classList.contains('hidden')){
-                    generateFinancialReport();
-                }
+                if(!document.getElementById('financesView').classList.contains('hidden')) generateFinancialReport();
             };
 
             window.updateMetrics = function() {
-                const today = new Date().toLocaleDateString('en-CA'); // Formato local comparable
+                const today = new Date().toLocaleDateString('en-CA'); 
                 let countToday = 0, countPending = 0, countOnWay = 0, countDelivered = 0;
 
                 currentOrdersData.forEach(o => {
@@ -399,30 +378,30 @@
                     if (order.payment_status === 'Pago parcial') paymentBadge = "bg-blue-100 text-blue-700 border border-blue-200";
                     if (order.payment_status === 'Pendiente de pago') paymentBadge = "bg-red-50 text-red-600 border border-red-200";
 
-                    const noteIcon = order.internal_notes && order.internal_notes.trim() !== '' ? `<i class="fas fa-sticky-note text-yellow-500 ml-2" title="Tiene nota"></i>` : '';
+                    const noteIcon = order.internal_notes && order.internal_notes.trim() !== '' ? `<i class="fas fa-sticky-note text-yellow-500 ml-1" title="Tiene nota"></i>` : '';
                     const photoIcon = (order.receipt_pricesmart || order.receipt_internal) ? `<i class="fas fa-image text-blue-500 ml-1" title="Tiene recibos adjuntos"></i>` : '';
 
                     html += `
                         <tr class="hover:bg-green-50 transition duration-150 border-b border-gray-100">
-                            <td class="p-4">
-                                <div class="font-mono text-xs font-bold text-gray-500 mb-1">#${shortId}</div>
-                                <div class="text-xs text-gray-600"><i class="far fa-calendar-alt"></i> ${date}</div>
+                            <td class="p-3 md:p-4">
+                                <div class="font-mono text-[10px] md:text-xs font-bold text-gray-500 mb-1">#${shortId}</div>
+                                <div class="text-[10px] md:text-xs text-gray-600"><i class="far fa-calendar-alt"></i> ${date}</div>
                             </td>
-                            <td class="p-4">
-                                <div class="font-bold text-gray-800">${order.full_name || 'Sin Nombre'} ${noteIcon} ${photoIcon}</div>
-                                <div class="text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i> ${order.phone || 'N/A'}</div>
+                            <td class="p-3 md:p-4">
+                                <div class="font-bold text-gray-800 leading-tight">${order.full_name || 'Sin Nombre'} <span class="inline-block">${noteIcon} ${photoIcon}</span></div>
+                                <div class="text-[10px] md:text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i> ${order.phone || 'N/A'}</div>
                             </td>
-                            <td class="p-4">
-                                <div class="font-bold text-brand-green text-sm mb-1">${order.delivery_zone || 'N/A'}</div>
-                                <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded ${paymentBadge}">${order.payment_status || 'Pendiente de pago'}</span>
+                            <td class="p-3 md:p-4">
+                                <div class="font-bold text-brand-green text-[11px] md:text-sm mb-1">${order.delivery_zone || 'N/A'}</div>
+                                <span class="text-[9px] md:text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${paymentBadge}">${order.payment_status || 'Pendiente'}</span>
                             </td>
-                            <td class="p-4 text-center">
-                                <button type="button" onclick="openModal('${order.id}')" class="bg-white hover:bg-gray-100 text-brand-green py-1.5 px-4 rounded text-xs font-bold transition shadow-sm border border-brand-green">
-                                    <i class="fas fa-folder-open mr-1"></i> Abrir
+                            <td class="p-3 md:p-4 text-center">
+                                <button type="button" onclick="openModal('${order.id}')" class="bg-white hover:bg-gray-100 text-brand-green py-1.5 px-3 rounded text-xs font-bold transition shadow-sm border border-brand-green w-full md:w-auto">
+                                    <i class="fas fa-folder-open md:mr-1"></i> <span class="hidden md:inline">Abrir</span>
                                 </button>
                             </td>
-                            <td class="p-4 text-center">
-                                <select onchange="updateStatus('${order.id}', this.value)" id="select-${order.id}" class="text-xs font-bold uppercase tracking-wide border rounded-full px-3 py-1.5 cursor-pointer focus:outline-none appearance-none text-center shadow-sm ${bgStatus}">
+                            <td class="p-3 md:p-4 text-center">
+                                <select onchange="updateStatus('${order.id}', this.value)" id="select-${order.id}" class="text-[10px] md:text-xs font-bold uppercase tracking-wide border rounded-full px-2 py-1.5 md:px-3 cursor-pointer focus:outline-none appearance-none text-center shadow-sm w-full ${bgStatus}">
                                     <option value="pendiente" ${order.status === 'pendiente' ? 'selected' : ''}>Pendiente</option>
                                     <option value="en camino" ${order.status === 'en camino' ? 'selected' : ''}>En Camino</option>
                                     <option value="entregado" ${order.status === 'entregado' ? 'selected' : ''}>Entregado</option>
@@ -445,7 +424,6 @@
                 }
             };
 
-            // ZOOM E IMÁGENES
             window.toggleZoom = function(imgElement) {
                 imgElement.classList.toggle('super-zoom');
                 imgElement.classList.toggle('max-w-full');
@@ -522,24 +500,24 @@
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
                 
-                document.getElementById('modalTitle').innerText = `Gestión de Orden #${order.id.slice(0,8)}`;
+                document.getElementById('modalTitle').innerText = `Gestión #${order.id.slice(0,8)}`;
                 
                 const html = `
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
                         
                         <div class="lg:col-span-2 flex flex-col gap-4">
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                    <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2">Información del Cliente</p>
+                                    <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2">Cliente</p>
                                     <p class="text-sm mb-2"><i class="fas fa-user text-brand-green w-5"></i> <span class="font-bold">${order.full_name || 'N/A'}</span></p>
-                                    <p class="text-sm mb-2"><i class="fas fa-envelope text-brand-green w-5"></i> ${order.user_email || 'N/A'}</p>
+                                    <p class="text-sm mb-2 break-all"><i class="fas fa-envelope text-brand-green w-5"></i> ${order.user_email || 'N/A'}</p>
                                     <p class="text-sm mb-3"><i class="fas fa-phone text-brand-green w-5"></i> ${order.phone || 'N/A'}</p>
                                     <div class="bg-green-50 p-3 rounded-lg border border-green-100">
                                         <p class="text-xs font-bold text-green-800 mb-2"><i class="fab fa-whatsapp"></i> Notificar Estado:</p>
-                                        <div class="flex gap-2">
-                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'es')" class="bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-1.5 rounded shadow transition font-bold">ES</button>
-                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'en')" class="bg-gray-800 hover:bg-black text-white text-xs px-3 py-1.5 rounded shadow transition font-bold">EN</button>
+                                        <div class="grid grid-cols-2 gap-2">
+                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'es')" class="w-full bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-2 rounded shadow transition font-bold">Español</button>
+                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'en')" class="w-full bg-gray-800 hover:bg-black text-white text-xs px-3 py-2 rounded shadow transition font-bold">English</button>
                                         </div>
                                     </div>
                                 </div>
@@ -548,37 +526,37 @@
                                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                                         <p class="text-xs text-gray-500 font-bold uppercase mb-2">Dirección de Entrega</p>
                                         <p class="font-bold text-brand-green text-sm">${order.delivery_zone || 'N/A'}</p>
-                                        <p class="text-sm mt-1 text-gray-700">${order.delivery_address || 'N/A'}</p>
+                                        <p class="text-sm mt-1 text-gray-700 leading-tight">${order.delivery_address || 'N/A'}</p>
                                     </div>
                                     <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 shadow-sm flex-grow flex flex-col">
                                         <p class="text-xs text-yellow-800 font-bold uppercase mb-2"><i class="fas fa-lock mr-1"></i> Notas Internas</p>
-                                        <textarea id="internalNotes-${order.id}" class="w-full text-xs p-2 rounded border border-yellow-300 focus:outline-none focus:border-yellow-500 flex-grow mb-2 bg-yellow-50/50">${order.internal_notes || ''}</textarea>
-                                        <button onclick="saveNotes('${order.id}')" id="btnSaveNotes-${order.id}" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-1.5 rounded shadow transition">Guardar Notas</button>
+                                        <textarea id="internalNotes-${order.id}" class="w-full text-xs p-2 rounded border border-yellow-300 focus:outline-none focus:border-yellow-500 flex-grow mb-2 bg-yellow-50/50 min-h-[60px]">${order.internal_notes || ''}</textarea>
+                                        <button onclick="saveNotes('${order.id}')" id="btnSaveNotes-${order.id}" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-2 rounded shadow transition">Guardar Notas</button>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                                 <p class="text-xs text-gray-500 font-bold uppercase mb-2"><i class="fas fa-list mr-1"></i> Lista Original</p>
-                                <div class="bg-gray-800 text-green-400 p-4 rounded-lg text-xs font-mono whitespace-pre-wrap overflow-y-auto shadow-inner border-l-4 border-brand-green max-h-40">${order.shopping_list || 'Sin detalles.'}</div>
+                                <div class="bg-gray-800 text-green-400 p-4 rounded-lg text-xs font-mono whitespace-pre-wrap overflow-y-auto shadow-inner border-l-4 border-brand-green max-h-40 md:max-h-48">${order.shopping_list || 'Sin detalles.'}</div>
                             </div>
 
-                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mt-1">
-                                <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2"><i class="fas fa-camera mr-1"></i> Respaldos / Fotos de Recibos</p>
-                                <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
+                                <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2"><i class="fas fa-camera mr-1"></i> Fotos de Recibos</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div class="border rounded-lg p-3 text-center bg-gray-50">
-                                        <p class="text-xs font-bold text-gray-700 mb-2">Factura de Pricesmart</p>
-                                        <img id="img-receipt_pricesmart-${order.id}" src="${order.receipt_pricesmart || ''}" class="mx-auto h-28 object-cover mb-2 ${order.receipt_pricesmart ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)" title="Clic para ver en pantalla completa">
+                                        <p class="text-xs font-bold text-gray-700 mb-2">Factura PriceSmart</p>
+                                        <img id="img-receipt_pricesmart-${order.id}" src="${order.receipt_pricesmart || ''}" class="mx-auto h-24 md:h-28 object-cover mb-2 ${order.receipt_pricesmart ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)">
                                         <input type="file" id="file-ps-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_pricesmart')">
-                                        <label id="lbl-receipt_pricesmart-${order.id}" for="file-ps-${order.id}" class="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded cursor-pointer font-bold transition inline-block shadow-sm">
+                                        <label id="lbl-receipt_pricesmart-${order.id}" for="file-ps-${order.id}" class="w-full block bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-2 rounded cursor-pointer font-bold transition shadow-sm">
                                             <i class="fas fa-upload mr-1"></i> Subir Foto
                                         </label>
                                     </div>
                                     <div class="border rounded-lg p-3 text-center bg-gray-50">
                                         <p class="text-xs font-bold text-gray-700 mb-2">Recibo Térmico</p>
-                                        <img id="img-receipt_internal-${order.id}" src="${order.receipt_internal || ''}" class="mx-auto h-28 object-cover mb-2 ${order.receipt_internal ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)" title="Clic para ver en pantalla completa">
+                                        <img id="img-receipt_internal-${order.id}" src="${order.receipt_internal || ''}" class="mx-auto h-24 md:h-28 object-cover mb-2 ${order.receipt_internal ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)">
                                         <input type="file" id="file-int-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_internal')">
-                                        <label id="lbl-receipt_internal-${order.id}" for="file-int-${order.id}" class="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded cursor-pointer font-bold transition inline-block shadow-sm">
+                                        <label id="lbl-receipt_internal-${order.id}" for="file-int-${order.id}" class="w-full block bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-2 rounded cursor-pointer font-bold transition shadow-sm">
                                             <i class="fas fa-upload mr-1"></i> Subir Foto
                                         </label>
                                     </div>
@@ -586,38 +564,38 @@
                             </div>
                         </div>
 
-                        <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-md h-fit">
-                            <h4 class="text-brand-green font-bold border-b pb-2 mb-4"><i class="fas fa-file-invoice-dollar mr-2"></i>Control Financiero</h4>
+                        <div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-md h-fit">
+                            <h4 class="text-brand-green font-bold border-b pb-2 mb-4 text-sm md:text-base"><i class="fas fa-file-invoice-dollar mr-2"></i>Control Financiero</h4>
                             
                             <div class="grid grid-cols-2 gap-3 mb-2">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1">Subtotal (C$)</label>
-                                    <input type="number" id="finSubtotal-${order.id}" value="${order.subtotal || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
+                                    <input type="number" id="finSubtotal-${order.id}" value="${order.subtotal || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1">IVA (C$)</label>
-                                    <input type="number" id="finIva-${order.id}" value="${order.tax_iva || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
+                                    <input type="number" id="finIva-${order.id}" value="${order.tax_iva || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
                                 </div>
                             </div>
-                            <div class="mb-4 text-xs text-gray-500 text-right font-bold">
+                            <div class="mb-4 text-[11px] md:text-xs text-gray-500 text-right font-bold">
                                 + Envío: $10.99 (C$ ${ENVIO_NIO.toFixed(2)})
                             </div>
 
-                            <div class="bg-gray-800 text-white p-3 rounded-lg mb-4 text-center">
+                            <div class="bg-gray-800 text-white p-3 rounded-lg mb-4 text-center shadow-inner">
                                 <p class="text-xs text-gray-400 uppercase tracking-wide">Total a Cobrar</p>
-                                <p class="text-xl font-bold">C$ <span id="displayTotalNio-${order.id}">0.00</span></p>
-                                <p class="text-sm text-green-400 font-mono">Ref: $ <span id="displayTotalUsd-${order.id}">0.00</span></p>
+                                <p class="text-xl md:text-2xl font-bold">C$ <span id="displayTotalNio-${order.id}">0.00</span></p>
+                                <p class="text-[11px] md:text-sm text-green-400 font-mono">Ref: $ <span id="displayTotalUsd-${order.id}">0.00</span></p>
                             </div>
 
                             <p class="text-xs text-gray-500 font-bold uppercase mb-2 border-t pt-4">Abonos / Pagos Recibidos</p>
                             <div class="grid grid-cols-2 gap-3 mb-4">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1">En C$</label>
-                                    <input type="number" id="finPaidNio-${order.id}" value="${order.paid_nio || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 rounded text-sm bg-green-50 border-green-200 focus:border-brand-green outline-none text-green-800 font-bold">
+                                    <input type="number" id="finPaidNio-${order.id}" value="${order.paid_nio || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-green-50 border-green-200 focus:border-brand-green outline-none text-green-800 font-bold">
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1">En $</label>
-                                    <input type="number" id="finPaidUsd-${order.id}" value="${order.paid_usd || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 rounded text-sm bg-green-50 border-green-200 focus:border-brand-green outline-none text-green-800 font-bold">
+                                    <input type="number" id="finPaidUsd-${order.id}" value="${order.paid_usd || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-green-50 border-green-200 focus:border-brand-green outline-none text-green-800 font-bold">
                                 </div>
                             </div>
 
@@ -629,7 +607,7 @@
                             <div class="space-y-3 mb-4">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1">Estado de Pago</label>
-                                    <select id="finStatus-${order.id}" class="w-full border p-2 rounded text-sm focus:border-brand-green outline-none">
+                                    <select id="finStatus-${order.id}" class="w-full border p-2 md:p-3 rounded text-sm focus:border-brand-green outline-none bg-white">
                                         <option value="Pendiente de pago" ${order.payment_status === 'Pendiente de pago' ? 'selected' : ''}>Pendiente de pago</option>
                                         <option value="Pago parcial" ${order.payment_status === 'Pago parcial' ? 'selected' : ''}>Pago parcial</option>
                                         <option value="Pagado" ${order.payment_status === 'Pagado' ? 'selected' : ''}>Pagado</option>
@@ -637,7 +615,7 @@
                                 </div>
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1">Método de Pago</label>
-                                    <select id="finMethod-${order.id}" class="w-full border p-2 rounded text-sm focus:border-brand-green outline-none">
+                                    <select id="finMethod-${order.id}" class="w-full border p-2 md:p-3 rounded text-sm focus:border-brand-green outline-none bg-white">
                                         <option value="">Seleccionar...</option>
                                         <option value="Efectivo" ${order.payment_method === 'Efectivo' ? 'selected' : ''}>Efectivo</option>
                                         <option value="Transferencia" ${order.payment_method === 'Transferencia' ? 'selected' : ''}>Transferencia</option>
@@ -647,11 +625,11 @@
                                 </div>
                             </div>
 
-                            <button onclick="saveFinances('${order.id}')" id="btnSaveFinances-${order.id}" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center mb-2">
-                                <i class="fas fa-save mr-2"></i> Guardar Finanzas
+                            <button onclick="saveFinances('${order.id}')" id="btnSaveFinances-${order.id}" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3">
+                                <i class="fas fa-save mr-2"></i> Guardar
                             </button>
                             
-                            <button onclick="printReceipt('${order.id}')" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center">
+                            <button onclick="printReceipt('${order.id}')" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center">
                                 <i class="fas fa-print mr-2"></i> Imprimir Recibo
                             </button>
                         </div>
@@ -660,9 +638,13 @@
                 document.getElementById('modalContent').innerHTML = html;
                 document.getElementById('detailsModal').classList.remove('hidden');
                 calcFinances(orderId); 
+                document.body.style.overflow = 'hidden'; // Evita que se mueva el fondo al scrollear el modal en móvil
             };
 
-            window.closeModal = function() { document.getElementById('detailsModal').classList.add('hidden'); };
+            window.closeModal = function() { 
+                document.getElementById('detailsModal').classList.add('hidden'); 
+                document.body.style.overflow = '';
+            };
 
             window.sendWA = function(phoneRaw, name, lang) {
                 if(!phoneRaw) { alert("Sin teléfono."); return; }
@@ -724,7 +706,7 @@
 
             window.saveFinances = async function(orderId) {
                 const btn = document.getElementById(`btnSaveFinances-${orderId}`);
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> Guardando...`;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin md:mr-2"></i> Guardando...`;
 
                 const dataToSave = {
                     subtotal: parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0,
@@ -739,12 +721,12 @@
                 
                 if (error) {
                     alert("Error guardando finanzas: " + error.message);
-                    btn.innerHTML = `<i class="fas fa-save mr-2"></i> Guardar Finanzas`;
+                    btn.innerHTML = `<i class="fas fa-save md:mr-2"></i> Guardar`;
                 } else {
                     const idx = currentOrdersData.findIndex(o => o.id === orderId);
                     if(idx > -1) { currentOrdersData[idx] = { ...currentOrdersData[idx], ...dataToSave }; }
-                    btn.className = "w-full bg-green-500 text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center mb-2";
-                    btn.innerHTML = `<i class="fas fa-check mr-2"></i> ¡Datos Guardados!`;
+                    btn.className = "w-full bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3";
+                    btn.innerHTML = `<i class="fas fa-check md:mr-2"></i> ¡Guardado!`;
                     renderTable(); 
                     
                     if(!document.getElementById('financesView').classList.contains('hidden')) {
@@ -752,8 +734,8 @@
                     }
 
                     setTimeout(() => {
-                        btn.className = "w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center mb-2";
-                        btn.innerHTML = `<i class="fas fa-save mr-2"></i> Guardar Finanzas`;
+                        btn.className = "w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3";
+                        btn.innerHTML = `<i class="fas fa-save md:mr-2"></i> Guardar`;
                     }, 2000);
                 }
             };
