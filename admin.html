@@ -14,19 +14,25 @@
         }
     </script>
     <style>
-        /* Clase utilitaria para el súper zoom */
         .super-zoom { transform: scale(2.5); cursor: zoom-out !important; }
     </style>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen">
 
-    <nav class="bg-gray-900 text-white shadow-md">
+    <nav class="bg-gray-900 text-white shadow-md sticky top-0 z-30">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <div class="flex items-center font-bold text-xl">
-                    <i class="fas fa-cogs text-brand-green mr-2"></i> Shop Delivery Nic - Admin
+                    <i class="fas fa-cogs text-brand-green mr-2"></i> Shop Delivery Nic
                 </div>
-                <div id="navAuth"></div>
+                
+                <div class="flex items-center gap-6">
+                    <div id="mainNavMenu" class="hidden gap-4">
+                        <button onclick="showDashboard()" id="tabOrders" class="text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm">Órdenes</button>
+                        <button onclick="showFinances()" id="tabFinances" class="text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm">Finanzas</button>
+                    </div>
+                    <div id="navAuth"></div>
+                </div>
             </div>
         </div>
     </nav>
@@ -44,6 +50,70 @@
             <div class="cf-turnstile mb-6 flex justify-center" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
             <button type="submit" id="loginBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded hover:bg-brand-dark transition shadow-lg">Entrar al Panel</button>
         </form>
+    </div>
+
+    <div id="financesView" class="hidden max-w-7xl mx-auto px-4 mt-8 pb-10">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Reporte Financiero</h1>
+        </div>
+
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200 mb-8 flex flex-col md:flex-row gap-4 items-end">
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Desde (Fecha Inicio)</label>
+                <input type="date" id="reportStart" class="border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
+            </div>
+            <div>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Hasta (Fecha Fin)</label>
+                <input type="date" id="reportEnd" class="border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
+            </div>
+            <div class="flex gap-2">
+                <button onclick="generateFinancialReport()" class="bg-brand-green hover:bg-brand-dark text-white font-bold py-2 px-6 rounded shadow transition">
+                    <i class="fas fa-filter mr-2"></i> Calcular
+                </button>
+                <button onclick="clearFinancialFilters()" class="bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded shadow-sm transition">
+                    Ver Todo
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="bg-white p-6 rounded-xl border border-gray-200 shadow-md">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="bg-gray-100 p-3 rounded-full text-gray-600"><i class="fas fa-shopping-cart text-xl"></i></div>
+                    <h3 class="font-bold text-gray-700 text-lg">Compras PriceSmart</h3>
+                </div>
+                <p class="text-xs text-gray-500 mb-4">Total gastado en supermercado (Subtotal + IVA)</p>
+                <p class="text-3xl font-bold text-gray-800">C$ <span id="finReportPSNio">0.00</span></p>
+                <p class="text-sm font-mono text-gray-500 mt-1">Ref: $ <span id="finReportPSUsd">0.00</span></p>
+            </div>
+
+            <div class="bg-white p-6 rounded-xl border border-green-200 shadow-md relative overflow-hidden">
+                <div class="absolute top-0 right-0 bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-bl-lg">Tu Dinero</div>
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="bg-green-100 p-3 rounded-full text-brand-green"><i class="fas fa-chart-line text-xl"></i></div>
+                    <h3 class="font-bold text-gray-700 text-lg">Ganancias Netas</h3>
+                </div>
+                <p class="text-xs text-gray-500 mb-4">Ingresos por tarifa de entrega ($10.99 por orden)</p>
+                <p class="text-3xl font-bold text-brand-green">C$ <span id="finReportEarnNio">0.00</span></p>
+                <p class="text-sm font-mono text-green-600 mt-1 font-bold">Ref: $ <span id="finReportEarnUsd">0.00</span></p>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-xl border border-gray-900 shadow-md text-white">
+                <div class="flex items-center gap-3 mb-2">
+                    <div class="bg-gray-700 p-3 rounded-full text-yellow-400"><i class="fas fa-coins text-xl"></i></div>
+                    <h3 class="font-bold text-white text-lg">Flujo de Caja Total</h3>
+                </div>
+                <p class="text-xs text-gray-400 mb-4">Dinero total movido (PriceSmart + Envíos)</p>
+                <p class="text-3xl font-bold">C$ <span id="finReportTotalNio">0.00</span></p>
+                
+                <div class="mt-4 pt-4 border-t border-gray-700 flex justify-between items-center">
+                    <span class="text-sm text-gray-300">Órdenes Exitosas:</span>
+                    <span class="font-bold text-xl text-yellow-400" id="finReportCount">0</span>
+                </div>
+            </div>
+        </div>
+        
+        <p class="text-xs text-gray-500 mt-6 text-center"><i class="fas fa-info-circle"></i> Nota: El reporte excluye automáticamente las órdenes marcadas como "Cancelado". Tasa de cambio aplicada: C$ 36.6243.</p>
     </div>
 
     <div id="dashboardView" class="hidden max-w-7xl mx-auto px-4 mt-8 pb-10">
@@ -113,8 +183,7 @@
                 <button onclick="closeModal()" class="text-gray-500 hover:text-red-500 transition text-2xl leading-none">&times;</button>
             </div>
             
-            <div class="p-6 overflow-y-auto flex-grow bg-gray-50/50" id="modalContent">
-                </div>
+            <div class="p-6 overflow-y-auto flex-grow bg-gray-50/50" id="modalContent"></div>
             
             <div class="p-4 border-t bg-gray-50 flex justify-end gap-3">
                 <button onclick="closeModal()" class="bg-gray-800 text-white px-6 py-2 rounded shadow hover:bg-gray-900 transition font-bold">Cerrar</button>
@@ -124,7 +193,6 @@
 
     <div id="imageViewerModal" class="hidden fixed inset-0 z-50 bg-black/95 overflow-auto text-center p-4 md:p-10">
         <button onclick="closeImageViewer()" class="fixed top-4 right-4 text-white/70 hover:text-white text-4xl z-50 leading-none bg-black/50 rounded-full w-10 h-10 flex items-center justify-center">&times;</button>
-        
         <div class="min-h-full flex items-center justify-center inline-block">
             <img id="imageViewerImg" src="" class="max-w-full max-h-[90vh] object-contain cursor-zoom-in transition-transform duration-300 origin-center" onclick="toggleZoom(this)">
         </div>
@@ -138,8 +206,10 @@
         function showGlobalError(msg) {
             document.getElementById('globalErrorText').innerText = msg;
             document.getElementById('globalError').classList.remove('hidden');
-            document.getElementById('loginBtn').innerText = "Entrar al Panel";
-            document.getElementById('loginBtn').disabled = false;
+            if(document.getElementById('loginBtn')) {
+                document.getElementById('loginBtn').innerText = "Entrar al Panel";
+                document.getElementById('loginBtn').disabled = false;
+            }
         }
 
         try {
@@ -184,16 +254,86 @@
                 else showDashboard();
             };
 
+            // NAVEGACIÓN Y VISTAS
             window.showDashboard = function() {
                 document.getElementById('loginView').classList.add('hidden');
-                document.getElementById('globalError').classList.add('hidden');
+                document.getElementById('financesView').classList.add('hidden');
                 document.getElementById('dashboardView').classList.remove('hidden');
-                document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-gray-300 hover:text-white text-sm font-bold bg-gray-800 px-4 py-2 rounded transition"><i class="fas fa-sign-out-alt mr-1"></i> Salir</button>`;
-                loadAllOrders();
+                document.getElementById('mainNavMenu').classList.remove('hidden');
+                document.getElementById('mainNavMenu').classList.add('flex');
+                
+                document.getElementById('tabOrders').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
+                document.getElementById('tabFinances').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
+                
+                document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold bg-gray-800 px-4 py-2 rounded transition"><i class="fas fa-sign-out-alt mr-1"></i> Salir</button>`;
+                
+                if(currentOrdersData.length === 0) loadAllOrders();
+            };
+
+            window.showFinances = function() {
+                document.getElementById('dashboardView').classList.add('hidden');
+                document.getElementById('financesView').classList.remove('hidden');
+                
+                document.getElementById('tabOrders').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
+                document.getElementById('tabFinances').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
+                
+                generateFinancialReport(); // Calcular de inmediato
             };
 
             window.logout = async function() { await supabase.auth.signOut(); window.location.reload(); };
 
+            // LÓGICA DE REPORTE FINANCIERO
+            window.generateFinancialReport = function() {
+                const startInput = document.getElementById('reportStart').value;
+                const endInput = document.getElementById('reportEnd').value;
+                
+                // Excluir cancelados para el reporte de ganancias
+                let reportOrders = currentOrdersData.filter(o => o.status !== 'cancelado');
+
+                // Filtrar por fechas si existen
+                if (startInput) {
+                    reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) >= startInput);
+                }
+                if (endInput) {
+                    reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) <= endInput);
+                }
+
+                let totalPSNio = 0;
+                let totalEarnNio = 0;
+                let count = 0;
+
+                reportOrders.forEach(o => {
+                    const sub = parseFloat(o.subtotal || 0);
+                    const iva = parseFloat(o.tax_iva || 0);
+                    
+                    // Solo sumar ganancias si realmente hay una compra/servicio gestionado
+                    // Asumimos que toda orden no cancelada cobra el envío fijo
+                    totalPSNio += (sub + iva);
+                    totalEarnNio += ENVIO_NIO; 
+                    count++;
+                });
+
+                const totalFlujoNio = totalPSNio + totalEarnNio;
+
+                // Escribir en las tarjetas
+                document.getElementById('finReportCount').innerText = count;
+                
+                document.getElementById('finReportPSNio').innerText = totalPSNio.toFixed(2);
+                document.getElementById('finReportPSUsd').innerText = (totalPSNio / TASA_CAMBIO).toFixed(2);
+                
+                document.getElementById('finReportEarnNio').innerText = totalEarnNio.toFixed(2);
+                document.getElementById('finReportEarnUsd').innerText = (totalEarnNio / TASA_CAMBIO).toFixed(2);
+                
+                document.getElementById('finReportTotalNio').innerText = totalFlujoNio.toFixed(2);
+            };
+
+            window.clearFinancialFilters = function() {
+                document.getElementById('reportStart').value = "";
+                document.getElementById('reportEnd').value = "";
+                generateFinancialReport();
+            };
+
+            // LÓGICA DE ÓRDENES
             window.loadAllOrders = async function() {
                 const tbody = document.getElementById('ordersTableBody');
                 tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando órdenes...</td></tr>`;
@@ -205,15 +345,20 @@
                 currentOrdersData = orders || [];
                 updateMetrics();
                 renderTable();
+                
+                // Si la vista de finanzas está activa, actualizarla también
+                if(!document.getElementById('financesView').classList.contains('hidden')){
+                    generateFinancialReport();
+                }
             };
 
             window.updateMetrics = function() {
-                const today = new Date().toLocaleDateString();
+                const today = new Date().toLocaleDateString('en-CA'); // Formato local comparable
                 let countToday = 0, countPending = 0, countOnWay = 0, countDelivered = 0;
 
                 currentOrdersData.forEach(o => {
-                    const orderDate = new Date(o.created_at).toLocaleDateString();
-                    if (orderDate === today) countToday++;
+                    const orderDateStr = new Date(o.created_at).toLocaleDateString('en-CA');
+                    if (orderDateStr === today) countToday++;
                     if (o.status === 'pendiente') countPending++;
                     if (o.status === 'en camino') countOnWay++;
                     if (o.status === 'entregado') countDelivered++;
@@ -300,7 +445,7 @@
                 }
             };
 
-            // FUNCIÓN NUEVA: TOGGLE ZOOM
+            // ZOOM E IMÁGENES
             window.toggleZoom = function(imgElement) {
                 imgElement.classList.toggle('super-zoom');
                 imgElement.classList.toggle('max-w-full');
@@ -311,19 +456,17 @@
             window.openImageViewer = function(src) {
                 const img = document.getElementById('imageViewerImg');
                 img.src = src;
-                // Resetear zoom al abrir
                 img.classList.remove('super-zoom');
                 img.classList.add('max-w-full', 'max-h-[90vh]', 'cursor-zoom-in');
                 document.getElementById('imageViewerModal').classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; // Evitar scroll del fondo
+                document.body.style.overflow = 'hidden'; 
             };
             window.closeImageViewer = function() {
                 document.getElementById('imageViewerModal').classList.add('hidden');
                 document.getElementById('imageViewerImg').src = '';
-                document.body.style.overflow = ''; // Restaurar scroll
+                document.body.style.overflow = ''; 
             };
 
-            // COMPRESOR MEJORADO (Mayor calidad para soporte de zoom 2.5x)
             window.processAndCompressImage = function(file) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -332,13 +475,13 @@
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
                             let width = img.width; let height = img.height;
-                            const MAX_SIZE = 1600; // Aumentado para mejor nitidez en zoom
+                            const MAX_SIZE = 1600; 
                             if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
                             else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                             canvas.width = width; canvas.height = height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
-                            resolve(canvas.toDataURL('image/jpeg', 0.9)); // Calidad al 90%
+                            resolve(canvas.toDataURL('image/jpeg', 0.9)); 
                         };
                         img.src = e.target.result;
                     };
@@ -357,8 +500,7 @@
                 
                 try {
                     const base64 = await processAndCompressImage(file);
-                    const updateData = {};
-                    updateData[type] = base64;
+                    const updateData = {}; updateData[type] = base64;
                     
                     const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
                     if (error) throw error;
@@ -367,16 +509,12 @@
                     if(idx > -1) currentOrdersData[idx][type] = base64;
                     
                     const imgEl = document.getElementById(`img-${type}-${orderId}`);
-                    imgEl.src = base64;
-                    imgEl.classList.remove('hidden');
+                    imgEl.src = base64; imgEl.classList.remove('hidden');
                     
                     btnLabel.innerHTML = `<i class="fas fa-check text-green-600"></i> Listo`;
                     setTimeout(() => btnLabel.innerHTML = originalText, 3000);
                     renderTable();
-                } catch (err) {
-                    alert("Error al subir imagen: " + err.message);
-                    btnLabel.innerHTML = originalText;
-                }
+                } catch (err) { alert("Error: " + err.message); btnLabel.innerHTML = originalText; }
             };
 
             // MODAL PRINCIPAL
@@ -608,6 +746,11 @@
                     btn.className = "w-full bg-green-500 text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center mb-2";
                     btn.innerHTML = `<i class="fas fa-check mr-2"></i> ¡Datos Guardados!`;
                     renderTable(); 
+                    
+                    if(!document.getElementById('financesView').classList.contains('hidden')) {
+                        generateFinancialReport();
+                    }
+
                     setTimeout(() => {
                         btn.className = "w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center mb-2";
                         btn.innerHTML = `<i class="fas fa-save mr-2"></i> Guardar Finanzas`;
@@ -615,7 +758,6 @@
                 }
             };
 
-            // GENERADOR DE RECIBO PARA IMPRESORA TÉRMICA
             window.printReceipt = function(orderId) {
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
