@@ -90,14 +90,23 @@
         let currentOrdersData = [];
 
         // Inicialización
-        supabase.auth.onAuthStateChange((event, session) => {
+        // 1. Preguntar estado inmediatamente al cargar la página
+        supabase.auth.getSession().then(({ data: { session } }) => {
             if (session && session.user.email === ADMIN_EMAIL) {
                 showDashboard();
-            } else if (session && session.user.email !== ADMIN_EMAIL) {
-                showError("Acceso denegado. No eres el administrador.");
-                supabase.auth.signOut();
-                showLogin();
+            } else if (session) {
+                // Si hay un cliente logueado por error aquí, lo sacamos
+                supabase.auth.signOut().then(() => showLogin());
             } else {
+                showLogin(); // Si no hay nadie, mostramos el formulario
+            }
+        });
+
+        // 2. Mantenernos atentos a si inicias o cierras sesión
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session?.user?.email === ADMIN_EMAIL) {
+                showDashboard();
+            } else if (event === 'SIGNED_OUT') {
                 showLogin();
             }
         });
