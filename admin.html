@@ -13,6 +13,10 @@
             theme: { extend: { colors: { brand: { green: '#0AAD0A', dark: '#108910' } } } }
         }
     </script>
+    <style>
+        /* Clase utilitaria para el súper zoom */
+        .super-zoom { transform: scale(2.5); cursor: zoom-out !important; }
+    </style>
 </head>
 <body class="bg-gray-100 text-gray-800 min-h-screen">
 
@@ -118,9 +122,12 @@
         </div>
     </div>
 
-    <div id="imageViewerModal" class="hidden fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-4">
-        <button onclick="closeImageViewer()" class="absolute top-6 right-6 text-white hover:text-red-500 transition text-4xl leading-none">&times;</button>
-        <img id="imageViewerImg" src="" class="max-w-full max-h-full object-contain rounded shadow-2xl">
+    <div id="imageViewerModal" class="hidden fixed inset-0 z-50 bg-black/95 overflow-auto text-center p-4 md:p-10">
+        <button onclick="closeImageViewer()" class="fixed top-4 right-4 text-white/70 hover:text-white text-4xl z-50 leading-none bg-black/50 rounded-full w-10 h-10 flex items-center justify-center">&times;</button>
+        
+        <div class="min-h-full flex items-center justify-center inline-block">
+            <img id="imageViewerImg" src="" class="max-w-full max-h-[90vh] object-contain cursor-zoom-in transition-transform duration-300 origin-center" onclick="toggleZoom(this)">
+        </div>
     </div>
 
     <script>
@@ -293,17 +300,30 @@
                 }
             };
 
-            // MODAL VISOR DE IMÁGENES
+            // FUNCIÓN NUEVA: TOGGLE ZOOM
+            window.toggleZoom = function(imgElement) {
+                imgElement.classList.toggle('super-zoom');
+                imgElement.classList.toggle('max-w-full');
+                imgElement.classList.toggle('max-h-[90vh]');
+                imgElement.classList.toggle('cursor-zoom-in');
+            };
+
             window.openImageViewer = function(src) {
-                document.getElementById('imageViewerImg').src = src;
+                const img = document.getElementById('imageViewerImg');
+                img.src = src;
+                // Resetear zoom al abrir
+                img.classList.remove('super-zoom');
+                img.classList.add('max-w-full', 'max-h-[90vh]', 'cursor-zoom-in');
                 document.getElementById('imageViewerModal').classList.remove('hidden');
+                document.body.style.overflow = 'hidden'; // Evitar scroll del fondo
             };
             window.closeImageViewer = function() {
                 document.getElementById('imageViewerModal').classList.add('hidden');
                 document.getElementById('imageViewerImg').src = '';
+                document.body.style.overflow = ''; // Restaurar scroll
             };
 
-            // COMPRESOR MEJORADO (Mayor calidad para leer tickets)
+            // COMPRESOR MEJORADO (Mayor calidad para soporte de zoom 2.5x)
             window.processAndCompressImage = function(file) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -312,13 +332,13 @@
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
                             let width = img.width; let height = img.height;
-                            const MAX_SIZE = 1200; // Incrementado para no perder detalle de lectura
+                            const MAX_SIZE = 1600; // Aumentado para mejor nitidez en zoom
                             if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
                             else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                             canvas.width = width; canvas.height = height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
-                            resolve(canvas.toDataURL('image/jpeg', 0.8)); // Calidad al 80%
+                            resolve(canvas.toDataURL('image/jpeg', 0.9)); // Calidad al 90%
                         };
                         img.src = e.target.result;
                     };
@@ -595,7 +615,7 @@
                 }
             };
 
-            // ACTUALIZACIÓN DE PLANTILLA DE RECIBO
+            // GENERADOR DE RECIBO PARA IMPRESORA TÉRMICA
             window.printReceipt = function(orderId) {
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
