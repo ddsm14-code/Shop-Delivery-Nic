@@ -119,7 +119,6 @@
     </div>
 
     <script>
-        // Tasa de cambio oficial exacta y costo de envío fijo
         const TASA_CAMBIO = 36.6243;
         const ENVIO_USD = 10.99;
         const ENVIO_NIO = ENVIO_USD * TASA_CAMBIO;
@@ -244,6 +243,7 @@
                     if (order.payment_status === 'Pendiente de pago') paymentBadge = "bg-red-50 text-red-600 border border-red-200";
 
                     const noteIcon = order.internal_notes && order.internal_notes.trim() !== '' ? `<i class="fas fa-sticky-note text-yellow-500 ml-2" title="Tiene nota"></i>` : '';
+                    const photoIcon = (order.receipt_pricesmart || order.receipt_internal) ? `<i class="fas fa-image text-blue-500 ml-1" title="Tiene recibos adjuntos"></i>` : '';
 
                     html += `
                         <tr class="hover:bg-green-50 transition duration-150 border-b border-gray-100">
@@ -252,7 +252,7 @@
                                 <div class="text-xs text-gray-600"><i class="far fa-calendar-alt"></i> ${date}</div>
                             </td>
                             <td class="p-4">
-                                <div class="font-bold text-gray-800">${order.full_name || 'Sin Nombre'} ${noteIcon}</div>
+                                <div class="font-bold text-gray-800">${order.full_name || 'Sin Nombre'} ${noteIcon} ${photoIcon}</div>
                                 <div class="text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i> ${order.phone || 'N/A'}</div>
                             </td>
                             <td class="p-4">
@@ -285,6 +285,63 @@
                     const orderIndex = currentOrdersData.findIndex(o => o.id === orderId);
                     if(orderIndex > -1) currentOrdersData[orderIndex].status = newStatus;
                     updateMetrics(); renderTable();
+                }
+            };
+
+            // Compresor de imágenes para no saturar la base de datos
+            window.processAndCompressImage = function(file) {
+                return new Promise((resolve, reject) => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            let width = img.width; let height = img.height;
+                            const MAX_SIZE = 600; // Resolución optimizada para recibos
+                            if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+                            else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                            canvas.width = width; canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+                            resolve(canvas.toDataURL('image/jpeg', 0.6)); // Compresión al 60%
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.onerror = reject;
+                    reader.readAsDataURL(file);
+                });
+            };
+
+            window.handleReceiptUpload = async function(event, orderId, type) {
+                const file = event.target.files[0];
+                if (!file) return;
+                
+                const btnLabel = document.getElementById(`lbl-${type}-${orderId}`);
+                const originalText = btnLabel.innerHTML;
+                btnLabel.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Subiendo...`;
+                
+                try {
+                    const base64 = await processAndCompressImage(file);
+                    const updateData = {};
+                    updateData[type] = base64;
+                    
+                    const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
+                    if (error) throw error;
+                    
+                    // Actualizar memoria y UI
+                    const idx = currentOrdersData.findIndex(o => o.id === orderId);
+                    if(idx > -1) currentOrdersData[idx][type] = base64;
+                    
+                    const imgEl = document.getElementById(`img-${type}-${orderId}`);
+                    imgEl.src = base64;
+                    imgEl.classList.remove('hidden');
+                    
+                    btnLabel.innerHTML = `<i class="fas fa-check text-green-600"></i> Listo`;
+                    setTimeout(() => btnLabel.innerHTML = originalText, 3000);
+                    renderTable(); // Refresca icono en tabla
+                } catch (err) {
+                    alert("Error al subir imagen: " + err.message);
+                    btnLabel.innerHTML = originalText;
                 }
             };
 
@@ -331,7 +388,29 @@
 
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
                                 <p class="text-xs text-gray-500 font-bold uppercase mb-2"><i class="fas fa-list mr-1"></i> Lista Original</p>
-                                <div class="bg-gray-800 text-green-400 p-4 rounded-lg text-xs font-mono whitespace-pre-wrap overflow-x-auto shadow-inner border-l-4 border-brand-green max-h-48 overflow-y-auto">${order.shopping_list || 'Sin detalles.'}</div>
+                                <div class="bg-gray-800 text-green-400 p-4 rounded-lg text-xs font-mono whitespace-pre-wrap overflow-y-auto shadow-inner border-l-4 border-brand-green max-h-40">${order.shopping_list || 'Sin detalles.'}</div>
+                            </div>
+
+                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm mt-1">
+                                <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2"><i class="fas fa-camera mr-1"></i> Respaldos / Fotos de Recibos</p>
+                                <div class="grid grid-cols-2 gap-4">
+                                    <div class="border rounded-lg p-3 text-center bg-gray-50">
+                                        <p class="text-xs font-bold text-gray-700 mb-2">Ticket PriceSmart</p>
+                                        <img id="img-receipt_pricesmart-${order.id}" src="${order.receipt_pricesmart || ''}" class="mx-auto h-28 object-cover mb-2 ${order.receipt_pricesmart ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="window.open(this.src)" title="Clic para agrandar">
+                                        <input type="file" id="file-ps-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_pricesmart')">
+                                        <label id="lbl-receipt_pricesmart-${order.id}" for="file-ps-${order.id}" class="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded cursor-pointer font-bold transition inline-block shadow-sm">
+                                            <i class="fas fa-upload mr-1"></i> Subir Foto
+                                        </label>
+                                    </div>
+                                    <div class="border rounded-lg p-3 text-center bg-gray-50">
+                                        <p class="text-xs font-bold text-gray-700 mb-2">Recibo Térmico</p>
+                                        <img id="img-receipt_internal-${order.id}" src="${order.receipt_internal || ''}" class="mx-auto h-28 object-cover mb-2 ${order.receipt_internal ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="window.open(this.src)" title="Clic para agrandar">
+                                        <input type="file" id="file-int-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_internal')">
+                                        <label id="lbl-receipt_internal-${order.id}" for="file-int-${order.id}" class="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded cursor-pointer font-bold transition inline-block shadow-sm">
+                                            <i class="fas fa-upload mr-1"></i> Subir Foto
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -408,7 +487,7 @@
                 `;
                 document.getElementById('modalContent').innerHTML = html;
                 document.getElementById('detailsModal').classList.remove('hidden');
-                calcFinances(orderId); // Calcular inicial
+                calcFinances(orderId); 
             };
 
             window.closeModal = function() { document.getElementById('detailsModal').classList.add('hidden'); };
@@ -436,7 +515,6 @@
                 }
             };
 
-            // LÓGICA FINANCIERA (Cálculos en tiempo real)
             window.calcFinances = function(orderId) {
                 const subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
                 const iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
@@ -450,7 +528,6 @@
                 const paidNio = parseFloat(document.getElementById(`finPaidNio-${orderId}`).value) || 0;
                 const paidUsd = parseFloat(document.getElementById(`finPaidUsd-${orderId}`).value) || 0;
 
-                // Convertir pago USD a NIO para el balance global
                 const totalPaidInNio = paidNio + (paidUsd * TASA_CAMBIO);
                 const balance = totalNio - totalPaidInNio;
 
@@ -461,7 +538,7 @@
                 if (totalNio === ENVIO_NIO && subtotal === 0) {
                     box.className = "p-3 rounded-lg mb-4 text-center border bg-gray-50 border-gray-200 text-gray-500";
                     lbl.innerText = "Falta ingresar compra"; amt.innerText = "C$ 0.00";
-                } else if (balance > 0.05) { // Margen de centavos
+                } else if (balance > 0.05) { 
                     box.className = "p-3 rounded-lg mb-4 text-center border bg-red-50 border-red-200 text-red-700";
                     lbl.innerText = "Falta por Pagar (Saldo)"; amt.innerText = `C$ ${balance.toFixed(2)}`;
                 } else if (balance < -0.05) {
@@ -504,7 +581,7 @@
                 }
             };
 
-            // GENERADOR DE RECIBO PARA IMPRESORA TÉRMICA
+            // ACTUALIZACIÓN DE PLANTILLA DE RECIBO
             window.printReceipt = function(orderId) {
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
@@ -551,6 +628,7 @@
                         
                         <div>Nombre de cliente: ${order.full_name || 'Consumidor Final'}</div>
                         <div>Número de orden: #${order.id.slice(0,8)}</div>
+                        <div>Fecha: ${dateStr}</div>
                         
                         <div class="divider"></div>
                         
@@ -580,7 +658,7 @@
                         <div class="divider"></div>
                         
                         <div class="text-center" style="font-size:12px;">
-                            Tasa de cambio: C$ ${TASA_CAMBIO}<br><br>
+                            Tipo de cambio: C$ ${TASA_CAMBIO}<br><br>
                             Desarrollado por Denzell Sjogreen
                         </div>
                     </body>
