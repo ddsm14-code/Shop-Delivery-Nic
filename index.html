@@ -3,854 +3,1821 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Shop Delivery Nic</title>
+    <title>Shop Delivery Nic - Tu Supermercado en Casa</title>
+    
     <script src="https://cdn.tailwindcss.com"></script>
+    
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <script>
         tailwind.config = {
-            theme: { extend: { colors: { brand: { green: '#0AAD0A', dark: '#108910' } } } }
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            green: '#0AAD0A', 
+                            dark: '#108910',
+                            orange: '#FF8000', 
+                            gray: '#F3F4F6'
+                        }
+                    }
+                }
+            }
         }
     </script>
     <style>
-        .super-zoom { transform: scale(2.5); cursor: zoom-out !important; }
-        ::-webkit-scrollbar { height: 6px; width: 6px; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hero-pattern {
+            background-image: url('https://images.unsplash.com/photo-1583258292688-d0213dc5a3a8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        .hero-overlay { background: rgba(0, 0, 0, 0.5); }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #0AAD0A;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        .file-upload-wrapper { position: relative; display: inline-block; }
+        .file-upload-btn {
+            position: absolute; bottom: 0; right: 0; background: #0AAD0A; color: white; border-radius: 50%; width: 32px; height: 32px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid white; box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        .order-card { border-left: 4px solid transparent; transition: all 0.3s ease; }
+        .order-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); }
+        .status-pendiente { border-left-color: #fbbf24; }
+        .status-en-camino { border-left-color: #3b82f6; }
+        .status-entregado { border-left-color: #10b981; }
+        .status-cancelado { border-left-color: #ef4444; }
+        
+        .step-icon {
+            width: 60px; height: 60px; background: #e6f4e6; color: #0AAD0A; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin: 0 auto 1rem;
+        }
+        .bank-card {
+            background: white; border-radius: 12px; padding: 20px;
+            border: 1px solid #e5e7eb; box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+        .bank-card:hover { border-color: #0AAD0A; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body class="bg-gray-100 text-gray-800 min-h-screen">
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
 
-    <nav class="bg-gray-900 text-white shadow-md sticky top-0 z-30">
+    <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row justify-between min-h-[4rem] py-3 items-center gap-3">
-                <div class="flex items-center font-bold text-lg md:text-xl w-full justify-center md:justify-start md:w-auto">
-                    <i class="fas fa-cogs text-brand-green mr-2"></i> Shop Delivery Admin
+            <div class="flex justify-between h-16 items-center">
+                
+                <div class="flex items-center cursor-pointer flex-shrink-0" onclick="showView('home')">
+                    <img id="navProfileImg" src="" class="hidden h-10 w-10 rounded-full object-cover mr-2 border border-brand-green">
+                    <div class="flex items-center" id="navLogoDefault">
+                        <i class="fas fa-shopping-basket text-brand-green text-3xl mr-2"></i>
+                    </div>
+                    <span class="font-bold text-lg md:text-xl tracking-tight text-gray-900 leading-tight">
+                        Shop Delivery <span class="text-brand-green">Nic</span>
+                    </span>
                 </div>
                 
-                <div class="flex items-center gap-4 w-full justify-center md:justify-end md:w-auto overflow-x-auto">
-                    <div id="mainNavMenu" class="hidden gap-4 items-center whitespace-nowrap">
-                        <button onclick="showDashboard()" id="tabOrders" class="text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm">Órdenes</button>
-                        <button onclick="showFinances()" id="tabFinances" class="text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm">Finanzas</button>
+                <div class="hidden md:flex space-x-6 items-center flex-grow justify-center">
+                    <button onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium" data-i18n="nav_home">Inicio</button>
+                    <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="text-gray-600 hover:text-brand-green font-medium flex items-center">
+                        <i class="fas fa-external-link-alt mr-1"></i> <span data-i18n="nav_pricesmart">Ir a PriceSmart</span>
+                    </a>
+                    <button onclick="showView('pricing')" class="text-gray-600 hover:text-brand-green font-medium" data-i18n="nav_pricing">Tarifas</button>
+                    <a href="#contact" onclick="showView('home')" class="text-gray-600 hover:text-brand-green font-medium" data-i18n="nav_contact">Contacto</a>
+                    <div id="navUserLinks" class="flex space-x-4"></div>
+                </div>
+
+                <div class="flex items-center space-x-2 md:space-x-4">
+                    <button onclick="toggleLanguage()" class="flex items-center space-x-1 px-2 py-1 border rounded hover:bg-gray-100 transition">
+                        <i class="fas fa-globe text-gray-500"></i>
+                        <span id="langDisplay" class="font-bold text-sm text-brand-green">ES</span>
+                    </button>
+
+                    <div id="navAuthButtons" class="hidden md:flex items-center space-x-3"></div>
+                    <div id="mobileHeaderAuth" class="md:hidden flex items-center"></div>
+                    <div class="md:hidden flex items-center">
+                        <button onclick="toggleMobileMenu()" class="text-gray-600 hover:text-brand-green p-2 focus:outline-none">
+                            <i class="fas fa-bars text-2xl"></i>
+                        </button>
                     </div>
-                    <div id="navAuth"></div>
                 </div>
             </div>
+        </div>
+
+        <div id="mobileMenu" class="hidden md:hidden bg-white border-t p-4 shadow-lg absolute w-full z-50">
+            <button onclick="showView('home'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100" data-i18n="nav_home">Inicio</button>
+            <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="block py-3 text-brand-green font-bold w-full text-left border-b border-gray-100"><span data-i18n="nav_pricesmart">Ir a PriceSmart</span> <i class="fas fa-external-link-alt ml-1"></i></a>
+            <button onclick="showView('pricing'); toggleMobileMenu()" class="block py-3 text-gray-600 w-full text-left border-b border-gray-100" data-i18n="nav_pricing">Tarifas</button>
+            <div id="mobileUserLinks" class="my-2 pt-2"></div>
+            <div id="mobileAuthButtons" class="mt-2 pt-2"></div>
         </div>
     </nav>
 
-    <div id="globalError" class="hidden max-w-md mx-auto mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm mx-4 md:mx-auto">
-        <p class="font-bold text-sm">Error del sistema:</p>
-        <p id="globalErrorText" class="text-xs"></p>
-    </div>
-
-    <div id="loginView" class="max-w-md mx-auto mt-10 bg-white p-6 md:p-8 rounded-xl shadow-lg mx-4 md:mx-auto">
-        <h2 class="text-xl md:text-2xl font-bold text-center mb-6 text-brand-green">Acceso Administrativo</h2>
-        <form onsubmit="handleLogin(event)">
-            <input type="email" id="adminEmail" placeholder="Correo electrónico" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green text-sm md:text-base">
-            <input type="password" id="adminPassword" placeholder="Contraseña" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green text-sm md:text-base">
-            <div class="cf-turnstile mb-6 flex justify-center w-full overflow-hidden" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
-            <button type="submit" id="loginBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded hover:bg-brand-dark transition shadow-lg">Entrar al Panel</button>
-        </form>
-    </div>
-
-    <div id="financesView" class="hidden max-w-7xl mx-auto px-4 mt-6 md:mt-8 pb-10">
-        <div class="flex justify-between items-center mb-4 md:mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Reporte Financiero</h1>
-        </div>
-
-        <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-end">
-            <div class="w-full md:w-auto">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Desde (Inicio)</label>
-                <input type="date" id="reportStart" class="w-full md:w-auto border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
-            </div>
-            <div class="w-full md:w-auto">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Hasta (Fin)</label>
-                <input type="date" id="reportEnd" class="w-full md:w-auto border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
-            </div>
-            <div class="flex gap-2 w-full md:w-auto">
-                <button onclick="generateFinancialReport()" class="flex-1 md:flex-none bg-brand-green hover:bg-brand-dark text-white font-bold py-2 px-4 rounded shadow transition text-sm">
-                    <i class="fas fa-filter md:mr-2"></i> <span class="hidden md:inline">Calcular</span>
-                </button>
-                <button onclick="clearFinancialFilters()" class="flex-1 md:flex-none bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded shadow-sm transition text-sm">
-                    Ver Todo
-                </button>
+    <div id="view-home" class="view-section flex-grow">
+        <div class="relative h-[550px] flex items-center justify-center text-center hero-pattern text-white">
+            <div class="absolute inset-0 hero-overlay"></div>
+            <div class="relative z-10 px-4 max-w-4xl">
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight" data-i18n="hero_title">Compramos por ti</h1>
+                <p class="text-xl md:text-2xl mb-8 font-light text-green-50" data-i18n="hero_subtitle">Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.</p>
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button onclick="checkAuthAndRedirect()" class="bg-brand-orange hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transition transform hover:scale-105">
+                        <i class="fas fa-shopping-cart mr-2"></i> <span data-i18n="btn_order">Hacer mi Pedido</span>
+                    </button>
+                    <button onclick="showView('pricing')" class="bg-white text-brand-green hover:bg-gray-100 font-bold py-4 px-8 rounded-full text-lg shadow-lg transition transform hover:scale-105">
+                        <i class="fas fa-tag mr-2"></i> <span data-i18n="btn_rates">Ver Tarifas</span>
+                    </button>
+                </div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-            <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-md">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="bg-gray-100 p-2 md:p-3 rounded-full text-gray-600"><i class="fas fa-shopping-cart text-lg md:text-xl"></i></div>
-                    <h3 class="font-bold text-gray-700 text-base md:text-lg">Compras PriceSmart</h3>
-                </div>
-                <p class="text-xs text-gray-500 mb-2 md:mb-4">Total gastado (Subtotal + IVA)</p>
-                <p class="text-2xl md:text-3xl font-bold text-gray-800">C$ <span id="finReportPSNio">0.00</span></p>
-                <p class="text-xs md:text-sm font-mono text-gray-500 mt-1">Ref: $ <span id="finReportPSUsd">0.00</span></p>
-            </div>
-
-            <div class="bg-white p-5 rounded-xl border border-green-200 shadow-md relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-brand-green text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded-bl-lg">Tu Dinero</div>
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="bg-green-100 p-2 md:p-3 rounded-full text-brand-green"><i class="fas fa-chart-line text-lg md:text-xl"></i></div>
-                    <h3 class="font-bold text-gray-700 text-base md:text-lg">Ganancias Netas</h3>
-                </div>
-                <p class="text-xs text-gray-500 mb-2 md:mb-4">Ingresos por tarifa ($10.99)</p>
-                <p class="text-2xl md:text-3xl font-bold text-brand-green">C$ <span id="finReportEarnNio">0.00</span></p>
-                <p class="text-xs md:text-sm font-mono text-green-600 mt-1 font-bold">Ref: $ <span id="finReportEarnUsd">0.00</span></p>
-            </div>
-
-            <div class="bg-gray-800 p-5 rounded-xl border border-gray-900 shadow-md text-white sm:col-span-2 md:col-span-1">
-                <div class="flex items-center gap-3 mb-2">
-                    <div class="bg-gray-700 p-2 md:p-3 rounded-full text-yellow-400"><i class="fas fa-coins text-lg md:text-xl"></i></div>
-                    <h3 class="font-bold text-white text-base md:text-lg">Flujo Total</h3>
-                </div>
-                <p class="text-xs text-gray-400 mb-2 md:mb-4">Dinero total movido</p>
-                <p class="text-2xl md:text-3xl font-bold">C$ <span id="finReportTotalNio">0.00</span></p>
+        <section id="about" class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-4" data-i18n="about_title">¿Cómo funciona Shop Delivery Nic?</h2>
+                <p class="text-gray-600 max-w-2xl mx-auto mb-12" data-i18n="about_desc">Somos tu asistente personal de compras. Olvídate del tráfico, las filas y el calor. Nosotros seleccionamos los mejores productos para ti.</p>
                 
-                <div class="mt-4 pt-4 border-t border-gray-700 flex justify-between items-center">
-                    <span class="text-sm text-gray-300">Órdenes Exitosas:</span>
-                    <span class="font-bold text-xl text-yellow-400" id="finReportCount">0</span>
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
+                        <div class="step-icon"><i class="fas fa-list-ol"></i></div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="step1_title">1. Envía tu Lista</h3>
+                        <p class="text-gray-600 text-sm" data-i18n="step1_desc">Regístrate y escribe qué productos necesitas de PriceSmart. Puedes detallar marcas y cantidades.</p>
+                    </div>
+                    <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
+                        <div class="step-icon"><i class="fas fa-shopping-basket"></i></div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="step2_title">2. Compramos por Ti</h3>
+                        <p class="text-gray-600 text-sm" data-i18n="step2_desc">Nuestro equipo va al supermercado y selecciona los mejores productos.</p>
+                    </div>
+                    <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
+                        <div class="step-icon"><i class="fas fa-truck"></i></div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="step3_title">3. Recibe en Casa</h3>
+                        <p class="text-gray-600 text-sm" data-i18n="step3_desc">Llevamos todo hasta la puerta de tu hogar en Granada, Masaya, Managua y más.</p>
+                    </div>
                 </div>
+            </div>
+        </section>
+
+        <section class="py-16 bg-brand-gray">
+            <div class="max-w-7xl mx-auto px-4">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <h2 class="text-3xl font-bold text-gray-800 mb-6" data-i18n="why_title">¿Por qué elegirnos?</h2>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-brand-green text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-800" data-i18n="ben1_title">Ahorra Tiempo y Combustible</h4>
+                                    <p class="text-gray-600 text-sm" data-i18n="ben1_desc">No gastes horas en el tráfico ni en filas. Nosotros nos encargamos.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-brand-green text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-800" data-i18n="ben2_title">Sin Membresía Requerida</h4>
+                                    <p class="text-gray-600 text-sm" data-i18n="ben2_desc">Compramos en PriceSmart por ti, no necesitas tener tu propia membresía.</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle text-brand-green text-xl mr-3 mt-1"></i>
+                                <div>
+                                    <h4 class="font-bold text-gray-800" data-i18n="ben3_title">Atención Personalizada</h4>
+                                    <p class="text-gray-600 text-sm" data-i18n="ben3_desc">Si no hay un producto, te llamamos para ofrecerte alternativas al instante.</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="rounded-2xl overflow-hidden shadow-xl h-80">
+                        <img src="https://images.unsplash.com/photo-1578916171728-46686eac8d58?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80" alt="Compras Supermercado" class="w-full h-full object-cover">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="contact" class="py-16 bg-white">
+            <div class="max-w-7xl mx-auto px-4 text-center">
+                <h2 class="text-3xl font-bold text-gray-800 mb-12" data-i18n="contact_title">Contáctanos</h2>
+                
+                <div class="grid md:grid-cols-3 gap-8">
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm">
+                        <div class="text-brand-green text-4xl mb-4"><i class="fas fa-map-marker-alt"></i></div>
+                        <h3 class="text-xl font-bold mb-2" data-i18n="location_title">Ubicación</h3>
+                        <p class="text-gray-600 font-medium">Granada, Nicaragua</p>
+                        <p class="text-gray-500 text-sm mt-2" data-i18n="location_desc">Gasolinera UNO Guapinol<br>5 cuadras al norte.</p>
+                    </div>
+                    
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm">
+                        <div class="text-brand-green text-4xl mb-4"><i class="fas fa-clock"></i></div>
+                        <h3 class="text-xl font-bold mb-2" data-i18n="hours_title">Horario de Atención</h3>
+                        <ul class="text-gray-600 text-sm space-y-2">
+                            <li class="flex justify-between border-b pb-1"><span data-i18n="days_mon_fri">Lunes - Viernes:</span> <strong>8:00 AM - 6:00 PM</strong></li>
+                            <li class="flex justify-between border-b pb-1"><span data-i18n="days_sat">Sábados:</span> <strong>8:00 AM - 2:00 PM</strong></li>
+                            <li class="flex justify-between text-red-500"><span data-i18n="days_sun">Domingos:</span> <strong data-i18n="closed">Cerrado</strong></li>
+                        </ul>
+                    </div>
+
+                    <div class="bg-gray-50 p-8 rounded-xl shadow-sm">
+                        <div class="text-brand-green text-4xl mb-4"><i class="fas fa-phone-alt"></i></div>
+                        <h3 class="text-xl font-bold mb-2" data-i18n="direct_contact_title">Contacto Directo</h3>
+                        <p class="text-gray-600 mb-4" data-i18n="direct_contact_desc">¿Tienes dudas o quieres cotizar?</p>
+                        <a href="https://wa.me/50558367648" target="_blank" class="inline-block bg-brand-green text-white px-6 py-2 rounded-full font-bold hover:bg-brand-dark transition">
+                            <i class="fab fa-whatsapp mr-1"></i> +505 5836 7648
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="view-pricing" class="view-section hidden flex-grow py-16 bg-brand-gray">
+        <div class="max-w-5xl mx-auto px-4 text-center">
+            <h2 class="text-3xl font-bold text-gray-800 mb-2" data-i18n="pricing_title">Tarifas de Envío</h2>
+            
+            <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-4 mt-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+                    <div class="text-brand-green text-3xl mb-2"><i class="fas fa-city"></i></div>
+                    <h3 class="text-lg font-bold mb-2">Granada</h3>
+                    <p class="text-2xl font-bold text-brand-green">$10.99 / C$ 402.50</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+                    <div class="text-brand-green text-3xl mb-2"><i class="fas fa-store-alt"></i></div>
+                    <h3 class="text-lg font-bold mb-2">Masaya</h3>
+                    <p class="text-2xl font-bold text-brand-green">$10.99 / C$ 402.50</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+                    <div class="text-brand-green text-3xl mb-2"><i class="fas fa-road"></i></div>
+                    <h3 class="text-lg font-bold mb-2">Carretera Masaya</h3>
+                    <p class="text-2xl font-bold text-brand-green">$10.99 / C$ 402.50</p>
+                </div>
+                <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition border border-gray-100">
+                    <div class="text-brand-green text-3xl mb-2"><i class="fas fa-building"></i></div>
+                    <h3 class="text-lg font-bold mb-2">Managua</h3>
+                    <p class="text-2xl font-bold text-brand-green">$9.99 / C$ 365.88</p>
+                </div>
+            </div>
+            <div class="mt-8 p-4 bg-white rounded-lg inline-block shadow-sm">
+                <p class="text-gray-600 font-medium" data-i18n="pricing_other">Otros departamentos sujetos a cotización.</p>
             </div>
         </div>
     </div>
 
-    <div id="dashboardView" class="hidden max-w-7xl mx-auto px-4 mt-6 md:mt-8 pb-10">
-        
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-            <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-gray-800 flex flex-col justify-center">
-                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">Nuevas (Hoy)</p>
-                <h3 class="text-2xl md:text-3xl font-bold text-gray-800" id="metricToday">0</h3>
+    <div id="view-auth" class="view-section hidden pt-20 pb-20 bg-gray-100 flex-grow">
+        <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg m-4">
+            <h2 id="authTitle" class="text-2xl font-bold text-center mb-6 text-brand-green" data-i18n="auth_login_title">Iniciar Sesión</h2>
+            <form id="authForm" onsubmit="handleAuth(event)">
+                <div class="mb-4">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_email">Correo Electrónico</label>
+                    <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="email" type="email" required placeholder="tu@correo.com">
+                </div>
+                
+                <div class="mb-4 relative">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_password">Contraseña</label>
+                    <div class="relative">
+                        <input class="shadow border rounded w-full py-2 px-3 text-gray-700 mb-1 focus:outline-none focus:border-brand-green" id="password" type="password" required placeholder="********">
+                        <button type="button" onclick="togglePasswordVisibility('password', 'iconPass1')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-brand-green">
+                            <i id="iconPass1" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <p id="passwordHelp" class="hidden text-xs text-gray-500 mt-1" data-i18n="password_help">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
+                </div>
+
+                <div id="confirmPasswordGroup" class="mb-6 relative hidden">
+                    <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_confirm_password_auth">Confirmar Contraseña</label>
+                    <div class="relative">
+                        <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="confirmPasswordAuth" type="password" placeholder="********">
+                        <button type="button" onclick="togglePasswordVisibility('confirmPasswordAuth', 'iconPass2')" class="absolute inset-y-0 right-0 px-3 flex items-center text-gray-500 hover:text-brand-green">
+                            <i id="iconPass2" class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="cf-turnstile mb-4" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
+
+                <div id="authError" class="hidden text-red-500 text-sm mb-4 text-center"></div>
+                <div id="authSuccess" class="hidden text-green-500 text-sm mb-4 text-center"></div>
+                
+                <button id="authBtn" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-2 px-4 rounded transition" type="button" onclick="login()" data-i18n="btn_enter">Entrar</button>
+                
+                <div class="mt-4 text-center text-sm">
+                    <span id="authToggleText" data-i18n="no_account">¿No tienes cuenta?</span>
+                    <a href="#" id="authToggleLink" onclick="toggleAuthMode()" class="text-brand-green font-bold hover:underline" data-i18n="register_here">Regístrate aquí</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="view-payment-methods" class="view-section hidden bg-gray-50 py-10 flex-grow">
+        <div class="max-w-4xl mx-auto px-4">
+            <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center" data-i18n="payment_title">Métodos de Pago</h2>
+            <p class="text-gray-600 text-center mb-8 max-w-2xl mx-auto" data-i18n="payment_intro">Puedes realizar tu pago transfiriendo a cualquiera de las siguientes cuentas a nombre de **Denzell Sjogreen**:</p>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <div class="bank-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-red-100 p-3 rounded-full mr-4 text-red-600"><i class="fas fa-university text-xl"></i></div>
+                        <h3 class="font-bold text-xl text-gray-800" data-i18n="bank_bac">BAC Credomatic</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                            <p class="text-xs text-gray-500 uppercase font-bold" data-i18n="currency_cordobas">Córdobas</p>
+                            <p class="text-lg font-mono text-gray-800 select-all">364658054</p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                            <p class="text-xs text-gray-500 uppercase font-bold" data-i18n="currency_dollars">Dólares</p>
+                            <p class="text-lg font-mono text-gray-800 select-all">366663961</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bank-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-green-100 p-3 rounded-full mr-4 text-green-700"><i class="fas fa-university text-xl"></i></div>
+                        <h3 class="font-bold text-xl text-gray-800" data-i18n="bank_lafise">Banco LAFISE</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                            <p class="text-xs text-gray-500 uppercase font-bold" data-i18n="currency_cordobas">Córdobas</p>
+                            <p class="text-lg font-mono text-gray-800 select-all">133044717</p>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                            <p class="text-xs text-gray-500 uppercase font-bold" data-i18n="currency_dollars">Dólares</p>
+                            <p class="text-lg font-mono text-gray-800 select-all">131222581</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bank-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-yellow-100 p-3 rounded-full mr-4 text-yellow-600"><i class="fas fa-university text-xl"></i></div>
+                        <h3 class="font-bold text-xl text-gray-800" data-i18n="bank_banpro">Banpro</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                            <p class="text-xs text-gray-500 uppercase font-bold" data-i18n="currency_dollars">Dólares</p>
+                            <p class="text-lg font-mono text-gray-800 select-all">10023510099880</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bank-card">
+                    <div class="flex items-center mb-4">
+                        <div class="bg-blue-100 p-3 rounded-full mr-4 text-blue-600"><i class="fas fa-mobile-alt text-xl"></i></div>
+                        <h3 class="font-bold text-xl text-gray-800" data-i18n="wallet_banpro">Billetera Móvil Banpro</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="bg-gray-50 p-3 rounded border border-gray-100">
+                            <p class="text-xs text-gray-500 uppercase font-bold">C$ / $</p>
+                            <p class="text-lg font-mono text-gray-800 select-all">58367648</p>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-yellow-400 flex flex-col justify-center">
-                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">Pendientes</p>
-                <h3 class="text-2xl md:text-3xl font-bold text-yellow-600" id="metricPending">0</h3>
-            </div>
-            <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-blue-400 flex flex-col justify-center">
-                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">En Camino</p>
-                <h3 class="text-2xl md:text-3xl font-bold text-blue-600" id="metricOnWay">0</h3>
-            </div>
-            <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-green-500 flex flex-col justify-center">
-                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">Entregadas</p>
-                <h3 class="text-2xl md:text-3xl font-bold text-brand-green" id="metricDelivered">0</h3>
+
+            <div class="mt-12 text-center">
+                <p class="text-gray-600 mb-4" data-i18n="payment_instruction_whatsapp">Una vez realizado el pago, por favor envía el comprobante a nuestro WhatsApp:</p>
+                <a href="https://wa.me/50558367648" target="_blank" class="inline-flex items-center bg-green-500 hover:bg-green-600 text-white font-bold py-4 px-8 rounded-full shadow-lg transition transform hover:scale-105">
+                    <i class="fab fa-whatsapp text-2xl mr-2"></i>
+                    <span data-i18n="btn_notify_payment">Notificar Pago</span>
+                </a>
             </div>
         </div>
+    </div>
 
-        <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center mb-4 gap-3 md:gap-4 bg-white p-3 md:p-4 rounded-xl shadow-sm border border-gray-200">
-            <div class="flex items-center w-full md:w-auto gap-2 bg-gray-50 p-2 rounded md:bg-transparent md:p-0">
-                <i class="fas fa-search text-gray-400 ml-2 md:ml-0"></i>
-                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Buscar nombre, teléfono..." class="w-full md:w-64 border-none focus:outline-none text-sm bg-transparent">
+    <div id="view-create-order" class="view-section hidden bg-gray-50 py-10 flex-grow">
+        <div class="max-w-3xl mx-auto px-4">
+            
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800" data-i18n="new_order_title">Crear Nueva Orden</h2>
+                    <p class="text-gray-500 text-sm"><span data-i18n="client_code_label">Código Cliente:</span> <span id="orderClientCodeDisplay" class="font-mono font-bold text-brand-green">---</span></p>
+                </div>
+                <a href="https://www.pricesmart.com/site/ni/es" target="_blank" class="bg-white border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition shadow-sm flex items-center">
+                    <i class="fas fa-external-link-alt mr-2"></i> <span data-i18n="open_pricesmart">Abrir PriceSmart.com</span>
+                </a>
             </div>
-            <div class="flex items-center w-full md:w-auto gap-2">
-                <select id="statusFilter" onchange="renderTable()" class="w-full md:w-auto border p-2 rounded text-sm focus:outline-none focus:border-brand-green bg-gray-50">
-                    <option value="all">Todos los estados</option>
-                    <option value="pendiente">Solo Pendientes</option>
-                    <option value="en camino">Solo En Camino</option>
-                    <option value="entregado">Solo Entregadas</option>
-                    <option value="cancelado">Solo Canceladas</option>
-                </select>
-                <button onclick="loadAllOrders()" class="bg-brand-green text-white px-3 py-2 rounded shadow hover:bg-brand-dark transition flex items-center text-sm font-bold">
-                    <i class="fas fa-sync-alt"></i>
+
+            <div class="bg-white p-6 rounded-xl shadow-sm relative">
+                <div id="sendingOverlay" class="hidden absolute inset-0 bg-white bg-opacity-90 z-10 flex flex-col items-center justify-center rounded-xl">
+                    <div class="loader mb-4"></div>
+                    <p class="text-brand-green font-bold" data-i18n="processing">Procesando y enviando...</p>
+                </div>
+
+                <form id="orderForm" onsubmit="submitOrder(event)">
+                    <input type="hidden" name="client_code" id="hiddenClientCode">
+                    
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_shopping_date">Día de Compra</label>
+                        <select id="shoppingDate" required class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
+                            <option value="" disabled selected data-i18n="select_day">Selecciona un día...</option>
+                            <option value="Miércoles" data-i18n="day_wednesday">Miércoles</option>
+                            <option value="Viernes" data-i18n="day_friday">Viernes</option>
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_fullname">Tu Nombre Completo</label>
+                            <input type="text" id="orderName" name="full_name" required class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_phone">Teléfono</label>
+                            <input type="tel" id="orderPhone" name="phone" required value="+505" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div id="standardServiceNotice" class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6 rounded-r">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <i class="fas fa-exclamation-circle text-yellow-400"></i>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-bold text-yellow-800" data-i18n="notice_payment_title">Política de Servicio Estándar</h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p class="mb-1" data-i18n="notice_payment_desc">Para compras realizadas por nosotros, se requiere el 100% de anticipo.</p>
+                                    <p class="font-semibold" data-i18n="notice_schedule_desc">Cortes: Martes 11 PM (para miércoles) y Jueves 11 PM (para viernes).</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-gray-50 p-4 rounded-lg border border-gray-200 mb-6">
+                        
+                        <div class="mb-6 border-b pb-4">
+                            <label class="block text-gray-700 font-bold mb-3 text-sm" data-i18n="label_service_type">Tipo de Servicio</label>
+                            
+                            <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100 mb-2">
+                                <input type="radio" name="serviceType" value="shopForMe" id="serviceShopForMe" class="form-radio text-brand-green h-5 w-5 mt-1" checked onchange="handleServiceChange()">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-gray-800" data-i18n="shopforme_title">Shop For Me!</span>
+                                    <span class="text-xs text-gray-500" data-i18n="shopforme_desc">Nosotros hacemos la compra por ti en el supermercado.</span>
+                                </div>
+                            </label>
+
+                            <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100 mb-2">
+                                <input type="radio" name="serviceType" value="clickGo" id="serviceClickGo" class="form-radio text-brand-green h-5 w-5 mt-1" onchange="handleServiceChange()">
+                                <div class="flex flex-col">
+                                    <span class="text-sm font-bold text-gray-800" data-i18n="clickgo_title">Servicio Click & Go (Solo Recogida)</span>
+                                    <span class="text-xs text-gray-500" data-i18n="clickgo_desc">Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.</span>
+                                </div>
+                            </label>
+
+                            <div id="clickGoDetails" class="hidden mb-2 ml-8 mt-2">
+                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_memberid">Número de Membresía PriceSmart (Titular de la compra)</label>
+                                <input type="text" id="memberId" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white shadow-inner" placeholder="Ej: 100012345678">
+                            </div>
+
+                            <div id="companionOption" class="hidden mt-2">
+                                <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
+                                    <input type="radio" name="serviceType" value="companion" id="serviceCompanion" class="form-radio text-brand-green h-5 w-5 mt-1" onchange="handleServiceChange()">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-gray-800" data-i18n="companion_title">Servicio de Acompañamiento Personal (+$14.99 / C$ 549.00)</span>
+                                        <span class="text-xs text-gray-500" data-i18n="companion_desc">Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.</span>
+                                    </div>
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_zone">Zona de Entrega</label>
+                                <select id="orderZone" name="zone" onchange="updateEstimatedFee()" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
+                                    <option value="Granada">Granada ($10.99 / C$ 402.50)</option>
+                                    <option value="Masaya">Masaya ($10.99 / C$ 402.50)</option>
+                                    <option value="Carretera Masaya">Carretera Masaya ($10.99 / C$ 402.50)</option>
+                                    <option value="Managua">Managua ($9.99 / C$ 365.88)</option>
+                                    <option value="Departamento" data-i18n="option_other">Otro Departamento (Cotizar)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_cost">Costo Estimado</label>
+                                <div id="estimatedFee" class="p-2 bg-white rounded text-brand-green font-bold text-center border">$10.99 / C$ 402.50</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_address">Dirección Exacta</label>
+                        <textarea id="orderAddress" name="address" rows="2" required placeholder="Barrio, calle, número de casa..." data-i18n-placeholder="placeholder_address" class="w-full border p-2 rounded focus:border-brand-green outline-none"></textarea>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_list">Lista de Compras</label>
+                        <div class="mb-2">
+                            <label class="block text-gray-600 text-xs mb-1" data-i18n="upload_label">¿Tienes tu lista en papel? Sube fotos (Máximo 10)</label>
+                            <div class="flex items-center space-x-3">
+                                <label for="listImage" class="cursor-pointer bg-green-50 text-brand-green px-4 py-2 rounded-lg font-bold text-sm hover:bg-green-100 transition border border-green-100 flex items-center">
+                                    <i class="fas fa-camera mr-2"></i> <span id="fileBtnText" data-i18n="btn_choose_files">Subir Fotos</span>
+                                </label>
+                                <span id="fileCount" class="text-xs text-gray-500 italic"></span>
+                            </div>
+                            <input type="file" id="listImage" accept="image/*" multiple class="hidden" onchange="updateFileCount()">
+                        </div>
+                        <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." data-i18n-placeholder="placeholder_list" class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
+                    </div>
+                    
+                    <div class="mb-6 border-t pt-4">
+                        <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100 mb-4">
+                            <input type="checkbox" id="needInvoiceCheck" class="form-checkbox text-brand-green h-5 w-5 mt-1" onchange="toggleInvoiceDetails()">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-gray-800" data-i18n="label_need_invoice">¿Necesitas factura legal (con RUC)?</span>
+                            </div>
+                        </label>
+
+                        <div id="invoiceDetails" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_ruc_number">Número RUC</label>
+                                <input type="text" id="rucNumber" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_business_name">Razón Social / Nombre del Negocio</label>
+                                <input type="text" id="businessName" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_comments">Comentarios / Special Requests</label>
+                        <textarea id="specialRequests" name="comments" rows="2" placeholder="Ej: Llamar antes de llegar, producto sustituto si no hay..." data-i18n-placeholder="placeholder_comments" class="w-full border p-2 rounded focus:border-brand-green outline-none text-sm"></textarea>
+                    </div>
+
+                    <button type="submit" class="w-full bg-brand-green text-white font-bold py-3 rounded-lg hover:bg-brand-dark transition shadow-lg" data-i18n="btn_send_order">
+                        Enviar Pedido
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div id="view-orders" class="view-section hidden bg-gray-50 py-10 flex-grow">
+        <div class="max-w-4xl mx-auto px-4">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-3xl font-bold text-gray-800" data-i18n="my_orders_title">Mis Pedidos</h2>
+                <button onclick="downloadHistoryPDF()" class="bg-gray-800 hover:bg-gray-900 text-white text-sm px-4 py-2 rounded-lg shadow flex items-center transition">
+                    <i class="fas fa-file-pdf mr-2"></i> <span data-i18n="btn_download_pdf">Descargar Historial PDF</span>
                 </button>
             </div>
-        </div>
-
-        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
-            <div class="overflow-x-auto w-full">
-                <table class="w-full text-left border-collapse min-w-[700px]">
-                    <thead>
-                        <tr class="bg-gray-50 text-gray-600 text-[11px] md:text-sm uppercase tracking-wide border-b border-gray-200">
-                            <th class="p-3 md:p-4 font-semibold">ID / Fecha</th>
-                            <th class="p-3 md:p-4 font-semibold">Cliente</th>
-                            <th class="p-3 md:p-4 font-semibold">Zona / Pago</th>
-                            <th class="p-3 md:p-4 font-semibold text-center">Acciones</th>
-                            <th class="p-3 md:p-4 font-semibold text-center">Envío</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ordersTableBody" class="divide-y divide-gray-100 text-xs md:text-sm">
-                        <tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando órdenes...</td></tr>
-                    </tbody>
-                </table>
+            
+            <div id="orderHistoryList" class="space-y-4">
+                <div class="p-8 text-center text-gray-400 bg-white rounded-xl shadow-sm" data-i18n="loading">Cargando...</div>
             </div>
         </div>
     </div>
 
-    <div id="detailsModal" class="hidden fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-2 md:p-4">
-        <div class="bg-gray-100 md:bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden">
-            <div class="p-3 md:p-4 border-b bg-white flex justify-between items-center sticky top-0 z-10 shadow-sm">
-                <h3 class="font-bold text-base md:text-lg text-gray-800 truncate pr-2" id="modalTitle">Gestión de Orden</h3>
-                <button onclick="closeModal()" class="text-gray-500 hover:text-red-500 transition text-2xl leading-none px-2">&times;</button>
-            </div>
+    <div id="view-profile" class="view-section hidden bg-gray-50 py-10 flex-grow">
+        <div class="max-w-3xl mx-auto px-4">
             
-            <div class="p-3 md:p-6 overflow-y-auto flex-grow" id="modalContent">
+            <div class="bg-white p-6 rounded-xl shadow-sm mb-6 flex flex-col md:flex-row items-center border border-gray-100">
+                <div class="file-upload-wrapper mb-4 md:mb-0 md:mr-6">
+                    <img id="profilePreview" src="https://via.placeholder.com/150?text=Usuario" 
+                         class="h-24 w-24 rounded-full object-cover border-4 border-gray-50 shadow-sm">
+                    <label for="profileUpload" class="file-upload-btn hover:bg-brand-dark transition cursor-pointer">
+                        <i class="fas fa-camera"></i>
+                    </label>
+                    <input type="file" id="profileUpload" accept="image/*" class="hidden" onchange="handleAvatarUpload(event)">
                 </div>
-            
-            <div class="p-3 md:p-4 border-t bg-white flex justify-end gap-3 sticky bottom-0">
-                <button onclick="closeModal()" class="bg-gray-800 w-full md:w-auto text-white px-6 py-2.5 rounded-lg shadow hover:bg-gray-900 transition font-bold text-sm">Cerrar Ventana</button>
+                <div class="text-center md:text-left flex-grow">
+                    <h2 class="text-2xl font-bold text-gray-800" id="profileHeaderName" data-i18n="profile_title">Mi Perfil</h2>
+                    <p class="text-sm text-gray-500" id="profileEmailDisplay">usuario@email.com</p>
+                </div>
+                <div class="mt-4 md:mt-0 text-center">
+                    <span class="block text-xs text-gray-400 uppercase tracking-wide" data-i18n="client_code_label">Código de Cliente</span>
+                    <span class="block text-xl font-mono font-bold text-brand-green bg-green-50 px-3 py-1 rounded" id="displayClientCode">---</span>
+                </div>
             </div>
+
+            <form id="profileForm" onsubmit="updateProfile(event)">
+                <input type="hidden" id="profileAvatarBase64">
+                <input type="hidden" id="profileClientCodeHidden">
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b flex items-center">
+                        <i class="fas fa-user-edit text-brand-green mr-2"></i> <span data-i18n="personal_data_title">Datos Personales</span>
+                    </h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_firstname">Nombre</label>
+                            <input type="text" id="profileName" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_lastname">Apellido</label>
+                            <input type="text" id="profileSurname" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_phone">Teléfono</label>
+                            <input type="tel" id="profilePhone" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="+505...">
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_usual_zone">Zona Habitual</label>
+                            <select id="profileZone" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
+                                <option value="" data-i18n="select">Seleccionar...</option>
+                                <option value="Granada">Granada</option>
+                                <option value="Masaya">Masaya</option>
+                                <option value="Carretera Masaya">Carretera a Masaya</option>
+                                <option value="Managua">Managua</option>
+                                <option value="Otro" data-i18n="option_other_simple">Otro</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_ruc_number">Número RUC</label>
+                            <input type="text" id="profileRuc" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="Opcional">
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_business_name">Razón Social</label>
+                            <input type="text" id="profileBusiness" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="Opcional">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 mb-6">
+                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b flex items-center">
+                        <i class="fas fa-lock text-brand-green mr-2"></i> <span data-i18n="security_title">Seguridad</span>
+                    </h3>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-600 text-sm font-bold mb-2"><span data-i18n="label_current_password">Contraseña Actual</span> <span class="text-red-500">*</span></label>
+                        <input type="password" id="currentPassword" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Requerido para cambiar contraseña" data-i18n-placeholder="placeholder_req_password">
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_new_password">Nueva Contraseña</label>
+                        <input type="password" id="profilePassword" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Dejar en blanco para no cambiar" data-i18n-placeholder="placeholder_blank_password">
+                        <p class="text-xs text-gray-400 mt-1" data-i18n="password_help">Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).</p>
+                    </div>
+                    
+                    <div class="mb-2">
+                        <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_confirm_password">Confirmar Nueva Contraseña</label>
+                        <input type="password" id="profilePasswordConfirm" class="w-full border p-2 rounded focus:border-brand-green outline-none" placeholder="Repite la contraseña" data-i18n-placeholder="placeholder_repeat_password">
+                    </div>
+                </div>
+
+                <button type="submit" id="profileBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded-lg hover:bg-brand-dark transition shadow-lg text-lg" data-i18n="btn_save_changes">
+                    Guardar Cambios
+                </button>
+            </form>
         </div>
     </div>
 
-    <div id="imageViewerModal" class="hidden fixed inset-0 z-50 bg-black/95 overflow-auto text-center p-2 md:p-10">
-        <button onclick="closeImageViewer()" class="fixed top-4 right-4 text-white/70 hover:text-white text-4xl z-50 leading-none bg-black/50 rounded-full w-10 h-10 flex items-center justify-center">&times;</button>
-        <div class="min-h-full flex items-center justify-center inline-block">
-            <img id="imageViewerImg" src="" class="max-w-full max-h-[90vh] object-contain cursor-zoom-in transition-transform duration-300 origin-center" onclick="toggleZoom(this)">
+    <footer class="bg-gray-800 text-white py-8 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 text-center">
+            <div class="flex items-center justify-center mb-4">
+                <i class="fas fa-shopping-basket text-brand-green text-2xl mr-2"></i>
+                <span class="font-bold text-xl tracking-tight text-white">
+                    Shop Delivery <span class="text-brand-green">Nic</span>
+                </span>
+            </div>
+            
+            <div class="flex justify-center mb-4">
+                <a href="https://www.facebook.com/profile.php?id=61588191826866" target="_blank" class="text-gray-400 hover:text-brand-green transition text-3xl">
+                    <i class="fab fa-facebook"></i>
+                </a>
+            </div>
+
+            <div class="text-xs text-gray-500">&copy; 2026 Shop Delivery Nic.</div>
         </div>
-    </div>
+    </footer>
 
     <script>
-        const TASA_CAMBIO = 36.6243;
-        const ENVIO_USD = 10.99;
-        const ENVIO_NIO = ENVIO_USD * TASA_CAMBIO;
+        const CONFIG = {
+            SUPABASE_URL: "https://dltpvajfltfzayhomufx.supabase.co", 
+            SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdHB2YWpmbHRmemF5aG9tdWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzkyOTAsImV4cCI6MjA4NTQ1NTI5MH0.HCldnUI4sm9BHepUDgcqs4v4a5yVa20VWSzt2lNQ_Vo",
+            APPS_SCRIPT_URL: "https://script.google.com/macros/s/AKfycbwyKzOttwv4aRe127HG_ASaneyfTyG2hyn24U1izJWiCw9RyBExqs-Mn3Tw1eOE2KOEGQ/exec"
+        };
 
-        const ADMIN_EMAILS = [
-            "ddsm14@gmail.com",
-            "correo_asistente@gmail.com" 
-        ];
+        const DEFAULT_AVATAR = "https://via.placeholder.com/150?text=Usuario"; 
+        const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@$]).{8,}$/;
 
-        function showGlobalError(msg) {
-            document.getElementById('globalErrorText').innerText = msg;
-            document.getElementById('globalError').classList.remove('hidden');
-            if(document.getElementById('loginBtn')) {
-                document.getElementById('loginBtn').innerText = "Entrar al Panel";
-                document.getElementById('loginBtn').disabled = false;
+        let supabaseClient = null;
+        let currentUser = null;
+        let isLoginMode = true;
+        let currentOrders = [];
+        let currentLang = localStorage.getItem('shopLang') || 'es';
+
+        // --- DICCIONARIO DE TRADUCCIONES ---
+        const translations = {
+            es: {
+                nav_home: "Inicio",
+                nav_pricesmart: "Ir a PriceSmart",
+                nav_pricing: "Tarifas",
+                nav_contact: "Contacto",
+                nav_login: "Iniciar Sesión",
+                nav_register: "Registrarse",
+                nav_enter: "Entrar",
+                nav_make_order: "Hacer Pedido",
+                nav_my_orders: "Mis Pedidos",
+                nav_profile: "Mi Perfil",
+                nav_payment: "Métodos de Pago", 
+                nav_logout: "Salir",
+                nav_logout_full: "Cerrar Sesión",
+                
+                hero_title: "Compramos por ti",
+                hero_subtitle: "Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.",
+                btn_order: "Hacer mi Pedido",
+                btn_rates: "Ver Tarifas",
+
+                about_title: "¿Cómo funciona Shop Delivery Nic?",
+                about_desc: "Somos tu asistente personal de compras. Olvídate del tráfico, las filas y el calor. Nosotros seleccionamos los mejores productos para ti.",
+                step1_title: "1. Envía tu Lista",
+                step1_desc: "Regístrate y escribe qué productos necesitas de PriceSmart. Puedes detallar marcas y cantidades.",
+                step2_title: "2. Compramos por Ti",
+                step2_desc: "Nuestro equipo va al supermercado y selecciona los mejores productos.",
+                step3_title: "3. Recibe en Casa",
+                step3_desc: "Llevamos todo hasta la puerta de tu hogar en Granada, Masaya, Managua y más.",
+
+                why_title: "¿Por qué elegirnos?",
+                ben1_title: "Ahorra Tiempo y Combustible",
+                ben1_desc: "No gastes horas en el tráfico ni en filas. Nosotros nos encargamos.",
+                ben2_title: "Sin Membresía Requerida",
+                ben2_desc: "Compramos en PriceSmart por ti, no necesitas tener tu propia membresía.",
+                ben3_title: "Atención Personalizada",
+                ben3_desc: "Si no hay un producto, te llamamos para ofrecerte alternativas al instante.",
+
+                contact_title: "Contáctanos",
+                location_title: "Ubicación",
+                location_desc: "Gasolinera UNO Guapinol<br>5 cuadras al norte.",
+                hours_title: "Horario de Atención",
+                days_mon_fri: "Lunes - Viernes:",
+                days_sat: "Sábados:",
+                days_sun: "Domingos:",
+                closed: "Cerrado",
+                direct_contact_title: "Contacto Directo",
+                direct_contact_desc: "¿Tienes dudas o quieres cotizar?",
+
+                pricing_title: "Tarifas de Envío",
+                pricing_other: "Otros departamentos sujetos a cotización.",
+
+                auth_login_title: "Iniciar Sesión",
+                auth_register_title: "Crear Cuenta",
+                label_email: "Correo Electrónico",
+                label_password: "Contraseña",
+                label_confirm_password_auth: "Confirmar Contraseña",
+                password_help: "Mínimo 8 caracteres, 1 mayúscula, 1 minúscula, 1 número y 1 símbolo (!, @, $).",
+                btn_enter: "Entrar",
+                btn_register: "Registrarse",
+                no_account: "¿No tienes cuenta?",
+                have_account: "¿Ya tienes cuenta?",
+                register_here: "Regístrate aquí",
+                enter_here: "Entra aquí",
+                auth_success_reg: "¡Registro exitoso! Entra ahora.",
+                auth_error_creds: "Credenciales incorrectas.",
+                auth_error_pass_mismatch: "Las contraseñas no coinciden.",
+
+                new_order_title: "Crear Nueva Orden",
+                client_code_label: "Código Cliente",
+                open_pricesmart: "Abrir PriceSmart.com",
+                processing: "Procesando y enviando...",
+                label_shopping_date: "Día de Compra",
+                select_day: "Selecciona un día...",
+                day_wednesday: "Miércoles",
+                day_friday: "Viernes",
+                error_select_day: "Por favor selecciona un día de compra.",
+                label_fullname: "Tu Nombre Completo",
+                label_phone: "Teléfono",
+                label_service_type: "Tipo de Servicio",
+                shopforme_title: "Shop For Me!",
+                shopforme_desc: "Nosotros hacemos la compra por ti en el supermercado.",
+                label_zone: "Zona de Entrega",
+                label_cost: "Costo Estimado",
+                option_other: "Otro Departamento (Cotizar)",
+                option_other_simple: "Otro",
+                companion_title: "Servicio de Acompañamiento Personal (+$14.99 / C$ 549.00)",
+                companion_desc: "Marca esta casilla si deseas ir con nosotros al supermercado para realizar tus compras personalmente. Te recogemos en tu domicilio.",
+                clickgo_title: "Servicio Click & Go (Solo Recogida)",
+                clickgo_desc: "Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.",
+                label_memberid: "Número de Membresía PriceSmart (Titular de la compra)",
+                label_address: "Dirección Exacta",
+                placeholder_address: "Barrio, calle, número de casa...",
+                label_list: "Lista de Compras",
+                upload_label: "¿Tienes tu lista en papel? Sube fotos (Máximo 10)",
+                btn_choose_files: "Subir Fotos",
+                files_selected: "archivos",
+                no_files_selected: "",
+                placeholder_list: "Escribe aquí tu lista detallada (Producto, Marca, Cantidad)...",
+                
+                label_need_invoice: "¿Necesitas factura legal (con RUC)?",
+                label_ruc_number: "Número RUC",
+                label_business_name: "Razón Social / Nombre del Negocio",
+
+                label_comments: "Comentarios / Special Requests",
+                placeholder_comments: "Ej: Llamar antes de llegar, producto sustituto si no hay...",
+                btn_send_order: "Enviar Pedido",
+                
+                notice_payment_title: "Política de Servicio Estándar",
+                notice_payment_desc: "Para compras realizadas por nosotros, se requiere el 100% de anticipo.",
+                notice_schedule_desc: "Cortes: Martes 11 PM (para miércoles) y Jueves 11 PM (para viernes).",
+
+                // PAYMENT METHODS SECTION
+                payment_title: "Métodos de Pago",
+                payment_intro: "Puedes realizar tu pago transfiriendo a cualquiera de las siguientes cuentas a nombre de **Denzell Sjogreen**:",
+                bank_bac: "BAC Credomatic",
+                bank_lafise: "Banco LAFISE",
+                bank_banpro: "Banpro",
+                wallet_banpro: "Billetera Móvil Banpro",
+                currency_cordobas: "Córdobas",
+                currency_dollars: "Dólares",
+                payment_instruction_whatsapp: "Una vez realizado el pago, por favor envía el comprobante a nuestro WhatsApp:",
+                btn_notify_payment: "Notificar Pago",
+
+                my_orders_title: "Mis Pedidos",
+                btn_download_pdf: "Descargar Historial PDF",
+                loading: "Cargando...",
+                no_orders: "No tienes pedidos recientes.",
+                order_view_details: "Ver Detalles",
+                order_address_label: "Dirección:",
+                order_phone_label: "Teléfono:",
+                order_details_label: "Detalles del Pedido:",
+                
+                profile_title: "Mi Perfil",
+                personal_data_title: "Datos Personales",
+                label_firstname: "Nombre",
+                label_lastname: "Apellido",
+                label_usual_zone: "Zona Habitual",
+                select: "Seleccionar...",
+                security_title: "Seguridad",
+                label_current_password: "Contraseña Actual",
+                placeholder_req_password: "Requerido para cambiar contraseña",
+                label_new_password: "Nueva Contraseña",
+                placeholder_blank_password: "Dejar en blanco para no cambiar",
+                label_confirm_password: "Confirmar Nueva Contraseña",
+                placeholder_repeat_password: "Repite la contraseña",
+                btn_save_changes: "Guardar Cambios",
+                btn_saving: "Guardando...",
+                
+                calculating: "Calculando",
+                companion_service: "(Servicio Acompañante)",
+                alert_order_success: "¡Pedido enviado con éxito! Recibirás confirmación en tu correo.",
+                alert_profile_success: "Perfil actualizado correctamente.",
+                
+                // PDF Headers
+                pdf_title: "ORDEN DE COMPRA",
+                pdf_history_title: "Shop Delivery Nic - Historial de Compras",
+                pdf_col_date: "Fecha",
+                pdf_col_id: "ID",
+                pdf_col_zone: "Zona",
+                pdf_col_status: "Estado",
+                pdf_col_summary: "Resumen",
+                pdf_col_phone: "Teléfono",
+                pdf_col_address: "Dirección",
+                status_pending: "Pendiente",
+                status_onway: "En camino",
+                status_delivered: "Entregado",
+                status_cancelled: "Cancelado"
+            },
+            en: {
+                nav_home: "Home",
+                nav_pricesmart: "Go to PriceSmart",
+                nav_pricing: "Rates",
+                nav_contact: "Contact",
+                nav_login: "Login",
+                nav_register: "Register",
+                nav_enter: "Login",
+                nav_make_order: "Place Order",
+                nav_my_orders: "My Orders",
+                nav_profile: "My Profile",
+                nav_payment: "Payment Methods", 
+                nav_logout: "Logout",
+                nav_logout_full: "Logout",
+                
+                hero_title: "We Shop For You",
+                hero_subtitle: "PriceSmart Nicaragua shopping delivered to your doorstep.",
+                btn_order: "Place Order",
+                btn_rates: "View Rates",
+
+                about_title: "How does Shop Delivery Nic work?",
+                about_desc: "We are your personal shopping assistant. Forget traffic, lines, and heat. We select the best products for you.",
+                step1_title: "1. Send your List",
+                step1_desc: "Register and write down what you need from PriceSmart. You can detail brands and quantities.",
+                step2_title: "2. We Shop for You",
+                step2_desc: "Our team goes to the supermarket and selects the best products.",
+                step3_title: "3. Receive at Home",
+                step3_desc: "We bring everything to your door in Granada, Masaya, Managua, and more.",
+
+                why_title: "Why choose us?",
+                ben1_title: "Save Time and Fuel",
+                ben1_desc: "Don't spend hours in traffic or lines. We handle it.",
+                ben2_title: "No Membership Required",
+                ben2_desc: "We shop at PriceSmart for you, you don't need your own membership.",
+                ben3_title: "Personalized Attention",
+                ben3_desc: "If a product is missing, we call you to offer alternatives instantly.",
+
+                contact_title: "Contact Us",
+                location_title: "Location",
+                location_desc: "UNO Guapinol Gas Station<br>5 blocks north.",
+                hours_title: "Opening Hours",
+                days_mon_fri: "Monday - Friday:",
+                days_sat: "Saturdays:",
+                days_sun: "Sundays:",
+                closed: "Closed",
+                direct_contact_title: "Direct Contact",
+                direct_contact_desc: "Have questions or need a quote?",
+
+                pricing_title: "Delivery Rates",
+                pricing_other: "Other departments subject to quotation.",
+
+                auth_login_title: "Login",
+                auth_register_title: "Create Account",
+                label_email: "Email",
+                label_password: "Password",
+                label_confirm_password_auth: "Confirm Password",
+                password_help: "Minimum 8 chars, 1 uppercase, 1 lowercase, 1 number, and 1 symbol (!, @, $).",
+                btn_enter: "Login",
+                btn_register: "Register",
+                no_account: "Don't have an account?",
+                have_account: "Already have an account?",
+                register_here: "Register here",
+                enter_here: "Login here",
+                auth_success_reg: "Registration successful! Login now.",
+                auth_error_creds: "Invalid credentials.",
+                auth_error_pass_mismatch: "Passwords do not match.",
+
+                new_order_title: "Create New Order",
+                client_code_label: "Client Code",
+                open_pricesmart: "Open PriceSmart.com",
+                processing: "Processing and sending...",
+                label_shopping_date: "Shopping Day",
+                select_day: "Select a day...",
+                day_wednesday: "Wednesday",
+                day_friday: "Friday",
+                error_select_day: "Please select a shopping day.",
+                label_fullname: "Full Name",
+                label_phone: "Phone",
+                label_service_type: "Service Type",
+                shopforme_title: "Shop For Me!",
+                shopforme_desc: "We do the shopping for you at the supermarket.",
+                label_zone: "Delivery Zone",
+                label_cost: "Estimated Cost",
+                option_other: "Other Department (Quote)",
+                option_other_simple: "Other",
+                companion_title: "Personal Companion Service (+$14.99 / C$ 549.00)",
+                companion_desc: "Check this box if you wish to go with us to the supermarket to shop personally. We pick you up at your home.",
+                clickgo_title: "Click & Go Service (Pickup Only)",
+                clickgo_desc: "Select if you already bought online at PriceSmart.com and just need us to pick it up.",
+                label_memberid: "PriceSmart Membership Number (Purchase Holder)",
+                label_address: "Exact Address",
+                placeholder_address: "Neighborhood, street, house number...",
+                label_list: "Shopping List",
+                upload_label: "Have a paper list? Upload photos (Max 10)",
+                btn_choose_files: "Upload Photos",
+                files_selected: "files",
+                no_files_selected: "",
+                placeholder_list: "Type your detailed list here (Product, Brand, Quantity)...",
+
+                label_need_invoice: "Do you need a legal invoice (with RUC)?",
+                label_ruc_number: "RUC Number",
+                label_business_name: "Business Name",
+
+                label_comments: "Comments / Special Requests",
+                placeholder_comments: "Ex: Call before arriving, substitute product if missing...",
+                btn_send_order: "Send Order",
+                
+                notice_payment_title: "Standard Service Policy",
+                notice_payment_desc: "For shopping done by us, 100% prepayment is required.",
+                notice_schedule_desc: "Cut-offs: Tuesday 11 PM (for Wednesday) and Thursday 11 PM (for Friday).",
+
+                // PAYMENT METHODS SECTION
+                payment_title: "Payment Methods",
+                payment_intro: "You can make your payment by transferring to any of the following accounts under **Denzell Sjogreen**:",
+                bank_bac: "BAC Credomatic",
+                bank_lafise: "Banco LAFISE",
+                bank_banpro: "Banpro",
+                wallet_banpro: "Banpro Mobile Wallet",
+                currency_cordobas: "Cordobas",
+                currency_dollars: "Dollars",
+                payment_instruction_whatsapp: "Once payment is made, please send the receipt to our WhatsApp:",
+                btn_notify_payment: "Notify Payment",
+
+                my_orders_title: "My Orders",
+                btn_download_pdf: "Download History PDF",
+                loading: "Loading...",
+                no_orders: "No recent orders.",
+                order_view_details: "View Details",
+                order_address_label: "Address:",
+                order_phone_label: "Phone:",
+                order_details_label: "Order Details:",
+                
+                profile_title: "My Profile",
+                personal_data_title: "Personal Data",
+                label_firstname: "First Name",
+                label_lastname: "Last Name",
+                label_usual_zone: "Usual Zone",
+                select: "Select...",
+                security_title: "Security",
+                label_current_password: "Current Password",
+                placeholder_req_password: "Required to change password",
+                label_new_password: "New Password",
+                placeholder_blank_password: "Leave blank to keep current",
+                label_confirm_password: "Confirm New Password",
+                placeholder_repeat_password: "Repeat password",
+                btn_save_changes: "Save Changes",
+                btn_saving: "Saving...",
+                
+                calculating: "Calculating",
+                companion_service: "(Companion Service)",
+                alert_order_success: "Order sent successfully! You will receive confirmation via email.",
+                alert_profile_success: "Profile updated successfully.",
+
+                // PDF Headers
+                pdf_title: "PURCHASE ORDER",
+                pdf_history_title: "Shop Delivery Nic - Purchase History",
+                pdf_col_date: "Date",
+                pdf_col_id: "ID",
+                pdf_col_zone: "Zone",
+                pdf_col_status: "Status",
+                pdf_col_summary: "Summary",
+                pdf_col_phone: "Phone",
+                pdf_col_address: "Address",
+                status_pending: "Pending",
+                status_onway: "On way",
+                status_delivered: "Delivered",
+                status_cancelled: "Cancelled"
+            }
+        };
+
+        function initApp() {
+            applyLanguage(currentLang); 
+            updateNav(false); 
+
+            try {
+                supabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+                
+                supabaseClient.auth.onAuthStateChange((event, session) => {
+                    if (event === 'SIGNED_IN' || event === 'INITIAL_SESSION') {
+                        if (session) {
+                            currentUser = session.user;
+                            if(currentUser.user_metadata && currentUser.user_metadata.avatar_url) {
+                                updateAvatarUI(currentUser.user_metadata.avatar_url);
+                            }
+                            updateNav(true);
+                            if(!document.getElementById('view-auth').classList.contains('hidden')) {
+                                showView('create-order');
+                            }
+                        } else {
+                            currentUser = null;
+                            updateNav(false);
+                        }
+                    } else if (event === 'SIGNED_OUT') {
+                        currentUser = null;
+                        updateAvatarUI(null);
+                        updateNav(false);
+                        showView('home');
+                    }
+                });
+            } catch (error) { console.error("Error inicializando:", error); }
+        }
+
+        // --- I18N FUNCTIONS ---
+        function toggleLanguage() {
+            currentLang = currentLang === 'es' ? 'en' : 'es';
+            localStorage.setItem('shopLang', currentLang);
+            applyLanguage(currentLang);
+        }
+
+        function applyLanguage(lang) {
+            document.getElementById('langDisplay').innerText = lang.toUpperCase();
+            
+            // Text Content
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang][key]) el.innerHTML = translations[lang][key];
+            });
+
+            // Placeholders
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-i18n-placeholder');
+                if (translations[lang][key]) el.placeholder = translations[lang][key];
+            });
+            
+            updateEstimatedFee();
+            updateFileCount(); 
+            
+            const authTitle = document.getElementById('authTitle');
+            if (authTitle.innerText !== "") renderAuthForm(); 
+
+            updateNav(currentUser !== null);
+        }
+
+        // --- MANEJO DE PASSWORD TOGGLE ---
+        function togglePasswordVisibility(fieldId, iconId) {
+            const field = document.getElementById(fieldId);
+            const icon = document.getElementById(iconId);
+            if(field.type === 'password') {
+                field.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                field.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
         }
 
-        try {
-            const SUPABASE_URL = "https://dltpvajfltfzayhomufx.supabase.co"; 
-            const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdHB2YWpmbHRmemF5aG9tdWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzkyOTAsImV4cCI6MjA4NTQ1NTI5MH0.HCldnUI4sm9BHepUDgcqs4v4a5yVa20VWSzt2lNQ_Vo";
-
-            if (!window.supabase) throw new Error("La librería de Supabase no cargó correctamente.");
-            const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // --- MANEJO DE FACTURA TOGGLE ---
+        function toggleInvoiceDetails() {
+            const isChecked = document.getElementById('needInvoiceCheck').checked;
+            const detailsDiv = document.getElementById('invoiceDetails');
             
-            let currentOrdersData = [];
+            if (isChecked) {
+                detailsDiv.classList.remove('hidden');
+                document.getElementById('rucNumber').required = true;
+                document.getElementById('businessName').required = true;
+            } else {
+                detailsDiv.classList.add('hidden');
+                document.getElementById('rucNumber').required = false;
+                document.getElementById('businessName').required = false;
+                // Si el usuario lo desmarca, no borramos el valor inmediatamente 
+                // para que no pierda lo que escribió por error, pero al enviar no se procesa.
+            }
+        }
 
-            supabase.auth.getSession().then(({ data, error }) => {
-                if (error) throw error;
-                const session = data?.session;
-                if (session && session.user && session.user.email) {
-                    if (ADMIN_EMAILS.includes(session.user.email.toLowerCase())) {
-                        showDashboard();
-                    } else { supabase.auth.signOut(); }
-                }
-            }).catch(err => showGlobalError("Error de sesión: " + err.message));
+        // --- MANEJO DE INPUT DE ARCHIVO PERSONALIZADO ---
+        function updateFileCount() {
+            const input = document.getElementById('listImage');
+            const display = document.getElementById('fileCount');
+            const t = translations[currentLang];
+            
+            if (input.files && input.files.length > 0) {
+                display.innerText = `${input.files.length} ${t.files_selected}`;
+            } else {
+                display.innerText = "";
+            }
+        }
 
-            window.handleLogin = async function(e) {
-                e.preventDefault();
-                const email = document.getElementById('adminEmail').value.trim().toLowerCase();
-                const password = document.getElementById('adminPassword').value;
-                const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
-                const btn = document.getElementById('loginBtn');
-
-                document.getElementById('globalError').classList.add('hidden');
-
-                if (!ADMIN_EMAILS.includes(email)) { 
-                    showGlobalError("Acceso denegado: Este correo no tiene permisos."); 
-                    return; 
-                }
-                if (!captchaToken) { showGlobalError("Por favor, marca la casilla de seguridad."); return; }
-
-                btn.innerText = "Verificando..."; btn.disabled = true;
-
-                const { data, error } = await supabase.auth.signInWithPassword({ 
-                    email: email, password: password, options: { captchaToken: captchaToken }
-                });
-
-                if (error) showGlobalError(error.message);
-                else showDashboard();
+        // --- FUNCIÓN PARA ENVIAR CORREO VÍA PUENTE GOOGLE ---
+        async function sendOrderEmail(orderData, pdfBase64, imageAttachments, clientEmail) {
+            const payload = {
+                name: orderData.name,
+                phone: orderData.phone,
+                zone: orderData.zone,
+                address: orderData.address,
+                list: orderData.list,
+                pdfBase64: pdfBase64.split(',')[1], 
+                images: imageAttachments, 
+                clientEmail: clientEmail 
             };
+            
+            await fetch(CONFIG.APPS_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', 
+                headers: { "Content-Type": "text/plain" },
+                body: JSON.stringify(payload)
+            });
+            return true;
+        }
 
-            window.showDashboard = function() {
-                document.getElementById('loginView').classList.add('hidden');
-                document.getElementById('financesView').classList.add('hidden');
-                document.getElementById('dashboardView').classList.remove('hidden');
-                document.getElementById('mainNavMenu').classList.remove('hidden');
-                document.getElementById('mainNavMenu').classList.add('flex');
-                
-                document.getElementById('tabOrders').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
-                document.getElementById('tabFinances').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
-                
-                document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold bg-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded transition"><i class="fas fa-sign-out-alt md:mr-1"></i> <span class="hidden md:inline">Salir</span></button>`;
-                
-                if(currentOrdersData.length === 0) loadAllOrders();
-            };
-
-            window.showFinances = function() {
-                document.getElementById('dashboardView').classList.add('hidden');
-                document.getElementById('financesView').classList.remove('hidden');
-                
-                document.getElementById('tabOrders').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
-                document.getElementById('tabFinances').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
-                
-                generateFinancialReport(); 
-            };
-
-            window.logout = async function() { await supabase.auth.signOut(); window.location.reload(); };
-
-            window.generateFinancialReport = function() {
-                const startInput = document.getElementById('reportStart').value;
-                const endInput = document.getElementById('reportEnd').value;
-                
-                let reportOrders = currentOrdersData.filter(o => o.status !== 'cancelado');
-
-                if (startInput) reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) >= startInput);
-                if (endInput) reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) <= endInput);
-
-                let totalPSNio = 0, totalEarnNio = 0, count = 0;
-
-                reportOrders.forEach(o => {
-                    const sub = parseFloat(o.subtotal || 0);
-                    const iva = parseFloat(o.tax_iva || 0);
-                    totalPSNio += (sub + iva);
-                    totalEarnNio += ENVIO_NIO; 
-                    count++;
-                });
-
-                document.getElementById('finReportCount').innerText = count;
-                document.getElementById('finReportPSNio').innerText = totalPSNio.toFixed(2);
-                document.getElementById('finReportPSUsd').innerText = (totalPSNio / TASA_CAMBIO).toFixed(2);
-                document.getElementById('finReportEarnNio').innerText = totalEarnNio.toFixed(2);
-                document.getElementById('finReportEarnUsd').innerText = (totalEarnNio / TASA_CAMBIO).toFixed(2);
-                document.getElementById('finReportTotalNio').innerText = (totalPSNio + totalEarnNio).toFixed(2);
-            };
-
-            window.clearFinancialFilters = function() {
-                document.getElementById('reportStart').value = "";
-                document.getElementById('reportEnd').value = "";
-                generateFinancialReport();
-            };
-
-            window.loadAllOrders = async function() {
-                const tbody = document.getElementById('ordersTableBody');
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando órdenes...</td></tr>`;
-
-                const { data: orders, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-
-                if (error) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error: ${error.message}</td></tr>`; return; }
-
-                currentOrdersData = orders || [];
-                updateMetrics();
-                renderTable();
-                
-                if(!document.getElementById('financesView').classList.contains('hidden')) generateFinancialReport();
-            };
-
-            window.updateMetrics = function() {
-                const today = new Date().toLocaleDateString('en-CA'); 
-                let countToday = 0, countPending = 0, countOnWay = 0, countDelivered = 0;
-
-                currentOrdersData.forEach(o => {
-                    const orderDateStr = new Date(o.created_at).toLocaleDateString('en-CA');
-                    if (orderDateStr === today) countToday++;
-                    if (o.status === 'pendiente') countPending++;
-                    if (o.status === 'en camino') countOnWay++;
-                    if (o.status === 'entregado') countDelivered++;
-                });
-
-                document.getElementById('metricToday').innerText = countToday;
-                document.getElementById('metricPending').innerText = countPending;
-                document.getElementById('metricOnWay').innerText = countOnWay;
-                document.getElementById('metricDelivered').innerText = countDelivered;
-            };
-
-            window.renderTable = function() {
-                const searchTxt = document.getElementById('searchInput').value.toLowerCase();
-                const statusFlt = document.getElementById('statusFilter').value;
-                const tbody = document.getElementById('ordersTableBody');
-
-                const filtered = currentOrdersData.filter(o => {
-                    const matchSearch = (o.full_name || '').toLowerCase().includes(searchTxt) || (o.phone || '').includes(searchTxt) || (o.id || '').toLowerCase().includes(searchTxt);
-                    const matchStatus = statusFlt === 'all' || o.status === statusFlt;
-                    return matchSearch && matchStatus;
-                });
-
-                if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">No se encontraron resultados.</td></tr>`; return; }
-
-                let html = '';
-                filtered.forEach(order => {
-                    const dateObj = new Date(order.created_at);
-                    const date = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                    const shortId = order.id.slice(0, 8);
-                    
-                    let bgStatus = "bg-yellow-100 text-yellow-800 border-yellow-200";
-                    if (order.status === 'en camino') bgStatus = "bg-blue-100 text-blue-800 border-blue-200";
-                    if (order.status === 'entregado') bgStatus = "bg-green-100 text-green-800 border-green-200";
-                    if (order.status === 'cancelado') bgStatus = "bg-red-100 text-red-800 border-red-200";
-
-                    let paymentBadge = "bg-gray-100 text-gray-600";
-                    if (order.payment_status === 'Pagado') paymentBadge = "bg-green-100 text-green-700 border border-green-200";
-                    if (order.payment_status === 'Pago parcial') paymentBadge = "bg-blue-100 text-blue-700 border border-blue-200";
-                    if (order.payment_status === 'Pendiente de pago') paymentBadge = "bg-red-50 text-red-600 border border-red-200";
-
-                    const noteIcon = order.internal_notes && order.internal_notes.trim() !== '' ? `<i class="fas fa-sticky-note text-yellow-500 ml-1" title="Tiene nota"></i>` : '';
-                    const photoIcon = (order.receipt_pricesmart || order.receipt_internal) ? `<i class="fas fa-image text-blue-500 ml-1" title="Tiene recibos adjuntos"></i>` : '';
-
-                    html += `
-                        <tr class="hover:bg-green-50 transition duration-150 border-b border-gray-100">
-                            <td class="p-3 md:p-4">
-                                <div class="font-mono text-[10px] md:text-xs font-bold text-gray-500 mb-1">#${shortId}</div>
-                                <div class="text-[10px] md:text-xs text-gray-600"><i class="far fa-calendar-alt"></i> ${date}</div>
-                            </td>
-                            <td class="p-3 md:p-4">
-                                <div class="font-bold text-gray-800 leading-tight">${order.full_name || 'Sin Nombre'} <span class="inline-block">${noteIcon} ${photoIcon}</span></div>
-                                <div class="text-[10px] md:text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i> ${order.phone || 'N/A'}</div>
-                            </td>
-                            <td class="p-3 md:p-4">
-                                <div class="font-bold text-brand-green text-[11px] md:text-sm mb-1">${order.delivery_zone || 'N/A'}</div>
-                                <span class="text-[9px] md:text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${paymentBadge}">${order.payment_status || 'Pendiente'}</span>
-                            </td>
-                            <td class="p-3 md:p-4 text-center">
-                                <button type="button" onclick="openModal('${order.id}')" class="bg-white hover:bg-gray-100 text-brand-green py-1.5 px-3 rounded text-xs font-bold transition shadow-sm border border-brand-green w-full md:w-auto">
-                                    <i class="fas fa-folder-open md:mr-1"></i> <span class="hidden md:inline">Abrir</span>
-                                </button>
-                            </td>
-                            <td class="p-3 md:p-4 text-center">
-                                <select onchange="updateStatus('${order.id}', this.value)" id="select-${order.id}" class="text-[10px] md:text-xs font-bold uppercase tracking-wide border rounded-full px-2 py-1.5 md:px-3 cursor-pointer focus:outline-none appearance-none text-center shadow-sm w-full ${bgStatus}">
-                                    <option value="pendiente" ${order.status === 'pendiente' ? 'selected' : ''}>Pendiente</option>
-                                    <option value="en camino" ${order.status === 'en camino' ? 'selected' : ''}>En Camino</option>
-                                    <option value="entregado" ${order.status === 'entregado' ? 'selected' : ''}>Entregado</option>
-                                    <option value="cancelado" ${order.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
-                                </select>
-                            </td>
-                        </tr>
-                    `;
-                });
-                tbody.innerHTML = html;
-            };
-
-            window.updateStatus = async function(orderId, newStatus) {
-                const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
-                if (error) { alert("Error al actualizar: " + error.message); } 
-                else {
-                    const orderIndex = currentOrdersData.findIndex(o => o.id === orderId);
-                    if(orderIndex > -1) currentOrdersData[orderIndex].status = newStatus;
-                    updateMetrics(); renderTable();
-                }
-            };
-
-            window.toggleZoom = function(imgElement) {
-                imgElement.classList.toggle('super-zoom');
-                imgElement.classList.toggle('max-w-full');
-                imgElement.classList.toggle('max-h-[90vh]');
-                imgElement.classList.toggle('cursor-zoom-in');
-            };
-
-            window.openImageViewer = function(src) {
-                const img = document.getElementById('imageViewerImg');
-                img.src = src;
-                img.classList.remove('super-zoom');
-                img.classList.add('max-w-full', 'max-h-[90vh]', 'cursor-zoom-in');
-                document.getElementById('imageViewerModal').classList.remove('hidden');
-                document.body.style.overflow = 'hidden'; 
-            };
-            window.closeImageViewer = function() {
-                document.getElementById('imageViewerModal').classList.add('hidden');
-                document.getElementById('imageViewerImg').src = '';
-                document.body.style.overflow = ''; 
-            };
-
-            window.processAndCompressImage = function(file) {
-                return new Promise((resolve, reject) => {
-                    const reader = new FileReader();
-                    reader.onload = (e) => {
-                        const img = new Image();
-                        img.onload = () => {
-                            const canvas = document.createElement('canvas');
-                            let width = img.width; let height = img.height;
-                            const MAX_SIZE = 1600; 
-                            if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
-                            else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
-                            canvas.width = width; canvas.height = height;
-                            const ctx = canvas.getContext('2d');
-                            ctx.drawImage(img, 0, 0, width, height);
-                            resolve(canvas.toDataURL('image/jpeg', 0.9)); 
-                        };
-                        img.src = e.target.result;
+        // --- COMPRESIÓN DE IMÁGENES ---
+        const processAndCompressImage = (file) => {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        let width = img.width; let height = img.height;
+                        const MAX_SIZE = 1000;
+                        if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
+                        else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
+                        canvas.width = width; canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        resolve(canvas.toDataURL('image/jpeg', 0.7));
                     };
-                    reader.onerror = reject;
-                    reader.readAsDataURL(file);
-                });
-            };
-
-            window.handleReceiptUpload = async function(event, orderId, type) {
-                const file = event.target.files[0];
-                if (!file) return;
-                
-                const btnLabel = document.getElementById(`lbl-${type}-${orderId}`);
-                const originalText = btnLabel.innerHTML;
-                btnLabel.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Subiendo...`;
-                
-                try {
-                    const base64 = await processAndCompressImage(file);
-                    const updateData = {}; updateData[type] = base64;
-                    
-                    const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
-                    if (error) throw error;
-                    
-                    const idx = currentOrdersData.findIndex(o => o.id === orderId);
-                    if(idx > -1) currentOrdersData[idx][type] = base64;
-                    
-                    const imgEl = document.getElementById(`img-${type}-${orderId}`);
-                    imgEl.src = base64; imgEl.classList.remove('hidden');
-                    
-                    btnLabel.innerHTML = `<i class="fas fa-check text-green-600"></i> Listo`;
-                    setTimeout(() => btnLabel.innerHTML = originalText, 3000);
-                    renderTable();
-                } catch (err) { alert("Error: " + err.message); btnLabel.innerHTML = originalText; }
-            };
-
-            // MODAL PRINCIPAL
-            window.openModal = function(orderId) {
-                const order = currentOrdersData.find(o => o.id === orderId);
-                if(!order) return;
-                
-                document.getElementById('modalTitle').innerText = `Gestión #${order.id.slice(0,8)}`;
-                
-                const html = `
-                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
-                        
-                        <div class="lg:col-span-2 flex flex-col gap-4">
-                            
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                    <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2">Cliente</p>
-                                    <p class="text-sm mb-2"><i class="fas fa-user text-brand-green w-5"></i> <span class="font-bold">${order.full_name || 'N/A'}</span></p>
-                                    <p class="text-sm mb-2 break-all"><i class="fas fa-envelope text-brand-green w-5"></i> ${order.user_email || 'N/A'}</p>
-                                    <p class="text-sm mb-3"><i class="fas fa-phone text-brand-green w-5"></i> ${order.phone || 'N/A'}</p>
-                                    <div class="bg-green-50 p-3 rounded-lg border border-green-100">
-                                        <p class="text-xs font-bold text-green-800 mb-2"><i class="fab fa-whatsapp"></i> Notificar Estado:</p>
-                                        <div class="grid grid-cols-2 gap-2">
-                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'es')" class="w-full bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-2 rounded shadow transition font-bold">Español</button>
-                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'en')" class="w-full bg-gray-800 hover:bg-black text-white text-xs px-3 py-2 rounded shadow transition font-bold">English</button>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="flex flex-col gap-4">
-                                    <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                        <p class="text-xs text-gray-500 font-bold uppercase mb-2">Dirección de Entrega</p>
-                                        <p class="font-bold text-brand-green text-sm">${order.delivery_zone || 'N/A'}</p>
-                                        <p class="text-sm mt-1 text-gray-700 leading-tight">${order.delivery_address || 'N/A'}</p>
-                                    </div>
-                                    <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 shadow-sm flex-grow flex flex-col">
-                                        <p class="text-xs text-yellow-800 font-bold uppercase mb-2"><i class="fas fa-lock mr-1"></i> Notas Internas</p>
-                                        <textarea id="internalNotes-${order.id}" class="w-full text-xs p-2 rounded border border-yellow-300 focus:outline-none focus:border-yellow-500 flex-grow mb-2 bg-yellow-50/50 min-h-[60px]">${order.internal_notes || ''}</textarea>
-                                        <button onclick="saveNotes('${order.id}')" id="btnSaveNotes-${order.id}" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-2 rounded shadow transition">Guardar Notas</button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                <p class="text-xs text-gray-500 font-bold uppercase mb-2"><i class="fas fa-list mr-1"></i> Lista Original</p>
-                                <div class="bg-gray-800 text-green-400 p-4 rounded-lg text-xs font-mono whitespace-pre-wrap overflow-y-auto shadow-inner border-l-4 border-brand-green max-h-40 md:max-h-48">${order.shopping_list || 'Sin detalles.'}</div>
-                            </div>
-
-                            <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2"><i class="fas fa-camera mr-1"></i> Fotos de Recibos</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                    <div class="border rounded-lg p-3 text-center bg-gray-50">
-                                        <p class="text-xs font-bold text-gray-700 mb-2">Factura PriceSmart</p>
-                                        <img id="img-receipt_pricesmart-${order.id}" src="${order.receipt_pricesmart || ''}" class="mx-auto h-24 md:h-28 object-cover mb-2 ${order.receipt_pricesmart ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)">
-                                        <input type="file" id="file-ps-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_pricesmart')">
-                                        <label id="lbl-receipt_pricesmart-${order.id}" for="file-ps-${order.id}" class="w-full block bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-2 rounded cursor-pointer font-bold transition shadow-sm">
-                                            <i class="fas fa-upload mr-1"></i> Subir Foto
-                                        </label>
-                                    </div>
-                                    <div class="border rounded-lg p-3 text-center bg-gray-50">
-                                        <p class="text-xs font-bold text-gray-700 mb-2">Recibo Térmico</p>
-                                        <img id="img-receipt_internal-${order.id}" src="${order.receipt_internal || ''}" class="mx-auto h-24 md:h-28 object-cover mb-2 ${order.receipt_internal ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)">
-                                        <input type="file" id="file-int-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_internal')">
-                                        <label id="lbl-receipt_internal-${order.id}" for="file-int-${order.id}" class="w-full block bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-2 rounded cursor-pointer font-bold transition shadow-sm">
-                                            <i class="fas fa-upload mr-1"></i> Subir Foto
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-md h-fit">
-                            <h4 class="text-brand-green font-bold border-b pb-2 mb-4 text-sm md:text-base"><i class="fas fa-file-invoice-dollar mr-2"></i>Control Financiero</h4>
-                            
-                            <div class="grid grid-cols-2 gap-3 mb-2">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">Subtotal (C$)</label>
-                                    <input type="number" id="finSubtotal-${order.id}" value="${order.subtotal || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">IVA (C$)</label>
-                                    <input type="number" id="finIva-${order.id}" value="${order.tax_iva || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
-                                </div>
-                            </div>
-                            <div class="mb-4 text-[11px] md:text-xs text-gray-500 text-right font-bold">
-                                + Envío: $10.99 (C$ ${ENVIO_NIO.toFixed(2)})
-                            </div>
-
-                            <div class="bg-gray-800 text-white p-3 rounded-lg mb-4 text-center shadow-inner">
-                                <p class="text-xs text-gray-400 uppercase tracking-wide">Total a Cobrar</p>
-                                <p class="text-xl md:text-2xl font-bold">C$ <span id="displayTotalNio-${order.id}">0.00</span></p>
-                                <p class="text-[11px] md:text-sm text-green-400 font-mono">Ref: $ <span id="displayTotalUsd-${order.id}">0.00</span></p>
-                            </div>
-
-                            <p class="text-xs text-gray-500 font-bold uppercase mb-2 border-t pt-4">Abonos / Pagos Recibidos</p>
-                            <div class="grid grid-cols-2 gap-3 mb-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">En C$</label>
-                                    <input type="number" id="finPaidNio-${order.id}" value="${order.paid_nio || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-green-50 border-green-200 focus:border-brand-green outline-none text-green-800 font-bold">
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">En $</label>
-                                    <input type="number" id="finPaidUsd-${order.id}" value="${order.paid_usd || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-green-50 border-green-200 focus:border-brand-green outline-none text-green-800 font-bold">
-                                </div>
-                            </div>
-
-                            <div id="balanceBox-${order.id}" class="p-3 rounded-lg mb-4 text-center border">
-                                <p class="text-xs font-bold uppercase" id="balanceLabel-${order.id}">Saldo Pendiente</p>
-                                <p class="text-lg font-bold" id="balanceAmount-${order.id}">C$ 0.00</p>
-                            </div>
-
-                            <div class="space-y-3 mb-4">
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">Estado de Pago</label>
-                                    <select id="finStatus-${order.id}" class="w-full border p-2 md:p-3 rounded text-sm focus:border-brand-green outline-none bg-white">
-                                        <option value="Pendiente de pago" ${order.payment_status === 'Pendiente de pago' ? 'selected' : ''}>Pendiente de pago</option>
-                                        <option value="Pago parcial" ${order.payment_status === 'Pago parcial' ? 'selected' : ''}>Pago parcial</option>
-                                        <option value="Pagado" ${order.payment_status === 'Pagado' ? 'selected' : ''}>Pagado</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">Método de Pago</label>
-                                    <select id="finMethod-${order.id}" class="w-full border p-2 md:p-3 rounded text-sm focus:border-brand-green outline-none bg-white">
-                                        <option value="">Seleccionar...</option>
-                                        <option value="Efectivo" ${order.payment_method === 'Efectivo' ? 'selected' : ''}>Efectivo</option>
-                                        <option value="Transferencia" ${order.payment_method === 'Transferencia' ? 'selected' : ''}>Transferencia</option>
-                                        <option value="Depósito" ${order.payment_method === 'Depósito' ? 'selected' : ''}>Depósito</option>
-                                        <option value="Mixto" ${order.payment_method === 'Mixto' ? 'selected' : ''}>Mixto</option>
-                                    </select>
-                                </div>
-                            </div>
-
-                            <button onclick="saveFinances('${order.id}')" id="btnSaveFinances-${order.id}" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3">
-                                <i class="fas fa-save mr-2"></i> Guardar
-                            </button>
-                            
-                            <button onclick="printReceipt('${order.id}')" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center">
-                                <i class="fas fa-print mr-2"></i> Imprimir Recibo
-                            </button>
-                        </div>
-                    </div>
-                `;
-                document.getElementById('modalContent').innerHTML = html;
-                document.getElementById('detailsModal').classList.remove('hidden');
-                calcFinances(orderId); 
-                document.body.style.overflow = 'hidden'; 
-            };
-
-            window.closeModal = function() { 
-                document.getElementById('detailsModal').classList.add('hidden'); 
-                document.body.style.overflow = '';
-            };
-
-            window.sendWA = function(phoneRaw, name, lang) {
-                if(!phoneRaw) { alert("Sin teléfono."); return; }
-                let cleanPhone = phoneRaw.replace(/[^\d+]/g, '');
-                let firstName = name ? name.split(' ')[0] : 'Cliente';
-                let text = lang === 'es' ? `¡Hola ${firstName}! Te escribimos de Shop Delivery Nic para confirmarte que tu pedido ya va en camino. 🚚` : `Hello ${firstName}! This is Shop Delivery Nic. Your order is on its way. 🚚`;
-                window.open(`https://wa.me/${cleanPhone.replace('+','')}?text=${encodeURIComponent(text)}`, '_blank');
-            };
-
-            window.saveNotes = async function(orderId) {
-                const btn = document.getElementById(`btnSaveNotes-${orderId}`);
-                const notes = document.getElementById(`internalNotes-${orderId}`).value;
-                btn.innerText = "Guardando...";
-                const { error } = await supabase.from('orders').update({ internal_notes: notes }).eq('id', orderId);
-                if (error) { alert("Error: " + error.message); btn.innerText = "Guardar Notas"; } 
-                else {
-                    const idx = currentOrdersData.findIndex(o => o.id === orderId);
-                    if(idx > -1) currentOrdersData[idx].internal_notes = notes;
-                    btn.innerText = "¡Guardado!";
-                    setTimeout(() => btn.innerText = "Guardar Notas", 2000);
-                    renderTable();
-                }
-            };
-
-            window.calcFinances = function(orderId) {
-                const subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
-                const iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
-                
-                const totalNio = subtotal + iva + ENVIO_NIO;
-                const totalUsd = totalNio / TASA_CAMBIO;
-
-                document.getElementById(`displayTotalNio-${orderId}`).innerText = totalNio.toFixed(2);
-                document.getElementById(`displayTotalUsd-${orderId}`).innerText = totalUsd.toFixed(2);
-
-                const paidNio = parseFloat(document.getElementById(`finPaidNio-${orderId}`).value) || 0;
-                const paidUsd = parseFloat(document.getElementById(`finPaidUsd-${orderId}`).value) || 0;
-
-                const totalPaidInNio = paidNio + (paidUsd * TASA_CAMBIO);
-                const balance = totalNio - totalPaidInNio;
-
-                const box = document.getElementById(`balanceBox-${orderId}`);
-                const lbl = document.getElementById(`balanceLabel-${orderId}`);
-                const amt = document.getElementById(`balanceAmount-${orderId}`);
-
-                if (totalNio === ENVIO_NIO && subtotal === 0) {
-                    box.className = "p-3 rounded-lg mb-4 text-center border bg-gray-50 border-gray-200 text-gray-500";
-                    lbl.innerText = "Falta ingresar compra"; amt.innerText = "C$ 0.00";
-                } else if (balance > 0.05) { 
-                    box.className = "p-3 rounded-lg mb-4 text-center border bg-red-50 border-red-200 text-red-700";
-                    lbl.innerText = "Falta por Pagar (Saldo)"; amt.innerText = `C$ ${balance.toFixed(2)}`;
-                } else if (balance < -0.05) {
-                    box.className = "p-3 rounded-lg mb-4 text-center border bg-blue-50 border-blue-200 text-blue-700";
-                    lbl.innerText = "Dar Vuelto a Favor"; amt.innerText = `C$ ${Math.abs(balance).toFixed(2)}`;
-                } else {
-                    box.className = "p-3 rounded-lg mb-4 text-center border bg-green-50 border-green-200 text-green-700";
-                    lbl.innerText = "Solvente / Pago Completo"; amt.innerText = "C$ 0.00";
-                }
-            };
-
-            window.saveFinances = async function(orderId) {
-                const btn = document.getElementById(`btnSaveFinances-${orderId}`);
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin md:mr-2"></i> Guardando...`;
-
-                const dataToSave = {
-                    subtotal: parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0,
-                    tax_iva: parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0,
-                    paid_nio: parseFloat(document.getElementById(`finPaidNio-${orderId}`).value) || 0,
-                    paid_usd: parseFloat(document.getElementById(`finPaidUsd-${orderId}`).value) || 0,
-                    payment_status: document.getElementById(`finStatus-${orderId}`).value,
-                    payment_method: document.getElementById(`finMethod-${orderId}`).value
+                    img.src = e.target.result;
                 };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
 
-                const { error } = await supabase.from('orders').update(dataToSave).eq('id', orderId);
-                
-                if (error) {
-                    alert("Error guardando finanzas: " + error.message);
-                    btn.innerHTML = `<i class="fas fa-save md:mr-2"></i> Guardar`;
-                } else {
-                    const idx = currentOrdersData.findIndex(o => o.id === orderId);
-                    if(idx > -1) { currentOrdersData[idx] = { ...currentOrdersData[idx], ...dataToSave }; }
-                    btn.className = "w-full bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3";
-                    btn.innerHTML = `<i class="fas fa-check md:mr-2"></i> ¡Guardado!`;
-                    renderTable(); 
-                    
-                    if(!document.getElementById('financesView').classList.contains('hidden')) {
-                        generateFinancialReport();
-                    }
+        // --- GENERADOR DE PDF ---
+        function generateOrderPDF(orderData) {
+            const t = translations[currentLang];
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            
+            doc.setFillColor(10, 173, 10);
+            doc.rect(0, 0, 210, 25, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(22);
+            doc.text("SHOP DELIVERY NIC", 14, 17);
+            
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            doc.text(t.pdf_title, 14, 35);
+            doc.text(`${currentLang === 'es' ? 'Cliente' : 'Client'}: ${orderData.name}`, 14, 45);
+            doc.text(`${currentLang === 'es' ? 'Tel' : 'Phone'}: ${orderData.phone}`, 14, 53);
+            doc.text(`${currentLang === 'es' ? 'Zona' : 'Zone'}: ${orderData.zone}`, 14, 61);
+            doc.text(`${currentLang === 'es' ? 'Fecha' : 'Date'}: ${new Date().toLocaleDateString()}`, 140, 45);
+            
+            doc.setDrawColor(200, 200, 200);
+            doc.line(14, 68, 196, 68);
+            
+            doc.text(currentLang === 'es' ? "DETALLE DEL PEDIDO:" : "ORDER DETAILS:", 14, 78);
+            doc.setFontSize(10);
+            
+            const splitText = doc.splitTextToSize(orderData.list, 180);
+            doc.text(splitText, 14, 88);
+            
+            return doc.output('datauristring');
+        }
 
-                    setTimeout(() => {
-                        btn.className = "w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3";
-                        btn.innerHTML = `<i class="fas fa-save md:mr-2"></i> Guardar`;
-                    }, 2000);
+        // --- ENVIAR PEDIDO ---
+        async function submitOrder(e) {
+            e.preventDefault();
+            const t = translations[currentLang];
+            
+            const dateVal = document.getElementById('shoppingDate').value;
+            if(!dateVal) {
+                alert(t.error_select_day);
+                return;
+            }
+
+            document.getElementById('sendingOverlay').classList.remove('hidden');
+            
+            const clientCode = currentUser.user_metadata?.client_code || "N/A";
+            const serviceType = document.querySelector('input[name="serviceType"]:checked').value;
+            const isGranada = document.getElementById('orderZone').value === 'Granada';
+            
+            const manualList = document.getElementById('orderList').value;
+            const specialReq = document.getElementById('specialRequests').value;
+            const memberId = document.getElementById('memberId').value;
+
+            // Info Factura
+            const needInvoice = document.getElementById('needInvoiceCheck').checked;
+            const rucNumber = document.getElementById('rucNumber').value;
+            const businessName = document.getElementById('businessName').value;
+
+            const imageInput = document.getElementById('listImage');
+            let imageAttachments = [];
+            
+            if (imageInput.files && imageInput.files.length > 0) {
+                if (imageInput.files.length > 10) {
+                    alert(currentLang === 'es' ? "Solo puedes subir un máximo de 10 imágenes." : "You can only upload a maximum of 10 images.");
+                    document.getElementById('sendingOverlay').classList.add('hidden');
+                    return;
                 }
+                document.querySelector('#sendingOverlay p').innerText = currentLang === 'es' ? "Comprimiendo imágenes..." : "Compressing images...";
+                for (let i = 0; i < imageInput.files.length; i++) {
+                    const file = imageInput.files[i];
+                    try {
+                        const base64Content = await processAndCompressImage(file);
+                        imageAttachments.push({
+                            base64: base64Content.split(',')[1],
+                            type: "image/jpeg", 
+                            name: `Foto_Lista_${i + 1}.jpg`
+                        });
+                    } catch (err) { console.error(`Error procesando imagen ${i}`, err); }
+                }
+            }
+
+            let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
+            fullList += `DÍA DE COMPRA: ${dateVal}\n\n`;
+
+            if (serviceType === 'shopForMe') {
+                fullList += `** SERVICIO SHOP FOR ME! (Hacemos la compra) **\n\n`;
+            }
+            if (serviceType === 'companion' && isGranada) {
+                fullList += `** SERVICIO ACOMPAÑAMIENTO SOLICITADO ($14.99 / C$ 549.00) **\n\n`;
+            }
+            if (serviceType === 'clickGo') {
+                fullList += `** SERVICIO CLICK & GO (Solo Recogida) **\n`;
+                fullList += `MEMBRESÍA: ${memberId}\n\n`;
+            }
+
+            // Integrar Factura
+            if (needInvoice) {
+                fullList += `** SOLICITA FACTURA CON RUC **\n`;
+                fullList += `RUC: ${rucNumber}\n`;
+                fullList += `Razón Social: ${businessName}\n\n`;
+            }
+            
+            if (imageAttachments.length > 0) fullList += `** [IMÁGENES ADJUNTAS] El cliente ha subido ${imageAttachments.length} foto(s). **\n\n`;
+            fullList += `LISTA (TEXTO):\n${manualList}\n\n`;
+            if(specialReq) fullList += `NOTAS:\n${specialReq}`;
+
+            const orderFormObj = {
+                name: document.getElementById('orderName').value,
+                phone: document.getElementById('orderPhone').value,
+                zone: document.getElementById('orderZone').value,
+                address: document.getElementById('orderAddress').value,
+                list: fullList
             };
 
-            // ACTUALIZACIÓN: RECIBO CON SELLO DE "CANCELADO"
-            window.printReceipt = function(orderId) {
-                const order = currentOrdersData.find(o => o.id === orderId);
-                if(!order) return;
+            try {
+                const { error } = await supabaseClient.from('orders').insert([{ 
+                    user_id: currentUser.id, 
+                    user_email: currentUser.email, 
+                    full_name: orderFormObj.name, 
+                    phone: orderFormObj.phone,
+                    delivery_zone: orderFormObj.zone, 
+                    delivery_address: orderFormObj.address, 
+                    shopping_list: fullList, 
+                    status: 'pendiente'
+                }]);
+                if (error) throw error;
 
-                const subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
-                const iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
+                document.querySelector('#sendingOverlay p').innerText = currentLang === 'es' ? "Enviando correo..." : "Sending email...";
+                const pdfBase64 = generateOrderPDF(orderFormObj);
+                const userEmail = currentUser.email; 
                 
-                const totalNio = subtotal + iva + ENVIO_NIO;
-                const totalUsd = totalNio / TASA_CAMBIO;
-                const dateStr = new Date().toLocaleString('es-ES');
+                await sendOrderEmail(orderFormObj, pdfBase64, imageAttachments, userEmail);
+
+                alert(t.alert_order_success);
+                document.getElementById('orderForm').reset();
                 
-                // Lógica del Sello
-                const isPaid = document.getElementById(`finStatus-${orderId}`).value === 'Pagado';
-                const stampHtml = isPaid ? `
-                    <div style="display: flex; justify-content: center; margin: 25px 0 15px 0;">
-                        <div style="width: 130px; height: 130px; border: 3px solid #000; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: rotate(-12deg); box-shadow: inset 0 0 0 2px #000;">
-                            <span style="font-size: 11px; letter-spacing: 1px; font-weight: bold;">SHOP DELIVERY</span>
-                            <span style="font-size: 18px; font-weight: bold; margin: 6px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 2px 0;">CANCELADO</span>
-                            <span style="font-size: 11px; font-weight: bold;">GRANADA, NIC</span>
+                // Limpiar Custom Toggles
+                document.getElementById('serviceShopForMe').checked = true;
+                handleServiceChange();
+                document.getElementById('fileCount').innerText = ""; 
+                document.getElementById('needInvoiceCheck').checked = false;
+                toggleInvoiceDetails();
+
+                showView('orders'); 
+            } catch (err) { 
+                console.error(err); 
+                alert("Error: " + (err.message || "Intenta de nuevo")); 
+            } finally { 
+                document.getElementById('sendingOverlay').classList.add('hidden'); 
+                document.querySelector('#sendingOverlay p').innerText = t.processing;
+            }
+        }
+
+        // --- UI & Navegación ---
+        function showView(viewName) {
+            document.querySelectorAll('.view-section').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`view-${viewName}`).classList.remove('hidden');
+            
+            if (viewName === 'create-order' && currentUser) { 
+                prefillOrderForm(); 
+            } 
+            else if (viewName === 'create-order') { showView('auth'); return; }
+
+            if (viewName === 'orders') {
+                if (!currentUser) { showView('auth'); return; }
+                loadOrderHistory();
+            }
+            if (viewName === 'profile') {
+                if (!currentUser) { showView('auth'); return; }
+                loadProfile();
+            }
+            window.scrollTo(0,0);
+            document.getElementById('mobileMenu').classList.add('hidden');
+        }
+
+        function toggleMobileMenu() { document.getElementById('mobileMenu').classList.toggle('hidden'); }
+
+        function updateAvatarUI(url) {
+            const navImg = document.getElementById('navProfileImg');
+            if(url) { navImg.src = url; navImg.classList.remove('hidden'); } else { navImg.classList.add('hidden'); }
+        }
+
+        function updateNav(isLoggedIn) {
+            const t = translations[currentLang];
+            const navUser = document.getElementById('navUserLinks');
+            const navAuth = document.getElementById('navAuthButtons');
+            const mobUser = document.getElementById('mobileUserLinks');
+            const mobAuth = document.getElementById('mobileAuthButtons');
+            const mobHeaderAuth = document.getElementById('mobileHeaderAuth');
+
+            if (isLoggedIn) {
+                navUser.innerHTML = `<button onclick="showView('create-order')" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow">${t.nav_make_order}</button><button onclick="showView('orders')" class="text-gray-600 hover:text-brand-green font-semibold">${t.nav_my_orders}</button><button onclick="showView('payment-methods')" class="text-gray-600 hover:text-brand-green font-semibold">${t.nav_payment}</button><button onclick="showView('profile')" class="text-gray-600 hover:text-brand-green font-semibold">${t.nav_profile}</button>`;
+                navAuth.innerHTML = `<button onclick="logout()" class="text-red-500 text-sm hover:underline">${t.nav_logout}</button>`;
+                mobHeaderAuth.innerHTML = `<button onclick="showView('orders')" class="text-brand-green font-bold mr-2 text-sm flex items-center bg-green-50 px-2 py-1 rounded-lg"><i class="fas fa-list-alt mr-1"></i></button>`;
+                mobUser.innerHTML = `<button onclick="showView('create-order')" class="block w-full text-left py-3 text-brand-green font-bold border-b border-gray-100">${t.nav_make_order}</button><button onclick="showView('orders')" class="block w-full text-left py-3 text-gray-600 border-b border-gray-100">${t.nav_my_orders}</button><button onclick="showView('payment-methods')" class="block w-full text-left py-3 text-gray-600 border-b border-gray-100">${t.nav_payment}</button><button onclick="showView('profile')" class="block w-full text-left py-3 text-gray-600 border-b border-gray-100">${t.nav_profile}</button>`;
+                mobAuth.innerHTML = `<button onclick="logout()" class="block w-full text-left py-3 text-red-500">${t.nav_logout_full}</button>`;
+            } else {
+                navUser.innerHTML = '';
+                navAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="bg-brand-green text-white px-4 py-2 rounded-full font-bold text-sm hover:bg-brand-dark shadow mr-3 whitespace-nowrap">${t.nav_login}</button><button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="border border-brand-green text-brand-green px-4 py-2 rounded-full font-bold text-sm hover:bg-green-50 transition whitespace-nowrap">${t.nav_register}</button>`;
+                mobHeaderAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="text-brand-green font-bold mr-2 flex flex-col items-center justify-center"><i class="fas fa-user-circle text-2xl"></i><span class="text-[10px] leading-none mt-1">${t.nav_enter}</span></button>`;
+                mobUser.innerHTML = '';
+                mobAuth.innerHTML = `<button onclick="showView('auth'); isLoginMode=true; renderAuthForm();" class="block w-full text-left py-3 font-bold text-brand-green border-b border-gray-100">${t.nav_login}</button><button onclick="showView('auth'); isLoginMode=false; renderAuthForm();" class="block w-full text-left py-3 font-bold text-gray-600">${t.nav_register}</button>`;
+            }
+        }
+
+        // --- LÓGICA DE PERFIL Y PRE-LLENADO ---
+        function loadProfile() {
+            document.getElementById('profileEmailDisplay').innerText = currentUser.email;
+            const meta = currentUser.user_metadata || {};
+            if(meta.avatar_url) {
+                document.getElementById('profilePreview').src = meta.avatar_url;
+                document.getElementById('profileAvatarBase64').value = meta.avatar_url;
+            } else { document.getElementById('profilePreview').src = DEFAULT_AVATAR; }
+            document.getElementById('profileName').value = meta.first_name || '';
+            document.getElementById('profileSurname').value = meta.last_name || '';
+            document.getElementById('profilePhone').value = meta.phone || '';
+            document.getElementById('profileZone').value = meta.zone || '';
+            
+            // Cargar datos de Factura
+            document.getElementById('profileRuc').value = meta.ruc || '';
+            document.getElementById('profileBusiness').value = meta.business_name || '';
+
+            let code = meta.client_code;
+            if (!code) { code = 'SDN-' + currentUser.id.substring(0, 6).toUpperCase(); }
+            document.getElementById('displayClientCode').innerText = code;
+            document.getElementById('profileClientCodeHidden').value = code;
+        }
+
+        function prefillOrderForm() {
+            if (!currentUser || !currentUser.user_metadata) return;
+            const meta = currentUser.user_metadata;
+            const fullName = (meta.first_name || '') + ' ' + (meta.last_name || '');
+            if(fullName.trim()) document.getElementById('orderName').value = fullName.trim();
+            if(meta.phone) document.getElementById('orderPhone').value = meta.phone;
+            if(meta.client_code) document.getElementById('orderClientCodeDisplay').innerText = meta.client_code;
+            if(meta.client_code) document.getElementById('hiddenClientCode').value = meta.client_code;
+            
+            // Pre-llenar RUC si existe
+            if(meta.ruc || meta.business_name) {
+                document.getElementById('rucNumber').value = meta.ruc || '';
+                document.getElementById('businessName').value = meta.business_name || '';
+            }
+
+            if(meta.zone) {
+                const zoneSelect = document.getElementById('orderZone');
+                let targetValue = "Managua Centro";
+                if (meta.zone === "Granada") targetValue = "Granada";
+                else if (meta.zone === "Masaya") targetValue = "Masaya";
+                else if (meta.zone === "Carretera Masaya") targetValue = "Carretera Masaya";
+                else if (meta.zone === "Managua") targetValue = "Managua";
+                else if (meta.zone === "Otro") targetValue = "Departamento";
+                zoneSelect.value = targetValue;
+                updateEstimatedFee();
+            }
+        }
+
+        function handleAvatarUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const img = new Image();
+                img.onload = function() {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const maxSize = 200; 
+                    let width = img.width; let height = img.height;
+                    if (width > height) { if (width > maxSize) { height *= maxSize / width; width = maxSize; } } 
+                    else { if (height > maxSize) { width *= maxSize / height; height = maxSize; } }
+                    canvas.width = width; canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+                    const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
+                    document.getElementById('profilePreview').src = dataUrl;
+                    document.getElementById('profileAvatarBase64').value = dataUrl;
+                }
+                img.src = e.target.result;
+            }
+            reader.readAsDataURL(file);
+        }
+
+        async function updateProfile(e) {
+            e.preventDefault();
+            const t = translations[currentLang];
+            const btn = document.getElementById('profileBtn');
+            const originalText = btn.innerText;
+            btn.innerText = t.btn_saving;
+            btn.disabled = true;
+
+            const newAvatar = document.getElementById('profileAvatarBase64').value;
+            const firstName = document.getElementById('profileName').value;
+            const lastName = document.getElementById('profileSurname').value;
+            const phone = document.getElementById('profilePhone').value;
+            const zone = document.getElementById('profileZone').value;
+            const clientCode = document.getElementById('profileClientCodeHidden').value;
+            
+            // Datos de factura
+            const ruc = document.getElementById('profileRuc').value;
+            const business = document.getElementById('profileBusiness').value;
+
+            const currentPassword = document.getElementById('currentPassword').value;
+            const newPassword = document.getElementById('profilePassword').value;
+            const confirmPassword = document.getElementById('profilePasswordConfirm').value;
+
+            if (newPassword) {
+                if (!currentPassword) {
+                    alert("Error: " + t.label_current_password);
+                    btn.innerText = originalText; btn.disabled = false; return;
+                }
+                const { error: signInError } = await supabaseClient.auth.signInWithPassword({ 
+                    email: currentUser.email, 
+                    password: currentPassword 
+                });
+
+                if (signInError) {
+                    alert("Error: " + t.auth_error_creds);
+                    btn.innerText = originalText; btn.disabled = false; return;
+                }
+
+                if (newPassword !== confirmPassword) {
+                    alert("Error: Passwords do not match.");
+                    btn.innerText = originalText; btn.disabled = false; return;
+                }
+                if (!PASSWORD_REGEX.test(newPassword)) {
+                    alert("Error: Weak password.");
+                    btn.innerText = originalText; btn.disabled = false; return;
+                }
+            }
+
+            const updates = { 
+                data: { 
+                    avatar_url: newAvatar, 
+                    first_name: firstName, 
+                    last_name: lastName, 
+                    phone: phone, 
+                    zone: zone, 
+                    client_code: clientCode,
+                    ruc: ruc,
+                    business_name: business
+                } 
+            };
+            if(newPassword) updates.password = newPassword;
+
+            const { user, error } = await supabaseClient.auth.updateUser(updates);
+
+            if(error) {
+                alert("Error: " + error.message);
+            } else {
+                alert(t.alert_profile_success);
+                if(newAvatar) updateAvatarUI(newAvatar);
+                if(firstName) document.getElementById('profileHeaderName').innerText = firstName;
+                document.getElementById('profilePassword').value = "";
+                document.getElementById('profilePasswordConfirm').value = "";
+                document.getElementById('currentPassword').value = "";
+                currentUser = user || currentUser; 
+                if(user) currentUser.user_metadata = user.user_metadata;
+                loadProfile();
+            }
+            btn.innerText = originalText;
+            btn.disabled = false;
+        }
+
+        // --- Funciones PDF de Historial ---
+        function downloadHistoryPDF() {
+            const t = translations[currentLang];
+            if (!currentOrders || currentOrders.length === 0) { alert(t.no_orders); return; }
+            const { jsPDF } = window.jspdf; const doc = new jsPDF();
+            doc.setFillColor(10, 173, 10); doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255, 255, 255); doc.setFontSize(18); doc.text(t.pdf_history_title, 14, 20);
+            doc.setTextColor(0,0,0); doc.setFontSize(10);
+            doc.text(`${currentLang === 'es' ? 'Cliente' : 'Client'}: ${currentUser.email}`, 14, 40); doc.text(`${currentLang === 'es' ? 'Fecha' : 'Date'}: ${new Date().toLocaleDateString()}`, 14, 45);
+            
+            const tableBody = currentOrders.map(order => {
+                const date = new Date(order.created_at).toLocaleDateString();
+                let listPreview = order.shopping_list.length > 30 ? order.shopping_list.substring(0, 30) + "..." : order.shopping_list;
+                
+                // Traducir estado
+                let statusTrans = order.status;
+                if(order.status === 'pendiente') statusTrans = t.status_pending;
+                if(order.status === 'en camino') statusTrans = t.status_onway;
+                if(order.status === 'entregado') statusTrans = t.status_delivered;
+                if(order.status === 'cancelado') statusTrans = t.status_cancelled;
+
+                return [
+                    date, 
+                    order.id.slice(0,8), 
+                    order.delivery_zone, 
+                    statusTrans.toUpperCase(), 
+                    order.phone,
+                    order.delivery_address, 
+                    listPreview
+                ];
+            });
+            
+            // Encabezados traducidos
+            const headers = [[
+                t.pdf_col_date, 
+                t.pdf_col_id, 
+                t.pdf_col_zone, 
+                t.pdf_col_status,
+                t.pdf_col_phone,
+                t.pdf_col_address,
+                t.pdf_col_summary
+            ]];
+            
+            doc.autoTable({ 
+                head: headers, 
+                body: tableBody, 
+                startY: 50, 
+                theme: 'grid', 
+                headStyles: { fillColor: [10, 173, 10] }, 
+                styles: { fontSize: 7 },
+                columnStyles: {
+                    6: { cellWidth: 50 } // Columna resumen más ancha
+                }
+            });
+            doc.save(`Historial_Pedidos_${new Date().toISOString().slice(0,10)}.pdf`);
+        }
+
+        // --- Auth Core ---
+        function checkAuthAndRedirect() {
+            if(currentUser) { showView('create-order'); } 
+            else { showView('auth'); isLoginMode = false; renderAuthForm(); }
+        }
+        function toggleAuthMode() { isLoginMode = !isLoginMode; renderAuthForm(); }
+        function renderAuthForm() {
+            const t = translations[currentLang];
+            const title = document.getElementById('authTitle'); const btn = document.getElementById('authBtn');
+            const toggleText = document.getElementById('authToggleText'); const toggleLink = document.getElementById('authToggleLink');
+            const passwordHelp = document.getElementById('passwordHelp');
+            const confirmGroup = document.getElementById('confirmPasswordGroup');
+
+            document.getElementById('authError').classList.add('hidden'); document.getElementById('authSuccess').classList.add('hidden');
+            
+            if (isLoginMode) { 
+                title.innerText = t.auth_login_title; 
+                btn.innerText = t.btn_enter; 
+                btn.onclick = login; 
+                toggleText.innerText = t.no_account; 
+                toggleLink.innerText = t.register_here; 
+                passwordHelp.classList.add('hidden');
+                confirmGroup.classList.add('hidden');
+                document.getElementById('confirmPasswordAuth').required = false;
+            } else { 
+                title.innerText = t.auth_register_title; 
+                btn.innerText = t.btn_register; 
+                btn.onclick = signup; 
+                toggleText.innerText = t.have_account; 
+                toggleLink.innerText = t.enter_here; 
+                passwordHelp.classList.remove('hidden');
+                confirmGroup.classList.remove('hidden');
+                document.getElementById('confirmPasswordAuth').required = true;
+            }
+        }
+        async function signup() {
+            const t = translations[currentLang];
+            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
+            const confirmPw = document.getElementById('confirmPasswordAuth').value;
+            const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+
+            if (!em || !pw) return;
+            
+            // VALIDACIÓN CONTRASEÑA COINCIDE
+            if (pw !== confirmPw) {
+                const err = document.getElementById('authError');
+                err.innerText = t.auth_error_pass_mismatch;
+                err.classList.remove('hidden');
+                return;
+            }
+
+            if (!PASSWORD_REGEX.test(pw)) {
+                const err = document.getElementById('authError');
+                err.innerText = t.password_help;
+                err.classList.remove('hidden');
+                return;
+            }
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: em,
+                password: pw,
+                options: { captchaToken }
+            });
+            if (error) { document.getElementById('authError').innerText = error.message; document.getElementById('authError').classList.remove('hidden'); }
+            else { document.getElementById('authSuccess').innerText = t.auth_success_reg; document.getElementById('authSuccess').classList.remove('hidden'); if (data.session) { currentUser = data.session.user; showView('create-order'); } }
+        }
+        async function login() {
+            const t = translations[currentLang];
+            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
+            const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
+            
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: em,
+                password: pw,
+                options: { captchaToken }
+            });
+            if (error) { document.getElementById('authError').innerText = t.auth_error_creds; document.getElementById('authError').classList.remove('hidden'); }
+            else { currentUser = data.session.user; showView('create-order'); }
+        }
+        async function logout() { await supabaseClient.auth.signOut(); window.location.reload(); }
+
+        function updateEstimatedFee() {
+            const t = translations[currentLang];
+            const val = document.getElementById('orderZone').value;
+            const companionOption = document.getElementById('companionOption');
+            const serviceCompanion = document.getElementById('serviceCompanion');
+            
+            const fees = { 
+                'Granada': '$10.99 / C$ 402.50', 
+                'Masaya': '$10.99 / C$ 402.50', 
+                'Carretera Masaya': '$10.99 / C$ 402.50', 
+                'Managua': '$9.99 / C$ 365.88', 
+                'Departamento': 'Cotizar' 
+            };
+
+            if (val === 'Granada') {
+                companionOption.classList.remove('hidden');
+            } else {
+                companionOption.classList.add('hidden');
+                if (serviceCompanion.checked) {
+                    document.getElementById('serviceShopForMe').checked = true;
+                    handleServiceChange(); 
+                }
+            }
+
+            let text = fees[val] || t.calculating;
+            if (val === 'Granada' && serviceCompanion.checked) {
+                text = `$14.99 / C$ 549.00 ${t.companion_service}`;
+            }
+            document.getElementById('estimatedFee').innerText = text;
+        }
+
+        // --- MANEJO DE CAMBIO DE SERVICIO (RADIO BUTTONS) ---
+        function handleServiceChange() {
+            const type = document.querySelector('input[name="serviceType"]:checked').value;
+            const detailsDiv = document.getElementById('clickGoDetails');
+            const noticeDiv = document.getElementById('standardServiceNotice');
+            
+            if (type === 'clickGo') {
+                detailsDiv.classList.remove('hidden');
+                noticeDiv.classList.add('hidden'); // Ocultar aviso de pago
+                document.getElementById('memberId').required = true;
+            } else {
+                detailsDiv.classList.add('hidden');
+                noticeDiv.classList.remove('hidden'); // Mostrar aviso
+                document.getElementById('memberId').required = false;
+                document.getElementById('memberId').value = '';
+            }
+
+            updateEstimatedFee();
+        }
+
+        function toggleOrderDetails(id) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('hidden')) {
+                el.classList.remove('hidden');
+            } else {
+                el.classList.add('hidden');
+            }
+        }
+
+        async function loadOrderHistory() {
+            const t = translations[currentLang];
+            const listContainer = document.getElementById('orderHistoryList');
+            listContainer.innerHTML = `<div class="p-8 text-center text-gray-400">${t.loading}</div>`;
+            const { data, error } = await supabaseClient.from('orders').select('*').eq('user_id', currentUser.id).order('created_at', { ascending: false });
+            if (error || !data || data.length === 0) { listContainer.innerHTML = `<div class="p-8 text-center text-gray-400">${t.no_orders}</div>`; currentOrders = []; return; }
+            currentOrders = data; 
+            let html = '';
+            data.forEach(order => {
+                const date = new Date(order.created_at).toLocaleDateString();
+                let statusClass = "status-pendiente bg-yellow-50 text-yellow-800";
+                if (order.status === 'en camino') statusClass = "status-en-camino bg-blue-50 text-blue-800";
+                if (order.status === 'entregado') statusClass = "status-entregado bg-green-50 text-green-800";
+                if (order.status === 'cancelado') statusClass = "status-cancelado bg-red-50 text-red-800";
+                
+                html += `
+                    <div class="order-card bg-white p-5 rounded-lg shadow-sm mb-4 border border-gray-100 ${statusClass}">
+                        <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                            <div class="flex-grow mb-3 md:mb-0">
+                                <div class="flex items-center mb-1">
+                                    <span class="bg-white border px-2 py-0.5 rounded text-xs font-mono font-bold mr-2 text-gray-500">#${order.id.slice(0,8)}</span>
+                                    <span class="text-sm text-gray-500"><i class="far fa-calendar-alt mr-1"></i> ${date}</span>
+                                </div>
+                                <h4 class="font-bold text-gray-800 text-lg mb-1">${order.delivery_zone}</h4>
+                                <p class="text-xs text-gray-500 truncate w-full md:w-96">Click "${t.order_view_details}"</p>
+                            </div>
+                            <div class="flex flex-col items-end gap-2 w-full md:w-auto">
+                                <span class="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide bg-white border shadow-sm mb-1 self-start md:self-end">
+                                    ${order.status}
+                                </span>
+                                <button onclick="toggleOrderDetails('order-${order.id}')" class="text-sm text-brand-green hover:underline font-bold self-start md:self-end">
+                                    <i class="fas fa-eye mr-1"></i> ${t.order_view_details}
+                                </button>
+                            </div>
+                        </div>
+                        <div id="order-${order.id}" class="hidden mt-4 pt-4 border-t border-gray-200">
+                            <div class="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
+                                <div>
+                                    <p class="font-bold text-gray-700">${t.order_address_label}</p>
+                                    <p>${order.delivery_address}</p>
+                                    <p class="mt-2 font-bold text-gray-700">${t.order_phone_label}</p>
+                                    <p>${order.phone}</p>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-gray-700">${t.order_details_label}</p>
+                                    <div class="bg-gray-50 p-2 rounded border border-gray-200 mt-1 whitespace-pre-wrap font-mono text-xs">${order.shopping_list}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                ` : '<div style="margin-top: 30px;"></div>';
-                
-                const printWindow = window.open('', '_blank', 'width=350,height=600');
-                
-                const htmlReceipt = `
-                    <html>
-                    <head>
-                        <title>Recibo - Shop Delivery Nic</title>
-                        <style>
-                            body {
-                                font-family: 'Courier New', Courier, monospace;
-                                width: 300px;
-                                margin: 0 auto;
-                                color: #000;
-                                font-size: 14px;
-                                line-height: 1.4;
-                            }
-                            .text-center { text-align: center; }
-                            .font-bold { font-weight: bold; }
-                            .text-xl { font-size: 18px; }
-                            .divider { border-top: 1px dashed #000; margin: 10px 0; }
-                            .flex { display: flex; justify-content: space-between; }
-                            @media print {
-                                @page { margin: 0; }
-                                body { margin: 10px; }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="text-center font-bold text-xl">SHOP DELIVERY NIC</div>
-                        <div class="text-center">¡Gracias por tu compra!</div>
-                        
-                        <div class="divider"></div>
-                        
-                        <div>Nombre de cliente: ${order.full_name || 'Consumidor Final'}</div>
-                        <div>Número de orden: #${order.id.slice(0,8)}</div>
-                        <div>Fecha: ${dateStr}</div>
-                        
-                        <div class="divider"></div>
-                        
-                        <div class="flex">
-                            <span>Subtotal (PriceSmart):</span>
-                            <span>C$ ${subtotal.toFixed(2)}</span>
-                        </div>
-                        <div class="flex">
-                            <span>IVA 15% (PriceSmart):</span>
-                            <span>C$ ${iva.toFixed(2)}</span>
-                        </div>
-                        <div class="flex">
-                            <span>Envío ($10.99):</span>
-                            <span>C$ ${ENVIO_NIO.toFixed(2)}</span>
-                        </div>
-                        
-                        <div class="divider"></div>
-                        
-                        <div class="flex font-bold text-xl">
-                            <span>Total a cobrar:</span>
-                            <span>C$ ${totalNio.toFixed(2)}</span>
-                        </div>
-                        <div class="flex" style="justify-content: flex-end; font-size: 12px;">
-                            <span>(Equivalente: $ ${totalUsd.toFixed(2)})</span>
-                        </div>
-                        
-                        ${stampHtml}
-                        
-                        <div class="divider"></div>
-                        
-                        <div class="text-center" style="font-size:12px;">
-                            Tipo de cambio: C$ ${TASA_CAMBIO}<br><br>
-                            Desarrollado por Denzell Sjogreen
-                        </div>
-                    </body>
-                    </html>
                 `;
-                
-                printWindow.document.write(htmlReceipt);
-                printWindow.document.close();
-                
-                printWindow.focus();
-                setTimeout(() => { printWindow.print(); }, 500);
-            };
+            });
+            listContainer.innerHTML = html;
+        }
 
-        } catch(error) { showGlobalError("Fallo general: " + error.message); }
+        initApp();
     </script>
 </body>
 </html>
