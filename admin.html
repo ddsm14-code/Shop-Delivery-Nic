@@ -119,10 +119,10 @@
     </div>
 
     <script>
-        // Tasa de cambio oficial y costo de envío fijo
-        const TASA_CAMBIO = 36.62;
+        // Tasa de cambio oficial exacta y costo de envío fijo
+        const TASA_CAMBIO = 36.6243;
         const ENVIO_USD = 10.99;
-        const ENVIO_NIO = ENVIO_USD * TASA_CAMBIO; // C$ 402.45
+        const ENVIO_NIO = ENVIO_USD * TASA_CAMBIO;
 
         function showGlobalError(msg) {
             document.getElementById('globalErrorText').innerText = msg;
@@ -349,7 +349,7 @@
                                 </div>
                             </div>
                             <div class="mb-4 text-xs text-gray-500 text-right font-bold">
-                                + Envío fijo: $10.99 (C$ ${ENVIO_NIO.toFixed(2)})
+                                + Envío: $10.99 (C$ ${ENVIO_NIO.toFixed(2)})
                             </div>
 
                             <div class="bg-gray-800 text-white p-3 rounded-lg mb-4 text-center">
@@ -517,7 +517,6 @@
 
                 const dateStr = new Date().toLocaleString('es-ES');
                 
-                // Abrimos una ventana con las dimensiones de un ticket
                 const printWindow = window.open('', '_blank', 'width=350,height=600');
                 
                 const htmlReceipt = `
@@ -525,7 +524,6 @@
                     <head>
                         <title>Recibo - Shop Delivery Nic</title>
                         <style>
-                            /* Estilos especiales para impresora térmica (58mm u 80mm) */
                             body {
                                 font-family: 'Courier New', Courier, monospace;
                                 width: 300px;
@@ -551,18 +549,17 @@
                         
                         <div class="divider"></div>
                         
-                        <div>Fecha: ${dateStr}</div>
-                        <div>Orden: #${order.id.slice(0,8)}</div>
-                        <div>Cliente: ${order.full_name || 'Consumidor Final'}</div>
+                        <div>Nombre de cliente: ${order.full_name || 'Consumidor Final'}</div>
+                        <div>Número de orden: #${order.id.slice(0,8)}</div>
                         
                         <div class="divider"></div>
                         
                         <div class="flex">
-                            <span>Subtotal:</span>
+                            <span>Subtotal (PriceSmart):</span>
                             <span>C$ ${subtotal.toFixed(2)}</span>
                         </div>
                         <div class="flex">
-                            <span>IVA:</span>
+                            <span>IVA 15% (PriceSmart):</span>
                             <span>C$ ${iva.toFixed(2)}</span>
                         </div>
                         <div class="flex">
@@ -573,19 +570,18 @@
                         <div class="divider"></div>
                         
                         <div class="flex font-bold text-xl">
-                            <span>TOTAL:</span>
+                            <span>Total a cobrar:</span>
                             <span>C$ ${totalNio.toFixed(2)}</span>
                         </div>
                         <div class="flex" style="justify-content: flex-end; font-size: 12px;">
-                            <span>(Ref: $ ${totalUsd.toFixed(2)})</span>
+                            <span>(Equivalente: $ ${totalUsd.toFixed(2)})</span>
                         </div>
                         
                         <div class="divider"></div>
                         
                         <div class="text-center" style="font-size:12px;">
-                            Tasa de cambio: C$ ${TASA_CAMBIO}<br>
-                            * El pago de envío es fijo.<br>
-                            Desarrollado para ti con ♥
+                            Tasa de cambio: C$ ${TASA_CAMBIO}<br><br>
+                            Desarrollado por Denzell Sjogreen
                         </div>
                     </body>
                     </html>
@@ -594,11 +590,9 @@
                 printWindow.document.write(htmlReceipt);
                 printWindow.document.close();
                 
-                // Esperamos medio segundo para que renderice y mandamos a imprimir automáticamente
                 printWindow.focus();
                 setTimeout(() => {
                     printWindow.print();
-                    // Opcional: printWindow.close(); para que se cierre sola tras imprimir
                 }, 500);
             };
 
