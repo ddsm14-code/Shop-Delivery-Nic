@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Administración - Shop Delivery Nic</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: { colors: { brand: { green: '#0AAD0A', dark: '#108910' } } }
+            }
+        }
+    </script>
+</head>
+<body class="bg-gray-100 text-gray-800 min-h-screen">
+
+    <nav class="bg-gray-900 text-white shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16 items-center">
+                <div class="flex items-center font-bold text-xl">
+                    <i class="fas fa-cogs text-brand-green mr-2"></i> Shop Delivery Nic - Admin
+                </div>
+                <div id="navAuth"></div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="loginView" class="max-w-md mx-auto mt-20 bg-white p-8 rounded-xl shadow-lg hidden">
+        <h2 class="text-2xl font-bold text-center mb-6 text-brand-green">Acceso Administrativo</h2>
+        <div id="loginError" class="hidden bg-red-100 text-red-600 p-3 rounded mb-4 text-sm text-center"></div>
+        <form onsubmit="handleLogin(event)">
+            <input type="email" id="adminEmail" placeholder="Correo (ej. nowassistyou@gmail.com)" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green">
+            <input type="password" id="adminPassword" placeholder="Contraseña" required class="w-full border p-3 rounded mb-6 focus:outline-none focus:border-brand-green">
+            <button type="submit" class="w-full bg-brand-green text-white font-bold py-3 rounded hover:bg-brand-dark transition shadow-lg">Entrar al Panel</button>
+        </form>
+    </div>
+
+    <div id="dashboardView" class="hidden max-w-7xl mx-auto px-4 mt-10 pb-10">
+        <div class="flex justify-between items-center mb-6">
+            <h1 class="text-3xl font-bold text-gray-800">Control de Órdenes</h1>
+            <button onclick="loadAllOrders()" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded shadow-sm hover:bg-gray-50 flex items-center transition">
+                <i class="fas fa-sync-alt mr-2 text-brand-green"></i> Actualizar
+            </button>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-600 text-sm uppercase tracking-wide border-b border-gray-200">
+                            <th class="p-4 font-semibold">Fecha / ID</th>
+                            <th class="p-4 font-semibold">Cliente</th>
+                            <th class="p-4 font-semibold">Zona</th>
+                            <th class="p-4 font-semibold text-center">Detalles</th>
+                            <th class="p-4 font-semibold text-center">Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody" class="divide-y divide-gray-100 text-sm">
+                        <tr><td colspan="5" class="p-8 text-center text-gray-500"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green mx-auto"></div></td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div id="detailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+            <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
+                <h3 class="font-bold text-lg text-gray-800" id="modalTitle">Detalle de la Orden</h3>
+                <button onclick="closeModal()" class="text-gray-500 hover:text-red-500 transition text-xl">&times;</button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-grow" id="modalContent">
+                </div>
+            <div class="p-4 border-t bg-gray-50 text-right">
+                <button onclick="closeModal()" class="bg-gray-800 text-white px-6 py-2 rounded shadow hover:bg-gray-900 transition">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // CONFIGURACIÓN DE SUPABASE (Tus claves reales)
+        const SUPABASE_URL = "https://dltpvajfltfzayhomufx.supabase.co"; 
+        const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdHB2YWpmbHRmemF5aG9tdWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzkyOTAsImV4cCI6MjA4NTQ1NTI5MH0.HCldnUI4sm9BHepUDgcqs4v4a5yVa20VWSzt2lNQ_Vo";
+        const ADMIN_EMAIL = "nowassistyou@gmail.com";
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let currentOrdersData = [];
+
+        // Inicialización
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session && session.user.email === ADMIN_EMAIL) {
+                showDashboard();
+            } else if (session && session.user.email !== ADMIN_EMAIL) {
+                showError("Acceso denegado. No eres el administrador.");
+                supabase.auth.signOut();
+                showLogin();
+            } else {
+                showLogin();
+            }
+        });
+
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+
+            if (email !== ADMIN_EMAIL) {
+                showError("Solo el correo administrador puede acceder.");
+                return;
+            }
+
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) showError("Credenciales incorrectas.");
+        }
+
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.reload();
+        }
+
+        async function loadAllOrders() {
+            const tbody = document.getElementById('ordersTableBody');
+            tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center"><div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-green mx-auto"></div></td></tr>`;
+
+            const { data: orders, error } = await supabase
+                .from('orders')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error al cargar datos desde Supabase.</td></tr>`;
+                return;
+            }
+
+            if (!orders || orders.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">No hay órdenes en el sistema.</td></tr>`;
+                return;
+            }
+
+            currentOrdersData = orders; // Guardamos en memoria para el modal
+            let html = '';
+            
+            orders.forEach(order => {
+                const date = new Date(order.created_at).toLocaleString('es-ES', { day: '2-digit', month: 'short', hour: '2-digit', minute:'2-digit' });
+                const shortId = order.id.slice(0, 8);
+                
+                // Colores para el estado actual
+                let bgStatus = "bg-yellow-100 text-yellow-800 border-yellow-200";
+                if (order.status === 'en camino') bgStatus = "bg-blue-100 text-blue-800 border-blue-200";
+                if (order.status === 'entregado') bgStatus = "bg-green-100 text-green-800 border-green-200";
+                if (order.status === 'cancelado') bgStatus = "bg-red-100 text-red-800 border-red-200";
+
+                html += `
+                    <tr class="hover:bg-green-50 transition duration-150">
+                        <td class="p-4">
+                            <div class="font-mono text-xs font-bold text-gray-500 mb-1">#${shortId}</div>
+                            <div class="text-xs text-gray-600"><i class="far fa-calendar-alt"></i> ${date}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-bold text-gray-800">${order.full_name}</div>
+                            <div class="text-xs text-gray-500"><i class="fas fa-phone mr-1"></i> ${order.phone}</div>
+                        </td>
+                        <td class="p-4">
+                            <div class="font-bold text-brand-green text-sm">${order.delivery_zone}</div>
+                        </td>
+                        <td class="p-4 text-center">
+                            <button onclick="openModal('${order.id}')" class="bg-gray-100 hover:bg-gray-200 text-gray-700 py-1 px-3 rounded text-xs font-bold transition shadow-sm border border-gray-300">
+                                <i class="fas fa-eye mr-1"></i> Ver Todo
+                            </button>
+                        </td>
+                        <td class="p-4 text-center">
+                            <select onchange="updateStatus('${order.id}', this.value)" id="select-${order.id}" class="text-xs font-bold uppercase tracking-wide border rounded-full px-3 py-1 cursor-pointer focus:outline-none appearance-none text-center shadow-sm ${bgStatus}">
+                                <option value="pendiente" ${order.status === 'pendiente' ? 'selected' : ''}>Pendiente</option>
+                                <option value="en camino" ${order.status === 'en camino' ? 'selected' : ''}>En Camino</option>
+                                <option value="entregado" ${order.status === 'entregado' ? 'selected' : ''}>Entregado</option>
+                                <option value="cancelado" ${order.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
+        }
+
+        async function updateStatus(orderId, newStatus) {
+            const { error } = await supabase
+                .from('orders')
+                .update({ status: newStatus })
+                .eq('id', orderId);
+
+            if (error) {
+                alert("Error al actualizar el estado: " + error.message);
+                loadAllOrders(); // Recargar si hay error para volver al estado real
+            } else {
+                // Cambiar colores del select dinámicamente
+                const selectEl = document.getElementById(`select-${orderId}`);
+                selectEl.className = "text-xs font-bold uppercase tracking-wide border rounded-full px-3 py-1 cursor-pointer focus:outline-none appearance-none text-center shadow-sm";
+                if (newStatus === 'pendiente') selectEl.classList.add("bg-yellow-100", "text-yellow-800", "border-yellow-200");
+                if (newStatus === 'en camino') selectEl.classList.add("bg-blue-100", "text-blue-800", "border-blue-200");
+                if (newStatus === 'entregado') selectEl.classList.add("bg-green-100", "text-green-800", "border-green-200");
+                if (newStatus === 'cancelado') selectEl.classList.add("bg-red-100", "text-red-800", "border-red-200");
+            }
+        }
+
+        // Lógica del Modal
+        function openModal(orderId) {
+            const order = currentOrdersData.find(o => o.id === orderId);
+            if(!order) return;
+
+            document.getElementById('modalTitle').innerText = `Orden #${order.id.slice(0,8)} - ${order.full_name}`;
+            
+            const html = `
+                <div class="grid grid-cols-2 gap-4 mb-6 text-sm">
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <p class="text-xs text-gray-500 font-bold uppercase mb-1">Contacto</p>
+                        <p><i class="fas fa-user text-brand-green w-4"></i> ${order.full_name}</p>
+                        <p><i class="fas fa-phone text-brand-green w-4"></i> <a href="https://wa.me/${order.phone.replace(/[^0-9]/g, '')}" target="_blank" class="text-blue-600 hover:underline">${order.phone}</a></p>
+                        <p><i class="fas fa-envelope text-brand-green w-4"></i> ${order.user_email}</p>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded border">
+                        <p class="text-xs text-gray-500 font-bold uppercase mb-1">Dirección de Entrega</p>
+                        <p class="font-bold text-brand-green">${order.delivery_zone}</p>
+                        <p class="mt-1">${order.delivery_address}</p>
+                    </div>
+                </div>
+                <div>
+                    <p class="text-xs text-gray-500 font-bold uppercase mb-2">Lista de Compras / Solicitud</p>
+                    <div class="bg-gray-800 text-green-400 p-4 rounded text-xs font-mono whitespace-pre-wrap overflow-x-auto shadow-inner">${order.shopping_list}</div>
+                </div>
+            `;
+            
+            document.getElementById('modalContent').innerHTML = html;
+            document.getElementById('detailsModal').classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('detailsModal').classList.add('hidden');
+        }
+
+        // Vistas
+        function showLogin() {
+            document.getElementById('loginView').classList.remove('hidden');
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('navAuth').innerHTML = '';
+        }
+
+        function showDashboard() {
+            document.getElementById('loginView').classList.add('hidden');
+            document.getElementById('dashboardView').classList.remove('hidden');
+            document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-gray-300 hover:text-white text-sm font-bold bg-gray-800 px-4 py-2 rounded transition"><i class="fas fa-sign-out-alt mr-1"></i> Salir</button>`;
+            loadAllOrders();
+        }
+
+        function showError(msg) {
+            const errDiv = document.getElementById('loginError');
+            errDiv.innerText = msg;
+            errDiv.classList.remove('hidden');
+            setTimeout(() => errDiv.classList.add('hidden'), 4000);
+        }
+    </script>
+</body>
+</html>
