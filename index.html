@@ -476,7 +476,7 @@
                                 <input type="text" id="memberId" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white shadow-inner" placeholder="Ej: 100012345678">
                             </div>
 
-                            <div id="companionOption" class="hidden">
+                            <div id="companionOption" class="hidden mt-2">
                                 <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100">
                                     <input type="radio" name="serviceType" value="companion" id="serviceCompanion" class="form-radio text-brand-green h-5 w-5 mt-1" onchange="handleServiceChange()">
                                     <div class="flex flex-col">
@@ -523,6 +523,26 @@
                             <input type="file" id="listImage" accept="image/*" multiple class="hidden" onchange="updateFileCount()">
                         </div>
                         <textarea id="orderList" name="shopping_list" rows="6" placeholder="Escribe aquí tu lista detallada (Producto, Marca, Cantidad)..." data-i18n-placeholder="placeholder_list" class="w-full border p-2 rounded focus:border-brand-green outline-none font-mono text-sm"></textarea>
+                    </div>
+                    
+                    <div class="mb-6 border-t pt-4">
+                        <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100 mb-4">
+                            <input type="checkbox" id="needInvoiceCheck" class="form-checkbox text-brand-green h-5 w-5 mt-1" onchange="toggleInvoiceDetails()">
+                            <div class="flex flex-col">
+                                <span class="text-sm font-bold text-gray-800" data-i18n="label_need_invoice">¿Necesitas factura legal (con RUC)?</span>
+                            </div>
+                        </label>
+
+                        <div id="invoiceDetails" class="hidden grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg border border-gray-200">
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_ruc_number">Número RUC</label>
+                                <input type="text" id="rucNumber" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
+                            </div>
+                            <div>
+                                <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_business_name">Razón Social / Nombre del Negocio</label>
+                                <input type="text" id="businessName" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-white">
+                            </div>
+                        </div>
                     </div>
 
                     <div class="mb-6">
@@ -595,7 +615,7 @@
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <div>
                             <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_phone">Teléfono</label>
                             <input type="tel" id="profilePhone" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="+505...">
@@ -610,6 +630,17 @@
                                 <option value="Managua">Managua</option>
                                 <option value="Otro" data-i18n="option_other_simple">Otro</option>
                             </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_ruc_number">Número RUC</label>
+                            <input type="text" id="profileRuc" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="Opcional">
+                        </div>
+                        <div>
+                            <label class="block text-gray-600 text-sm font-bold mb-2" data-i18n="label_business_name">Razón Social</label>
+                            <input type="text" id="profileBusiness" class="w-full border p-2 rounded focus:border-brand-green outline-none bg-gray-50" placeholder="Opcional">
                         </div>
                     </div>
                 </div>
@@ -651,7 +682,14 @@
                     Shop Delivery <span class="text-brand-green">Nic</span>
                 </span>
             </div>
-            <div class="mt-2 text-xs text-gray-500">&copy; 2026 Shop Delivery Nic.</div>
+            
+            <div class="flex justify-center mb-4">
+                <a href="https://www.facebook.com/profile.php?id=61588191826866" target="_blank" class="text-gray-400 hover:text-brand-green transition text-3xl">
+                    <i class="fab fa-facebook"></i>
+                </a>
+            </div>
+
+            <div class="text-xs text-gray-500">&copy; 2026 Shop Delivery Nic.</div>
         </div>
     </footer>
 
@@ -771,6 +809,11 @@
                 files_selected: "archivos",
                 no_files_selected: "",
                 placeholder_list: "Escribe aquí tu lista detallada (Producto, Marca, Cantidad)...",
+                
+                label_need_invoice: "¿Necesitas factura legal (con RUC)?",
+                label_ruc_number: "Número RUC",
+                label_business_name: "Razón Social / Nombre del Negocio",
+
                 label_comments: "Comentarios / Special Requests",
                 placeholder_comments: "Ej: Llamar antes de llegar, producto sustituto si no hay...",
                 btn_send_order: "Enviar Pedido",
@@ -934,6 +977,11 @@
                 files_selected: "files",
                 no_files_selected: "",
                 placeholder_list: "Type your detailed list here (Product, Brand, Quantity)...",
+
+                label_need_invoice: "Do you need a legal invoice (with RUC)?",
+                label_ruc_number: "RUC Number",
+                label_business_name: "Business Name",
+
                 label_comments: "Comments / Special Requests",
                 placeholder_comments: "Ex: Call before arriving, substitute product if missing...",
                 btn_send_order: "Send Order",
@@ -1079,6 +1127,24 @@
             }
         }
 
+        // --- MANEJO DE FACTURA TOGGLE ---
+        function toggleInvoiceDetails() {
+            const isChecked = document.getElementById('needInvoiceCheck').checked;
+            const detailsDiv = document.getElementById('invoiceDetails');
+            
+            if (isChecked) {
+                detailsDiv.classList.remove('hidden');
+                document.getElementById('rucNumber').required = true;
+                document.getElementById('businessName').required = true;
+            } else {
+                detailsDiv.classList.add('hidden');
+                document.getElementById('rucNumber').required = false;
+                document.getElementById('businessName').required = false;
+                // Si el usuario lo desmarca, no borramos el valor inmediatamente 
+                // para que no pierda lo que escribió por error, pero al enviar no se procesa.
+            }
+        }
+
         // --- MANEJO DE INPUT DE ARCHIVO PERSONALIZADO ---
         function updateFileCount() {
             const input = document.getElementById('listImage');
@@ -1191,6 +1257,11 @@
             const specialReq = document.getElementById('specialRequests').value;
             const memberId = document.getElementById('memberId').value;
 
+            // Info Factura
+            const needInvoice = document.getElementById('needInvoiceCheck').checked;
+            const rucNumber = document.getElementById('rucNumber').value;
+            const businessName = document.getElementById('businessName').value;
+
             const imageInput = document.getElementById('listImage');
             let imageAttachments = [];
             
@@ -1227,6 +1298,13 @@
                 fullList += `** SERVICIO CLICK & GO (Solo Recogida) **\n`;
                 fullList += `MEMBRESÍA: ${memberId}\n\n`;
             }
+
+            // Integrar Factura
+            if (needInvoice) {
+                fullList += `** SOLICITA FACTURA CON RUC **\n`;
+                fullList += `RUC: ${rucNumber}\n`;
+                fullList += `Razón Social: ${businessName}\n\n`;
+            }
             
             if (imageAttachments.length > 0) fullList += `** [IMÁGENES ADJUNTAS] El cliente ha subido ${imageAttachments.length} foto(s). **\n\n`;
             fullList += `LISTA (TEXTO):\n${manualList}\n\n`;
@@ -1261,9 +1339,14 @@
 
                 alert(t.alert_order_success);
                 document.getElementById('orderForm').reset();
+                
+                // Limpiar Custom Toggles
                 document.getElementById('serviceShopForMe').checked = true;
                 handleServiceChange();
                 document.getElementById('fileCount').innerText = ""; 
+                document.getElementById('needInvoiceCheck').checked = false;
+                toggleInvoiceDetails();
+
                 showView('orders'); 
             } catch (err) { 
                 console.error(err); 
@@ -1338,6 +1421,11 @@
             document.getElementById('profileSurname').value = meta.last_name || '';
             document.getElementById('profilePhone').value = meta.phone || '';
             document.getElementById('profileZone').value = meta.zone || '';
+            
+            // Cargar datos de Factura
+            document.getElementById('profileRuc').value = meta.ruc || '';
+            document.getElementById('profileBusiness').value = meta.business_name || '';
+
             let code = meta.client_code;
             if (!code) { code = 'SDN-' + currentUser.id.substring(0, 6).toUpperCase(); }
             document.getElementById('displayClientCode').innerText = code;
@@ -1353,6 +1441,12 @@
             if(meta.client_code) document.getElementById('orderClientCodeDisplay').innerText = meta.client_code;
             if(meta.client_code) document.getElementById('hiddenClientCode').value = meta.client_code;
             
+            // Pre-llenar RUC si existe
+            if(meta.ruc || meta.business_name) {
+                document.getElementById('rucNumber').value = meta.ruc || '';
+                document.getElementById('businessName').value = meta.business_name || '';
+            }
+
             if(meta.zone) {
                 const zoneSelect = document.getElementById('orderZone');
                 let targetValue = "Managua Centro";
@@ -1404,6 +1498,11 @@
             const phone = document.getElementById('profilePhone').value;
             const zone = document.getElementById('profileZone').value;
             const clientCode = document.getElementById('profileClientCodeHidden').value;
+            
+            // Datos de factura
+            const ruc = document.getElementById('profileRuc').value;
+            const business = document.getElementById('profileBusiness').value;
+
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('profilePassword').value;
             const confirmPassword = document.getElementById('profilePasswordConfirm').value;
@@ -1434,7 +1533,16 @@
             }
 
             const updates = { 
-                data: { avatar_url: newAvatar, first_name: firstName, last_name: lastName, phone: phone, zone: zone, client_code: clientCode } 
+                data: { 
+                    avatar_url: newAvatar, 
+                    first_name: firstName, 
+                    last_name: lastName, 
+                    phone: phone, 
+                    zone: zone, 
+                    client_code: clientCode,
+                    ruc: ruc,
+                    business_name: business
+                } 
             };
             if(newPassword) updates.password = newPassword;
 
