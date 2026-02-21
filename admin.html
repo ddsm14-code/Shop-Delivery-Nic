@@ -119,8 +119,10 @@
     </div>
 
     <script>
-        // Tasa de cambio oficial definida
+        // Tasa de cambio oficial y costo de envío fijo
         const TASA_CAMBIO = 36.62;
+        const ENVIO_USD = 10.99;
+        const ENVIO_NIO = ENVIO_USD * TASA_CAMBIO; // C$ 402.45
 
         function showGlobalError(msg) {
             document.getElementById('globalErrorText').innerText = msg;
@@ -336,7 +338,7 @@
                         <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-md h-fit">
                             <h4 class="text-brand-green font-bold border-b pb-2 mb-4"><i class="fas fa-file-invoice-dollar mr-2"></i>Control Financiero</h4>
                             
-                            <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="grid grid-cols-2 gap-3 mb-2">
                                 <div>
                                     <label class="block text-xs font-bold text-gray-600 mb-1">Subtotal (C$)</label>
                                     <input type="number" id="finSubtotal-${order.id}" value="${order.subtotal || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
@@ -345,6 +347,9 @@
                                     <label class="block text-xs font-bold text-gray-600 mb-1">IVA (C$)</label>
                                     <input type="number" id="finIva-${order.id}" value="${order.tax_iva || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
                                 </div>
+                            </div>
+                            <div class="mb-4 text-xs text-gray-500 text-right font-bold">
+                                + Envío fijo: $10.99 (C$ ${ENVIO_NIO.toFixed(2)})
                             </div>
 
                             <div class="bg-gray-800 text-white p-3 rounded-lg mb-4 text-center">
@@ -391,8 +396,12 @@
                                 </div>
                             </div>
 
-                            <button onclick="saveFinances('${order.id}')" id="btnSaveFinances-${order.id}" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center">
+                            <button onclick="saveFinances('${order.id}')" id="btnSaveFinances-${order.id}" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center mb-2">
                                 <i class="fas fa-save mr-2"></i> Guardar Finanzas
+                            </button>
+                            
+                            <button onclick="printReceipt('${order.id}')" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center">
+                                <i class="fas fa-print mr-2"></i> Imprimir Recibo
                             </button>
                         </div>
                     </div>
@@ -432,7 +441,7 @@
                 const subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
                 const iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
                 
-                const totalNio = subtotal + iva;
+                const totalNio = subtotal + iva + ENVIO_NIO;
                 const totalUsd = totalNio / TASA_CAMBIO;
 
                 document.getElementById(`displayTotalNio-${orderId}`).innerText = totalNio.toFixed(2);
@@ -449,9 +458,9 @@
                 const lbl = document.getElementById(`balanceLabel-${orderId}`);
                 const amt = document.getElementById(`balanceAmount-${orderId}`);
 
-                if (totalNio === 0) {
+                if (totalNio === ENVIO_NIO && subtotal === 0) {
                     box.className = "p-3 rounded-lg mb-4 text-center border bg-gray-50 border-gray-200 text-gray-500";
-                    lbl.innerText = "Sin cargos"; amt.innerText = "C$ 0.00";
+                    lbl.innerText = "Falta ingresar compra"; amt.innerText = "C$ 0.00";
                 } else if (balance > 0.05) { // Margen de centavos
                     box.className = "p-3 rounded-lg mb-4 text-center border bg-red-50 border-red-200 text-red-700";
                     lbl.innerText = "Falta por Pagar (Saldo)"; amt.innerText = `C$ ${balance.toFixed(2)}`;
@@ -484,17 +493,113 @@
                     btn.innerHTML = `<i class="fas fa-save mr-2"></i> Guardar Finanzas`;
                 } else {
                     const idx = currentOrdersData.findIndex(o => o.id === orderId);
-                    if(idx > -1) {
-                        currentOrdersData[idx] = { ...currentOrdersData[idx], ...dataToSave };
-                    }
-                    btn.className = "w-full bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center";
+                    if(idx > -1) { currentOrdersData[idx] = { ...currentOrdersData[idx], ...dataToSave }; }
+                    btn.className = "w-full bg-green-500 text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center mb-2";
                     btn.innerHTML = `<i class="fas fa-check mr-2"></i> ¡Datos Guardados!`;
-                    renderTable(); // Para que el estado de pago se actualice en la tabla
+                    renderTable(); 
                     setTimeout(() => {
-                        btn.className = "w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center";
+                        btn.className = "w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-2 rounded-lg shadow-lg transition flex justify-center items-center mb-2";
                         btn.innerHTML = `<i class="fas fa-save mr-2"></i> Guardar Finanzas`;
                     }, 2000);
                 }
+            };
+
+            // GENERADOR DE RECIBO PARA IMPRESORA TÉRMICA
+            window.printReceipt = function(orderId) {
+                const order = currentOrdersData.find(o => o.id === orderId);
+                if(!order) return;
+
+                const subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
+                const iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
+                
+                const totalNio = subtotal + iva + ENVIO_NIO;
+                const totalUsd = totalNio / TASA_CAMBIO;
+
+                const dateStr = new Date().toLocaleString('es-ES');
+                
+                // Abrimos una ventana con las dimensiones de un ticket
+                const printWindow = window.open('', '_blank', 'width=350,height=600');
+                
+                const htmlReceipt = `
+                    <html>
+                    <head>
+                        <title>Recibo - Shop Delivery Nic</title>
+                        <style>
+                            /* Estilos especiales para impresora térmica (58mm u 80mm) */
+                            body {
+                                font-family: 'Courier New', Courier, monospace;
+                                width: 300px;
+                                margin: 0 auto;
+                                color: #000;
+                                font-size: 14px;
+                                line-height: 1.4;
+                            }
+                            .text-center { text-align: center; }
+                            .font-bold { font-weight: bold; }
+                            .text-xl { font-size: 18px; }
+                            .divider { border-top: 1px dashed #000; margin: 10px 0; }
+                            .flex { display: flex; justify-content: space-between; }
+                            @media print {
+                                @page { margin: 0; }
+                                body { margin: 10px; }
+                            }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="text-center font-bold text-xl">SHOP DELIVERY NIC</div>
+                        <div class="text-center">¡Gracias por tu compra!</div>
+                        
+                        <div class="divider"></div>
+                        
+                        <div>Fecha: ${dateStr}</div>
+                        <div>Orden: #${order.id.slice(0,8)}</div>
+                        <div>Cliente: ${order.full_name || 'Consumidor Final'}</div>
+                        
+                        <div class="divider"></div>
+                        
+                        <div class="flex">
+                            <span>Subtotal:</span>
+                            <span>C$ ${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="flex">
+                            <span>IVA:</span>
+                            <span>C$ ${iva.toFixed(2)}</span>
+                        </div>
+                        <div class="flex">
+                            <span>Envío ($10.99):</span>
+                            <span>C$ ${ENVIO_NIO.toFixed(2)}</span>
+                        </div>
+                        
+                        <div class="divider"></div>
+                        
+                        <div class="flex font-bold text-xl">
+                            <span>TOTAL:</span>
+                            <span>C$ ${totalNio.toFixed(2)}</span>
+                        </div>
+                        <div class="flex" style="justify-content: flex-end; font-size: 12px;">
+                            <span>(Ref: $ ${totalUsd.toFixed(2)})</span>
+                        </div>
+                        
+                        <div class="divider"></div>
+                        
+                        <div class="text-center" style="font-size:12px;">
+                            Tasa de cambio: C$ ${TASA_CAMBIO}<br>
+                            * El pago de envío es fijo.<br>
+                            Desarrollado para ti con ♥
+                        </div>
+                    </body>
+                    </html>
+                `;
+                
+                printWindow.document.write(htmlReceipt);
+                printWindow.document.close();
+                
+                // Esperamos medio segundo para que renderice y mandamos a imprimir automáticamente
+                printWindow.focus();
+                setTimeout(() => {
+                    printWindow.print();
+                    // Opcional: printWindow.close(); para que se cierre sola tras imprimir
+                }, 500);
             };
 
         } catch(error) { showGlobalError("Fallo general: " + error.message); }
