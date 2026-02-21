@@ -102,7 +102,7 @@
         </div>
     </div>
 
-    <div id="detailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div id="detailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4">
         <div class="bg-white rounded-xl shadow-2xl max-w-5xl w-full max-h-[95vh] overflow-hidden flex flex-col">
             <div class="p-4 border-b bg-gray-50 flex justify-between items-center">
                 <h3 class="font-bold text-lg text-gray-800" id="modalTitle">Gestión de Orden</h3>
@@ -116,6 +116,11 @@
                 <button onclick="closeModal()" class="bg-gray-800 text-white px-6 py-2 rounded shadow hover:bg-gray-900 transition font-bold">Cerrar</button>
             </div>
         </div>
+    </div>
+
+    <div id="imageViewerModal" class="hidden fixed inset-0 bg-black bg-opacity-95 z-50 flex items-center justify-center p-4">
+        <button onclick="closeImageViewer()" class="absolute top-6 right-6 text-white hover:text-red-500 transition text-4xl leading-none">&times;</button>
+        <img id="imageViewerImg" src="" class="max-w-full max-h-full object-contain rounded shadow-2xl">
     </div>
 
     <script>
@@ -288,7 +293,17 @@
                 }
             };
 
-            // Compresor de imágenes para no saturar la base de datos
+            // MODAL VISOR DE IMÁGENES
+            window.openImageViewer = function(src) {
+                document.getElementById('imageViewerImg').src = src;
+                document.getElementById('imageViewerModal').classList.remove('hidden');
+            };
+            window.closeImageViewer = function() {
+                document.getElementById('imageViewerModal').classList.add('hidden');
+                document.getElementById('imageViewerImg').src = '';
+            };
+
+            // COMPRESOR MEJORADO (Mayor calidad para leer tickets)
             window.processAndCompressImage = function(file) {
                 return new Promise((resolve, reject) => {
                     const reader = new FileReader();
@@ -297,13 +312,13 @@
                         img.onload = () => {
                             const canvas = document.createElement('canvas');
                             let width = img.width; let height = img.height;
-                            const MAX_SIZE = 600; // Resolución optimizada para recibos
+                            const MAX_SIZE = 1200; // Incrementado para no perder detalle de lectura
                             if (width > height) { if (width > MAX_SIZE) { height *= MAX_SIZE / width; width = MAX_SIZE; } } 
                             else { if (height > MAX_SIZE) { width *= MAX_SIZE / height; height = MAX_SIZE; } }
                             canvas.width = width; canvas.height = height;
                             const ctx = canvas.getContext('2d');
                             ctx.drawImage(img, 0, 0, width, height);
-                            resolve(canvas.toDataURL('image/jpeg', 0.6)); // Compresión al 60%
+                            resolve(canvas.toDataURL('image/jpeg', 0.8)); // Calidad al 80%
                         };
                         img.src = e.target.result;
                     };
@@ -328,7 +343,6 @@
                     const { error } = await supabase.from('orders').update(updateData).eq('id', orderId);
                     if (error) throw error;
                     
-                    // Actualizar memoria y UI
                     const idx = currentOrdersData.findIndex(o => o.id === orderId);
                     if(idx > -1) currentOrdersData[idx][type] = base64;
                     
@@ -338,14 +352,14 @@
                     
                     btnLabel.innerHTML = `<i class="fas fa-check text-green-600"></i> Listo`;
                     setTimeout(() => btnLabel.innerHTML = originalText, 3000);
-                    renderTable(); // Refresca icono en tabla
+                    renderTable();
                 } catch (err) {
                     alert("Error al subir imagen: " + err.message);
                     btnLabel.innerHTML = originalText;
                 }
             };
 
-            // MODAL Y FINANZAS
+            // MODAL PRINCIPAL
             window.openModal = function(orderId) {
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
@@ -395,8 +409,8 @@
                                 <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2"><i class="fas fa-camera mr-1"></i> Respaldos / Fotos de Recibos</p>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div class="border rounded-lg p-3 text-center bg-gray-50">
-                                        <p class="text-xs font-bold text-gray-700 mb-2">Ticket PriceSmart</p>
-                                        <img id="img-receipt_pricesmart-${order.id}" src="${order.receipt_pricesmart || ''}" class="mx-auto h-28 object-cover mb-2 ${order.receipt_pricesmart ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="window.open(this.src)" title="Clic para agrandar">
+                                        <p class="text-xs font-bold text-gray-700 mb-2">Factura de Pricesmart</p>
+                                        <img id="img-receipt_pricesmart-${order.id}" src="${order.receipt_pricesmart || ''}" class="mx-auto h-28 object-cover mb-2 ${order.receipt_pricesmart ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)" title="Clic para ver en pantalla completa">
                                         <input type="file" id="file-ps-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_pricesmart')">
                                         <label id="lbl-receipt_pricesmart-${order.id}" for="file-ps-${order.id}" class="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded cursor-pointer font-bold transition inline-block shadow-sm">
                                             <i class="fas fa-upload mr-1"></i> Subir Foto
@@ -404,7 +418,7 @@
                                     </div>
                                     <div class="border rounded-lg p-3 text-center bg-gray-50">
                                         <p class="text-xs font-bold text-gray-700 mb-2">Recibo Térmico</p>
-                                        <img id="img-receipt_internal-${order.id}" src="${order.receipt_internal || ''}" class="mx-auto h-28 object-cover mb-2 ${order.receipt_internal ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="window.open(this.src)" title="Clic para agrandar">
+                                        <img id="img-receipt_internal-${order.id}" src="${order.receipt_internal || ''}" class="mx-auto h-28 object-cover mb-2 ${order.receipt_internal ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)" title="Clic para ver en pantalla completa">
                                         <input type="file" id="file-int-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_internal')">
                                         <label id="lbl-receipt_internal-${order.id}" for="file-int-${order.id}" class="bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-1.5 rounded cursor-pointer font-bold transition inline-block shadow-sm">
                                             <i class="fas fa-upload mr-1"></i> Subir Foto
