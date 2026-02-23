@@ -31,6 +31,7 @@
                 <div class="flex items-center gap-4 w-full justify-center md:justify-end md:w-auto overflow-x-auto">
                     <div id="mainNavMenu" class="hidden gap-4 items-center whitespace-nowrap">
                         <button onclick="showDashboard()" id="tabOrders" class="text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm">Órdenes</button>
+                        <button onclick="showClients()" id="tabClients" class="text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm">Clientes</button>
                         <button onclick="showFinances()" id="tabFinances" class="text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm">Finanzas</button>
                     </div>
                     <div id="navAuth"></div>
@@ -52,6 +53,36 @@
             <div class="cf-turnstile mb-6 flex justify-center w-full overflow-hidden" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
             <button type="submit" id="loginBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded hover:bg-brand-dark transition shadow-lg">Entrar al Panel</button>
         </form>
+    </div>
+
+    <div id="clientsView" class="hidden max-w-7xl mx-auto px-4 mt-6 md:mt-8 pb-10">
+        <div class="flex justify-between items-center mb-4 md:mb-6">
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Directorio de Clientes</h1>
+        </div>
+
+        <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex items-center w-full md:w-1/3 gap-2">
+            <i class="fas fa-search text-gray-400 ml-2"></i>
+            <input type="text" id="clientSearchInput" onkeyup="renderClients()" placeholder="Buscar por nombre, correo o teléfono..." class="w-full border-none focus:outline-none text-sm bg-transparent">
+        </div>
+
+        <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
+            <div class="overflow-x-auto w-full">
+                <table class="w-full text-left border-collapse min-w-[800px]">
+                    <thead>
+                        <tr class="bg-gray-50 text-gray-600 text-[11px] md:text-sm uppercase tracking-wide border-b border-gray-200">
+                            <th class="p-3 md:p-4 font-semibold">Código / Cliente</th>
+                            <th class="p-3 md:p-4 font-semibold">Contacto</th>
+                            <th class="p-3 md:p-4 font-semibold">Última Dirección</th>
+                            <th class="p-3 md:p-4 font-semibold text-center">Órdenes Totales</th>
+                            <th class="p-3 md:p-4 font-semibold text-right">Valor Vitalicio (Gastado)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="clientsTableBody" class="divide-y divide-gray-100 text-xs md:text-sm">
+                        <tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando base de datos de clientes...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 
     <div id="financesView" class="hidden max-w-7xl mx-auto px-4 mt-6 md:mt-8 pb-10">
@@ -140,7 +171,7 @@
         <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center mb-4 gap-3 md:gap-4 bg-white p-3 md:p-4 rounded-xl shadow-sm border border-gray-200">
             <div class="flex items-center w-full md:w-auto gap-2 bg-gray-50 p-2 rounded md:bg-transparent md:p-0">
                 <i class="fas fa-search text-gray-400 ml-2 md:ml-0"></i>
-                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Buscar nombre, teléfono..." class="w-full md:w-64 border-none focus:outline-none text-sm bg-transparent">
+                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Buscar orden o teléfono..." class="w-full md:w-64 border-none focus:outline-none text-sm bg-transparent">
             </div>
             <div class="flex items-center w-full md:w-auto gap-2">
                 <select id="statusFilter" onchange="renderTable()" class="w-full md:w-auto border p-2 rounded text-sm focus:outline-none focus:border-brand-green bg-gray-50">
@@ -183,8 +214,7 @@
                 <button onclick="closeModal()" class="text-gray-500 hover:text-red-500 transition text-2xl leading-none px-2">&times;</button>
             </div>
             
-            <div class="p-3 md:p-6 overflow-y-auto flex-grow" id="modalContent">
-                </div>
+            <div class="p-3 md:p-6 overflow-y-auto flex-grow" id="modalContent"></div>
             
             <div class="p-3 md:p-4 border-t bg-white flex justify-end gap-3 sticky bottom-0">
                 <button onclick="closeModal()" class="bg-gray-800 w-full md:w-auto text-white px-6 py-2.5 rounded-lg shadow hover:bg-gray-900 transition font-bold text-sm">Cerrar Ventana</button>
@@ -226,6 +256,7 @@
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             
             let currentOrdersData = [];
+            let currentClientsData = []; // Guardará el directorio extraído
 
             supabase.auth.getSession().then(({ data, error }) => {
                 if (error) throw error;
@@ -262,33 +293,137 @@
                 else showDashboard();
             };
 
-            window.showDashboard = function() {
+            // ---- NAVEGACIÓN Y VISTAS ----
+            function resetNav() {
                 document.getElementById('loginView').classList.add('hidden');
+                document.getElementById('dashboardView').classList.add('hidden');
                 document.getElementById('financesView').classList.add('hidden');
+                document.getElementById('clientsView').classList.add('hidden');
+                
+                document.getElementById('tabOrders').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
+                document.getElementById('tabFinances').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
+                document.getElementById('tabClients').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
+            }
+
+            window.showDashboard = function() {
+                resetNav();
                 document.getElementById('dashboardView').classList.remove('hidden');
                 document.getElementById('mainNavMenu').classList.remove('hidden');
                 document.getElementById('mainNavMenu').classList.add('flex');
-                
                 document.getElementById('tabOrders').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
-                document.getElementById('tabFinances').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
-                
                 document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold bg-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded transition"><i class="fas fa-sign-out-alt md:mr-1"></i> <span class="hidden md:inline">Salir</span></button>`;
                 
                 if(currentOrdersData.length === 0) loadAllOrders();
             };
 
             window.showFinances = function() {
-                document.getElementById('dashboardView').classList.add('hidden');
+                resetNav();
                 document.getElementById('financesView').classList.remove('hidden');
-                
-                document.getElementById('tabOrders').className = "text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm";
                 document.getElementById('tabFinances').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
-                
-                generateFinancialReport(); 
+                if(currentOrdersData.length === 0) loadAllOrders().then(() => generateFinancialReport());
+                else generateFinancialReport(); 
+            };
+
+            window.showClients = function() {
+                resetNav();
+                document.getElementById('clientsView').classList.remove('hidden');
+                document.getElementById('tabClients').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
+                if(currentOrdersData.length === 0) loadAllOrders().then(() => buildClientDirectory());
+                else buildClientDirectory();
             };
 
             window.logout = async function() { await supabase.auth.signOut(); window.location.reload(); };
 
+            // ---- LÓGICA DE CLIENTES (NUEVO) ----
+            window.buildClientDirectory = function() {
+                const clientsMap = {};
+
+                // Escaneamos todas las órdenes para agrupar clientes por su correo
+                currentOrdersData.forEach(order => {
+                    // Usamos el email como identificador único principal. Si no hay, usamos el teléfono.
+                    const uniqueId = order.user_email || order.phone || 'Desconocido';
+                    
+                    if (!clientsMap[uniqueId]) {
+                        // Generamos un Código de Cliente falso basado en las primeras 6 letras de su UUID o su ID
+                        const clientCode = "CLI-" + (order.user_id ? order.user_id.slice(0,6).toUpperCase() : Math.floor(Math.random()*100000));
+                        
+                        clientsMap[uniqueId] = {
+                            code: clientCode,
+                            name: order.full_name || 'Sin Nombre',
+                            email: order.user_email || 'Sin correo',
+                            phone: order.phone || 'Sin teléfono',
+                            address: order.delivery_address || order.delivery_zone || 'Sin dirección',
+                            totalOrders: 0,
+                            totalSpentNio: 0
+                        };
+                    }
+
+                    // Actualizamos estadísticas
+                    clientsMap[uniqueId].totalOrders++;
+                    
+                    if (order.status !== 'cancelado') {
+                        const sub = parseFloat(order.subtotal || 0);
+                        const iva = parseFloat(order.tax_iva || 0);
+                        // El valor vitalicio = Lo gastado en super + Costo de envío
+                        clientsMap[uniqueId].totalSpentNio += (sub + iva + ENVIO_NIO);
+                    }
+                });
+
+                // Convertimos el mapa en un Array para poder buscar/filtrar fácilmente
+                currentClientsData = Object.values(clientsMap);
+                // Los ordenamos por los que más compran (VIPs arriba)
+                currentClientsData.sort((a, b) => b.totalSpentNio - a.totalSpentNio);
+                
+                renderClients();
+            };
+
+            window.renderClients = function() {
+                const searchTxt = document.getElementById('clientSearchInput').value.toLowerCase();
+                const tbody = document.getElementById('clientsTableBody');
+
+                const filtered = currentClientsData.filter(c => {
+                    return c.name.toLowerCase().includes(searchTxt) || 
+                           c.email.toLowerCase().includes(searchTxt) || 
+                           c.phone.toLowerCase().includes(searchTxt) ||
+                           c.code.toLowerCase().includes(searchTxt);
+                });
+
+                if (filtered.length === 0) { 
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">No hay clientes con esa búsqueda.</td></tr>`; 
+                    return; 
+                }
+
+                let html = '';
+                filtered.forEach(c => {
+                    const spentUsd = (c.totalSpentNio / TASA_CAMBIO).toFixed(2);
+                    
+                    html += `
+                        <tr class="hover:bg-green-50 transition duration-150 border-b border-gray-100">
+                            <td class="p-3 md:p-4">
+                                <div class="font-mono text-xs font-bold text-gray-500 mb-1">${c.code}</div>
+                                <div class="font-bold text-gray-800">${c.name}</div>
+                            </td>
+                            <td class="p-3 md:p-4">
+                                <div class="text-[11px] md:text-xs text-gray-600 break-all"><i class="fas fa-envelope text-gray-400 mr-1"></i> ${c.email}</div>
+                                <div class="text-[11px] md:text-xs text-gray-600 mt-1"><i class="fas fa-phone text-gray-400 mr-1"></i> ${c.phone}</div>
+                            </td>
+                            <td class="p-3 md:p-4">
+                                <div class="text-[11px] md:text-xs text-gray-700 leading-tight">${c.address}</div>
+                            </td>
+                            <td class="p-3 md:p-4 text-center">
+                                <span class="bg-gray-100 text-gray-800 font-bold px-3 py-1 rounded-full text-xs">${c.totalOrders}</span>
+                            </td>
+                            <td class="p-3 md:p-4 text-right">
+                                <div class="font-bold text-brand-green text-sm md:text-base">C$ ${c.totalSpentNio.toFixed(2)}</div>
+                                <div class="text-[10px] md:text-xs text-gray-500 font-mono">Ref: $ ${spentUsd}</div>
+                            </td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
+            };
+
+            // ---- LÓGICA DE REPORTES FINANCIEROS ----
             window.generateFinancialReport = function() {
                 const startInput = document.getElementById('reportStart').value;
                 const endInput = document.getElementById('reportEnd').value;
@@ -322,6 +457,7 @@
                 generateFinancialReport();
             };
 
+            // ---- LÓGICA DE ÓRDENES PRINCIPAL ----
             window.loadAllOrders = async function() {
                 const tbody = document.getElementById('ordersTableBody');
                 tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando órdenes...</td></tr>`;
@@ -333,8 +469,6 @@
                 currentOrdersData = orders || [];
                 updateMetrics();
                 renderTable();
-                
-                if(!document.getElementById('financesView').classList.contains('hidden')) generateFinancialReport();
             };
 
             window.updateMetrics = function() {
@@ -501,7 +635,7 @@
                 } catch (err) { alert("Error: " + err.message); btnLabel.innerHTML = originalText; }
             };
 
-            // MODAL PRINCIPAL
+            // MODAL PRINCIPAL DE ORDEN
             window.openModal = function(orderId) {
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
@@ -733,11 +867,10 @@
                     if(idx > -1) { currentOrdersData[idx] = { ...currentOrdersData[idx], ...dataToSave }; }
                     btn.className = "w-full bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3";
                     btn.innerHTML = `<i class="fas fa-check md:mr-2"></i> ¡Guardado!`;
-                    renderTable(); 
                     
-                    if(!document.getElementById('financesView').classList.contains('hidden')) {
-                        generateFinancialReport();
-                    }
+                    renderTable(); 
+                    if(!document.getElementById('financesView').classList.contains('hidden')) generateFinancialReport();
+                    if(!document.getElementById('clientsView').classList.contains('hidden')) buildClientDirectory();
 
                     setTimeout(() => {
                         btn.className = "w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3";
@@ -746,26 +879,27 @@
                 }
             };
 
-            // ACTUALIZACIÓN: RECIBO CON SELLO DE "CANCELADO"
             window.printReceipt = function(orderId) {
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
 
                 const subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
                 const iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
-                
                 const totalNio = subtotal + iva + ENVIO_NIO;
                 const totalUsd = totalNio / TASA_CAMBIO;
                 const dateStr = new Date().toLocaleString('es-ES');
                 
-                // Lógica del Sello
-                const isPaid = document.getElementById(`finStatus-${orderId}`).value === 'Pagado';
+                const currentStatus = document.getElementById(`finStatus-${orderId}`).value;
+                const isPaid = (currentStatus === 'Pagado');
+                
                 const stampHtml = isPaid ? `
                     <div style="display: flex; justify-content: center; margin: 25px 0 15px 0;">
-                        <div style="width: 130px; height: 130px; border: 3px solid #000; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: rotate(-12deg); box-shadow: inset 0 0 0 2px #000;">
-                            <span style="font-size: 11px; letter-spacing: 1px; font-weight: bold;">SHOP DELIVERY</span>
-                            <span style="font-size: 18px; font-weight: bold; margin: 6px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 2px 0;">CANCELADO</span>
-                            <span style="font-size: 11px; font-weight: bold;">GRANADA, NIC</span>
+                        <div style="width: 140px; height: 140px; border: 2px solid #000; border-radius: 50%; padding: 4px; box-sizing: border-box; transform: rotate(-15deg);">
+                            <div style="width: 100%; height: 100%; border: 2px solid #000; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; box-sizing: border-box;">
+                                <span style="font-size: 10px; letter-spacing: 1px; font-weight: bold; text-align: center;">SHOP DELIVERY</span>
+                                <span style="font-size: 18px; font-weight: bold; margin: 4px 0; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 2px 0; width: 100%; text-align: center;">CANCELADO</span>
+                                <span style="font-size: 10px; font-weight: bold; text-align: center;">GRANADA, NIC</span>
+                            </div>
                         </div>
                     </div>
                 ` : '<div style="margin-top: 30px;"></div>';
@@ -847,7 +981,9 @@
                 printWindow.document.close();
                 
                 printWindow.focus();
-                setTimeout(() => { printWindow.print(); }, 500);
+                setTimeout(() => {
+                    printWindow.print();
+                }, 500);
             };
 
         } catch(error) { showGlobalError("Fallo general: " + error.message); }
