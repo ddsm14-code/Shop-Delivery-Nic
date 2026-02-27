@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel de Administración - Shop Delivery Nic</title>
+    <title>panel de administración - shop delivery nic</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
@@ -25,14 +25,14 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex flex-col md:flex-row justify-between min-h-[4rem] py-3 items-center gap-3">
                 <div class="flex items-center font-bold text-lg md:text-xl w-full justify-center md:justify-start md:w-auto">
-                    <i class="fas fa-cogs text-brand-green mr-2"></i> Shop Delivery Admin
+                    <i class="fas fa-cogs text-brand-green mr-2"></i> shop delivery admin
                 </div>
                 
                 <div class="flex items-center gap-4 w-full justify-center md:justify-end md:w-auto overflow-x-auto">
                     <div id="mainNavMenu" class="hidden gap-4 items-center whitespace-nowrap">
-                        <button onclick="showDashboard()" id="tabOrders" class="text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm">Órdenes</button>
-                        <button onclick="showClients()" id="tabClients" class="text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm">Clientes</button>
-                        <button onclick="showFinances()" id="tabFinances" class="text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm">Finanzas</button>
+                        <button onclick="showDashboard()" id="tabOrders" class="text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm">órdenes</button>
+                        <button onclick="showClients()" id="tabClients" class="text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm">clientes</button>
+                        <button onclick="showFinances()" id="tabFinances" class="text-gray-400 hover:text-white font-bold pb-1 border-b-2 border-transparent transition text-sm">finanzas</button>
                     </div>
                     <div id="navAuth"></div>
                 </div>
@@ -41,28 +41,28 @@
     </nav>
 
     <div id="globalError" class="hidden max-w-md mx-auto mt-4 bg-red-100 border-l-4 border-red-500 text-red-700 p-4 rounded shadow-sm mx-4 md:mx-auto">
-        <p class="font-bold text-sm">Error del sistema:</p>
+        <p class="font-bold text-sm">error del sistema:</p>
         <p id="globalErrorText" class="text-xs"></p>
     </div>
 
     <div id="loginView" class="max-w-md mx-auto mt-10 bg-white p-6 md:p-8 rounded-xl shadow-lg mx-4 md:mx-auto">
-        <h2 class="text-xl md:text-2xl font-bold text-center mb-6 text-brand-green">Acceso Administrativo</h2>
+        <h2 class="text-xl md:text-2xl font-bold text-center mb-6 text-brand-green">acceso administrativo</h2>
         <form onsubmit="handleLogin(event)">
-            <input type="email" id="adminEmail" placeholder="Correo electrónico" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green text-sm md:text-base">
-            <input type="password" id="adminPassword" placeholder="Contraseña" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green text-sm md:text-base">
+            <input type="email" id="adminEmail" placeholder="correo electrónico" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green text-sm md:text-base">
+            <input type="password" id="adminPassword" placeholder="contraseña" required class="w-full border p-3 rounded mb-4 focus:outline-none focus:border-brand-green text-sm md:text-base">
             <div class="cf-turnstile mb-6 flex justify-center w-full overflow-hidden" data-sitekey="0x4AAAAAACXbc62TDsPPe09R"></div>
-            <button type="submit" id="loginBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded hover:bg-brand-dark transition shadow-lg">Entrar al Panel</button>
+            <button type="submit" id="loginBtn" class="w-full bg-brand-green text-white font-bold py-3 rounded hover:bg-brand-dark transition shadow-lg">entrar al panel</button>
         </form>
     </div>
 
     <div id="clientsView" class="hidden max-w-7xl mx-auto px-4 mt-6 md:mt-8 pb-10">
         <div class="flex justify-between items-center mb-4 md:mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Directorio de Clientes</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">directorio de clientes</h1>
         </div>
 
         <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex items-center w-full md:w-1/3 gap-2">
             <i class="fas fa-search text-gray-400 ml-2"></i>
-            <input type="text" id="clientSearchInput" onkeyup="renderClients()" placeholder="Buscar por nombre, correo o teléfono..." class="w-full border-none focus:outline-none text-sm bg-transparent">
+            <input type="text" id="clientSearchInput" onkeyup="renderClients()" placeholder="buscar por nombre, correo o teléfono..." class="w-full border-none focus:outline-none text-sm bg-transparent">
         </div>
 
         <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200">
@@ -70,15 +70,15 @@
                 <table class="w-full text-left border-collapse min-w-[800px]">
                     <thead>
                         <tr class="bg-gray-50 text-gray-600 text-[11px] md:text-sm uppercase tracking-wide border-b border-gray-200">
-                            <th class="p-3 md:p-4 font-semibold">Código / Cliente</th>
-                            <th class="p-3 md:p-4 font-semibold">Contacto</th>
-                            <th class="p-3 md:p-4 font-semibold">Última Dirección</th>
-                            <th class="p-3 md:p-4 font-semibold text-center">Órdenes Totales</th>
-                            <th class="p-3 md:p-4 font-semibold text-right">Valor Vitalicio (Gastado)</th>
+                            <th class="p-3 md:p-4 font-semibold">código / cliente</th>
+                            <th class="p-3 md:p-4 font-semibold">contacto</th>
+                            <th class="p-3 md:p-4 font-semibold">última dirección</th>
+                            <th class="p-3 md:p-4 font-semibold text-center">órdenes totales</th>
+                            <th class="p-3 md:p-4 font-semibold text-right">valor vitalicio (gastado)</th>
                         </tr>
                     </thead>
                     <tbody id="clientsTableBody" class="divide-y divide-gray-100 text-xs md:text-sm">
-                        <tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando base de datos de clientes...</td></tr>
+                        <tr><td colspan="5" class="p-8 text-center text-gray-500">cargando base de datos de clientes...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -87,24 +87,24 @@
 
     <div id="financesView" class="hidden max-w-7xl mx-auto px-4 mt-6 md:mt-8 pb-10">
         <div class="flex justify-between items-center mb-4 md:mb-6">
-            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">Reporte Financiero</h1>
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-800">reporte financiero</h1>
         </div>
 
         <div class="bg-white p-4 md:p-5 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-end">
             <div class="w-full md:w-auto">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Desde (Inicio)</label>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">desde (inicio)</label>
                 <input type="date" id="reportStart" class="w-full md:w-auto border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
             </div>
             <div class="w-full md:w-auto">
-                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">Hasta (Fin)</label>
+                <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">hasta (fin)</label>
                 <input type="date" id="reportEnd" class="w-full md:w-auto border p-2 rounded focus:outline-none focus:border-brand-green bg-gray-50 text-sm">
             </div>
             <div class="flex gap-2 w-full md:w-auto">
                 <button onclick="generateFinancialReport()" class="flex-1 md:flex-none bg-brand-green hover:bg-brand-dark text-white font-bold py-2 px-4 rounded shadow transition text-sm">
-                    <i class="fas fa-filter md:mr-2"></i> <span class="hidden md:inline">Calcular</span>
+                    <i class="fas fa-filter md:mr-2"></i> <span class="hidden md:inline">calcular</span>
                 </button>
                 <button onclick="clearFinancialFilters()" class="flex-1 md:flex-none bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold py-2 px-4 rounded shadow-sm transition text-sm">
-                    Ver Todo
+                    ver todo
                 </button>
             </div>
         </div>
@@ -113,34 +113,34 @@
             <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-md">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-gray-100 p-2 md:p-3 rounded-full text-gray-600"><i class="fas fa-shopping-cart text-lg md:text-xl"></i></div>
-                    <h3 class="font-bold text-gray-700 text-base md:text-lg">Compras PriceSmart</h3>
+                    <h3 class="font-bold text-gray-700 text-base md:text-lg">compras pricesmart</h3>
                 </div>
-                <p class="text-xs text-gray-500 mb-2 md:mb-4">Total gastado (Subtotal + IVA)</p>
-                <p class="text-2xl md:text-3xl font-bold text-gray-800">C$ <span id="finReportPSNio">0.00</span></p>
-                <p class="text-xs md:text-sm font-mono text-gray-500 mt-1">Ref: $ <span id="finReportPSUsd">0.00</span></p>
+                <p class="text-xs text-gray-500 mb-2 md:mb-4">total gastado (subtotal + iva)</p>
+                <p class="text-2xl md:text-3xl font-bold text-gray-800">c$ <span id="finReportPSNio">0.00</span></p>
+                <p class="text-xs md:text-sm font-mono text-gray-500 mt-1">ref: $ <span id="finReportPSUsd">0.00</span></p>
             </div>
 
             <div class="bg-white p-5 rounded-xl border border-green-200 shadow-md relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-brand-green text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded-bl-lg">Tu Dinero</div>
+                <div class="absolute top-0 right-0 bg-brand-green text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded-bl-lg">tu dinero</div>
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-green-100 p-2 md:p-3 rounded-full text-brand-green"><i class="fas fa-chart-line text-lg md:text-xl"></i></div>
-                    <h3 class="font-bold text-gray-700 text-base md:text-lg">Ganancias Netas</h3>
+                    <h3 class="font-bold text-gray-700 text-base md:text-lg">ganancias netas</h3>
                 </div>
-                <p class="text-xs text-gray-500 mb-2 md:mb-4">Ingresos por tarifa ($10.99)</p>
-                <p class="text-2xl md:text-3xl font-bold text-brand-green">C$ <span id="finReportEarnNio">0.00</span></p>
-                <p class="text-xs md:text-sm font-mono text-green-600 mt-1 font-bold">Ref: $ <span id="finReportEarnUsd">0.00</span></p>
+                <p class="text-xs text-gray-500 mb-2 md:mb-4">ingresos por tarifa ($10.99)</p>
+                <p class="text-2xl md:text-3xl font-bold text-brand-green">c$ <span id="finReportEarnNio">0.00</span></p>
+                <p class="text-xs md:text-sm font-mono text-green-600 mt-1 font-bold">ref: $ <span id="finReportEarnUsd">0.00</span></p>
             </div>
 
             <div class="bg-gray-800 p-5 rounded-xl border border-gray-900 shadow-md text-white sm:col-span-2 md:col-span-1">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-gray-700 p-2 md:p-3 rounded-full text-yellow-400"><i class="fas fa-coins text-lg md:text-xl"></i></div>
-                    <h3 class="font-bold text-white text-base md:text-lg">Flujo Total</h3>
+                    <h3 class="font-bold text-white text-base md:text-lg">flujo total</h3>
                 </div>
-                <p class="text-xs text-gray-400 mb-2 md:mb-4">Dinero total movido</p>
-                <p class="text-2xl md:text-3xl font-bold">C$ <span id="finReportTotalNio">0.00</span></p>
+                <p class="text-xs text-gray-400 mb-2 md:mb-4">dinero total movido</p>
+                <p class="text-2xl md:text-3xl font-bold">c$ <span id="finReportTotalNio">0.00</span></p>
                 
                 <div class="mt-4 pt-4 border-t border-gray-700 flex justify-between items-center">
-                    <span class="text-sm text-gray-300">Órdenes Exitosas:</span>
+                    <span class="text-sm text-gray-300">órdenes exitosas:</span>
                     <span class="font-bold text-xl text-yellow-400" id="finReportCount">0</span>
                 </div>
             </div>
@@ -151,19 +151,19 @@
         
         <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
             <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-gray-800 flex flex-col justify-center">
-                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">Nuevas (Hoy)</p>
+                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">nuevas (hoy)</p>
                 <h3 class="text-2xl md:text-3xl font-bold text-gray-800" id="metricToday">0</h3>
             </div>
             <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-yellow-400 flex flex-col justify-center">
-                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">Pendientes</p>
+                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">pendientes</p>
                 <h3 class="text-2xl md:text-3xl font-bold text-yellow-600" id="metricPending">0</h3>
             </div>
             <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-blue-400 flex flex-col justify-center">
-                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">En Camino</p>
+                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">en camino</p>
                 <h3 class="text-2xl md:text-3xl font-bold text-blue-600" id="metricOnWay">0</h3>
             </div>
             <div class="bg-white p-3 md:p-4 rounded-xl shadow-sm border-l-4 border-green-500 flex flex-col justify-center">
-                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">Entregadas</p>
+                <p class="text-[10px] md:text-xs text-gray-500 font-bold uppercase tracking-wide">entregadas</p>
                 <h3 class="text-2xl md:text-3xl font-bold text-brand-green" id="metricDelivered">0</h3>
             </div>
         </div>
@@ -171,15 +171,15 @@
         <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center mb-4 gap-3 md:gap-4 bg-white p-3 md:p-4 rounded-xl shadow-sm border border-gray-200">
             <div class="flex items-center w-full md:w-auto gap-2 bg-gray-50 p-2 rounded md:bg-transparent md:p-0">
                 <i class="fas fa-search text-gray-400 ml-2 md:ml-0"></i>
-                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="Buscar orden o teléfono..." class="w-full md:w-64 border-none focus:outline-none text-sm bg-transparent">
+                <input type="text" id="searchInput" onkeyup="renderTable()" placeholder="buscar orden o teléfono..." class="w-full md:w-64 border-none focus:outline-none text-sm bg-transparent">
             </div>
             <div class="flex items-center w-full md:w-auto gap-2">
                 <select id="statusFilter" onchange="renderTable()" class="w-full md:w-auto border p-2 rounded text-sm focus:outline-none focus:border-brand-green bg-gray-50">
-                    <option value="all">Todos los estados</option>
-                    <option value="pendiente">Solo Pendientes</option>
-                    <option value="en camino">Solo En Camino</option>
-                    <option value="entregado">Solo Entregadas</option>
-                    <option value="cancelado">Solo Canceladas</option>
+                    <option value="all">todos los estados</option>
+                    <option value="pendiente">solo pendientes</option>
+                    <option value="en camino">solo en camino</option>
+                    <option value="entregado">solo entregadas</option>
+                    <option value="cancelado">solo canceladas</option>
                 </select>
                 <button onclick="loadAllOrders()" class="bg-brand-green text-white px-3 py-2 rounded shadow hover:bg-brand-dark transition flex items-center text-sm font-bold">
                     <i class="fas fa-sync-alt"></i>
@@ -192,15 +192,15 @@
                 <table class="w-full text-left border-collapse min-w-[700px]">
                     <thead>
                         <tr class="bg-gray-50 text-gray-600 text-[11px] md:text-sm uppercase tracking-wide border-b border-gray-200">
-                            <th class="p-3 md:p-4 font-semibold">ID / Fecha</th>
-                            <th class="p-3 md:p-4 font-semibold">Cliente</th>
-                            <th class="p-3 md:p-4 font-semibold">Zona / Pago</th>
-                            <th class="p-3 md:p-4 font-semibold text-center">Acciones</th>
-                            <th class="p-3 md:p-4 font-semibold text-center">Envío</th>
+                            <th class="p-3 md:p-4 font-semibold">id / fecha</th>
+                            <th class="p-3 md:p-4 font-semibold">cliente</th>
+                            <th class="p-3 md:p-4 font-semibold">zona / pago</th>
+                            <th class="p-3 md:p-4 font-semibold text-center">acciones</th>
+                            <th class="p-3 md:p-4 font-semibold text-center">envío</th>
                         </tr>
                     </thead>
                     <tbody id="ordersTableBody" class="divide-y divide-gray-100 text-xs md:text-sm">
-                        <tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando órdenes...</td></tr>
+                        <tr><td colspan="5" class="p-8 text-center text-gray-500">cargando órdenes...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -210,14 +210,14 @@
     <div id="detailsModal" class="hidden fixed inset-0 bg-black/60 z-40 flex items-center justify-center p-2 md:p-4">
         <div class="bg-gray-100 md:bg-white rounded-xl shadow-2xl w-full max-w-5xl max-h-[95vh] flex flex-col overflow-hidden">
             <div class="p-3 md:p-4 border-b bg-white flex justify-between items-center sticky top-0 z-10 shadow-sm">
-                <h3 class="font-bold text-base md:text-lg text-gray-800 truncate pr-2" id="modalTitle">Gestión de Orden</h3>
+                <h3 class="font-bold text-base md:text-lg text-gray-800 truncate pr-2" id="modalTitle">gestión de orden</h3>
                 <button onclick="closeModal()" class="text-gray-500 hover:text-red-500 transition text-2xl leading-none px-2">&times;</button>
             </div>
             
             <div class="p-3 md:p-6 overflow-y-auto flex-grow" id="modalContent"></div>
             
             <div class="p-3 md:p-4 border-t bg-white flex justify-end gap-3 sticky bottom-0">
-                <button onclick="closeModal()" class="bg-gray-800 w-full md:w-auto text-white px-6 py-2.5 rounded-lg shadow hover:bg-gray-900 transition font-bold text-sm">Cerrar Ventana</button>
+                <button onclick="closeModal()" class="bg-gray-800 w-full md:w-auto text-white px-6 py-2.5 rounded-lg shadow hover:bg-gray-900 transition font-bold text-sm">cerrar ventana</button>
             </div>
         </div>
     </div>
@@ -243,7 +243,7 @@
             document.getElementById('globalErrorText').innerText = msg;
             document.getElementById('globalError').classList.remove('hidden');
             if(document.getElementById('loginBtn')) {
-                document.getElementById('loginBtn').innerText = "Entrar al Panel";
+                document.getElementById('loginBtn').innerText = "entrar al panel";
                 document.getElementById('loginBtn').disabled = false;
             }
         }
@@ -252,11 +252,11 @@
             const SUPABASE_URL = "https://dltpvajfltfzayhomufx.supabase.co"; 
             const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRsdHB2YWpmbHRmemF5aG9tdWZ4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk4NzkyOTAsImV4cCI6MjA4NTQ1NTI5MH0.HCldnUI4sm9BHepUDgcqs4v4a5yVa20VWSzt2lNQ_Vo";
 
-            if (!window.supabase) throw new Error("La librería de Supabase no cargó correctamente.");
+            if (!window.supabase) throw new Error("la librería de supabase no cargó correctamente.");
             const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             
             let currentOrdersData = [];
-            let currentClientsData = []; // Guardará el directorio extraído
+            let currentClientsData = []; 
 
             supabase.auth.getSession().then(({ data, error }) => {
                 if (error) throw error;
@@ -266,7 +266,7 @@
                         showDashboard();
                     } else { supabase.auth.signOut(); }
                 }
-            }).catch(err => showGlobalError("Error de sesión: " + err.message));
+            }).catch(err => showGlobalError("error de sesión: " + err.message));
 
             window.handleLogin = async function(e) {
                 e.preventDefault();
@@ -278,12 +278,12 @@
                 document.getElementById('globalError').classList.add('hidden');
 
                 if (!ADMIN_EMAILS.includes(email)) { 
-                    showGlobalError("Acceso denegado: Este correo no tiene permisos."); 
+                    showGlobalError("acceso denegado: este correo no tiene permisos."); 
                     return; 
                 }
-                if (!captchaToken) { showGlobalError("Por favor, marca la casilla de seguridad."); return; }
+                if (!captchaToken) { showGlobalError("por favor, marca la casilla de seguridad."); return; }
 
-                btn.innerText = "Verificando..."; btn.disabled = true;
+                btn.innerText = "verificando..."; btn.disabled = true;
 
                 const { data, error } = await supabase.auth.signInWithPassword({ 
                     email: email, password: password, options: { captchaToken: captchaToken }
@@ -293,7 +293,6 @@
                 else showDashboard();
             };
 
-            // ---- NAVEGACIÓN Y VISTAS ----
             function resetNav() {
                 document.getElementById('loginView').classList.add('hidden');
                 document.getElementById('dashboardView').classList.add('hidden');
@@ -311,7 +310,7 @@
                 document.getElementById('mainNavMenu').classList.remove('hidden');
                 document.getElementById('mainNavMenu').classList.add('flex');
                 document.getElementById('tabOrders').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
-                document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold bg-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded transition"><i class="fas fa-sign-out-alt md:mr-1"></i> <span class="hidden md:inline">Salir</span></button>`;
+                document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold bg-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded transition"><i class="fas fa-sign-out-alt md:mr-1"></i> <span class="hidden md:inline">salir</span></button>`;
                 
                 if(currentOrdersData.length === 0) loadAllOrders();
             };
@@ -334,44 +333,36 @@
 
             window.logout = async function() { await supabase.auth.signOut(); window.location.reload(); };
 
-            // ---- LÓGICA DE CLIENTES (NUEVO) ----
             window.buildClientDirectory = function() {
                 const clientsMap = {};
 
-                // Escaneamos todas las órdenes para agrupar clientes por su correo
                 currentOrdersData.forEach(order => {
-                    // Usamos el email como identificador único principal. Si no hay, usamos el teléfono.
-                    const uniqueId = order.user_email || order.phone || 'Desconocido';
+                    const uniqueId = order.user_email || order.phone || 'desconocido';
                     
                     if (!clientsMap[uniqueId]) {
-                        // Generamos un Código de Cliente falso basado en las primeras 6 letras de su UUID o su ID
-                        const clientCode = "CLI-" + (order.user_id ? order.user_id.slice(0,6).toUpperCase() : Math.floor(Math.random()*100000));
+                        const clientCode = "cli-" + (order.user_id ? order.user_id.slice(0,6).toUpperCase() : Math.floor(Math.random()*100000));
                         
                         clientsMap[uniqueId] = {
                             code: clientCode,
-                            name: order.full_name || 'Sin Nombre',
-                            email: order.user_email || 'Sin correo',
-                            phone: order.phone || 'Sin teléfono',
-                            address: order.delivery_address || order.delivery_zone || 'Sin dirección',
+                            name: order.full_name || 'sin nombre',
+                            email: order.user_email || 'sin correo',
+                            phone: order.phone || 'sin teléfono',
+                            address: order.delivery_address || order.delivery_zone || 'sin dirección',
                             totalOrders: 0,
                             totalSpentNio: 0
                         };
                     }
 
-                    // Actualizamos estadísticas
                     clientsMap[uniqueId].totalOrders++;
                     
                     if (order.status !== 'cancelado') {
                         const sub = parseFloat(order.subtotal || 0);
                         const iva = parseFloat(order.tax_iva || 0);
-                        // El valor vitalicio = Lo gastado en super + Costo de envío
                         clientsMap[uniqueId].totalSpentNio += (sub + iva + ENVIO_NIO);
                     }
                 });
 
-                // Convertimos el mapa en un Array para poder buscar/filtrar fácilmente
                 currentClientsData = Object.values(clientsMap);
-                // Los ordenamos por los que más compran (VIPs arriba)
                 currentClientsData.sort((a, b) => b.totalSpentNio - a.totalSpentNio);
                 
                 renderClients();
@@ -389,7 +380,7 @@
                 });
 
                 if (filtered.length === 0) { 
-                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">No hay clientes con esa búsqueda.</td></tr>`; 
+                    tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">no hay clientes con esa búsqueda.</td></tr>`; 
                     return; 
                 }
 
@@ -414,8 +405,8 @@
                                 <span class="bg-gray-100 text-gray-800 font-bold px-3 py-1 rounded-full text-xs">${c.totalOrders}</span>
                             </td>
                             <td class="p-3 md:p-4 text-right">
-                                <div class="font-bold text-brand-green text-sm md:text-base">C$ ${c.totalSpentNio.toFixed(2)}</div>
-                                <div class="text-[10px] md:text-xs text-gray-500 font-mono">Ref: $ ${spentUsd}</div>
+                                <div class="font-bold text-brand-green text-sm md:text-base">c$ ${c.totalSpentNio.toFixed(2)}</div>
+                                <div class="text-[10px] md:text-xs text-gray-500 font-mono">ref: $ ${spentUsd}</div>
                             </td>
                         </tr>
                     `;
@@ -423,7 +414,6 @@
                 tbody.innerHTML = html;
             };
 
-            // ---- LÓGICA DE REPORTES FINANCIEROS ----
             window.generateFinancialReport = function() {
                 const startInput = document.getElementById('reportStart').value;
                 const endInput = document.getElementById('reportEnd').value;
@@ -457,14 +447,13 @@
                 generateFinancialReport();
             };
 
-            // ---- LÓGICA DE ÓRDENES PRINCIPAL ----
             window.loadAllOrders = async function() {
                 const tbody = document.getElementById('ordersTableBody');
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">Cargando órdenes...</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">cargando órdenes...</td></tr>`;
 
                 const { data: orders, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
 
-                if (error) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">Error: ${error.message}</td></tr>`; return; }
+                if (error) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">error: ${error.message}</td></tr>`; return; }
 
                 currentOrdersData = orders || [];
                 updateMetrics();
@@ -472,11 +461,11 @@
             };
 
             window.updateMetrics = function() {
-                const today = new Date().toLocaleDateString('en-CA'); 
+                const today = new Date().toLocaleDateString('en-ca'); 
                 let countToday = 0, countPending = 0, countOnWay = 0, countDelivered = 0;
 
                 currentOrdersData.forEach(o => {
-                    const orderDateStr = new Date(o.created_at).toLocaleDateString('en-CA');
+                    const orderDateStr = new Date(o.created_at).toLocaleDateString('en-ca');
                     if (orderDateStr === today) countToday++;
                     if (o.status === 'pendiente') countPending++;
                     if (o.status === 'en camino') countOnWay++;
@@ -500,7 +489,7 @@
                     return matchSearch && matchStatus;
                 });
 
-                if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">No se encontraron resultados.</td></tr>`; return; }
+                if (filtered.length === 0) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">no se encontraron resultados.</td></tr>`; return; }
 
                 let html = '';
                 filtered.forEach(order => {
@@ -518,8 +507,8 @@
                     if (order.payment_status === 'Pago parcial') paymentBadge = "bg-blue-100 text-blue-700 border border-blue-200";
                     if (order.payment_status === 'Pendiente de pago') paymentBadge = "bg-red-50 text-red-600 border border-red-200";
 
-                    const noteIcon = order.internal_notes && order.internal_notes.trim() !== '' ? `<i class="fas fa-sticky-note text-yellow-500 ml-1" title="Tiene nota"></i>` : '';
-                    const photoIcon = (order.receipt_pricesmart || order.receipt_internal) ? `<i class="fas fa-image text-blue-500 ml-1" title="Tiene recibos adjuntos"></i>` : '';
+                    const noteIcon = order.internal_notes && order.internal_notes.trim() !== '' ? `<i class="fas fa-sticky-note text-yellow-500 ml-1" title="tiene nota"></i>` : '';
+                    const photoIcon = (order.receipt_pricesmart || order.receipt_internal) ? `<i class="fas fa-image text-blue-500 ml-1" title="tiene recibos adjuntos"></i>` : '';
 
                     html += `
                         <tr class="hover:bg-green-50 transition duration-150 border-b border-gray-100">
@@ -528,24 +517,24 @@
                                 <div class="text-[10px] md:text-xs text-gray-600"><i class="far fa-calendar-alt"></i> ${date}</div>
                             </td>
                             <td class="p-3 md:p-4">
-                                <div class="font-bold text-gray-800 leading-tight">${order.full_name || 'Sin Nombre'} <span class="inline-block">${noteIcon} ${photoIcon}</span></div>
-                                <div class="text-[10px] md:text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i> ${order.phone || 'N/A'}</div>
+                                <div class="font-bold text-gray-800 leading-tight">${order.full_name || 'sin nombre'} <span class="inline-block">${noteIcon} ${photoIcon}</span></div>
+                                <div class="text-[10px] md:text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i> ${order.phone || 'n/a'}</div>
                             </td>
                             <td class="p-3 md:p-4">
-                                <div class="font-bold text-brand-green text-[11px] md:text-sm mb-1">${order.delivery_zone || 'N/A'}</div>
-                                <span class="text-[9px] md:text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${paymentBadge}">${order.payment_status || 'Pendiente'}</span>
+                                <div class="font-bold text-brand-green text-[11px] md:text-sm mb-1">${order.delivery_zone || 'n/a'}</div>
+                                <span class="text-[9px] md:text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${paymentBadge}">${order.payment_status || 'pendiente'}</span>
                             </td>
                             <td class="p-3 md:p-4 text-center">
                                 <button type="button" onclick="openModal('${order.id}')" class="bg-white hover:bg-gray-100 text-brand-green py-1.5 px-3 rounded text-xs font-bold transition shadow-sm border border-brand-green w-full md:w-auto">
-                                    <i class="fas fa-folder-open md:mr-1"></i> <span class="hidden md:inline">Abrir</span>
+                                    <i class="fas fa-folder-open md:mr-1"></i> <span class="hidden md:inline">abrir</span>
                                 </button>
                             </td>
                             <td class="p-3 md:p-4 text-center">
                                 <select onchange="updateStatus('${order.id}', this.value)" id="select-${order.id}" class="text-[10px] md:text-xs font-bold uppercase tracking-wide border rounded-full px-2 py-1.5 md:px-3 cursor-pointer focus:outline-none appearance-none text-center shadow-sm w-full ${bgStatus}">
-                                    <option value="pendiente" ${order.status === 'pendiente' ? 'selected' : ''}>Pendiente</option>
-                                    <option value="en camino" ${order.status === 'en camino' ? 'selected' : ''}>En Camino</option>
-                                    <option value="entregado" ${order.status === 'entregado' ? 'selected' : ''}>Entregado</option>
-                                    <option value="cancelado" ${order.status === 'cancelado' ? 'selected' : ''}>Cancelado</option>
+                                    <option value="pendiente" ${order.status === 'pendiente' ? 'selected' : ''}>pendiente</option>
+                                    <option value="en camino" ${order.status === 'en camino' ? 'selected' : ''}>en camino</option>
+                                    <option value="entregado" ${order.status === 'entregado' ? 'selected' : ''}>entregado</option>
+                                    <option value="cancelado" ${order.status === 'cancelado' ? 'selected' : ''}>cancelado</option>
                                 </select>
                             </td>
                         </tr>
@@ -556,7 +545,7 @@
 
             window.updateStatus = async function(orderId, newStatus) {
                 const { error } = await supabase.from('orders').update({ status: newStatus }).eq('id', orderId);
-                if (error) { alert("Error al actualizar: " + error.message); } 
+                if (error) { alert("error al actualizar: " + error.message); } 
                 else {
                     const orderIndex = currentOrdersData.findIndex(o => o.id === orderId);
                     if(orderIndex > -1) currentOrdersData[orderIndex].status = newStatus;
@@ -614,7 +603,7 @@
                 
                 const btnLabel = document.getElementById(`lbl-${type}-${orderId}`);
                 const originalText = btnLabel.innerHTML;
-                btnLabel.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Subiendo...`;
+                btnLabel.innerHTML = `<i class="fas fa-spinner fa-spin"></i> subiendo...`;
                 
                 try {
                     const base64 = await processAndCompressImage(file);
@@ -629,18 +618,17 @@
                     const imgEl = document.getElementById(`img-${type}-${orderId}`);
                     imgEl.src = base64; imgEl.classList.remove('hidden');
                     
-                    btnLabel.innerHTML = `<i class="fas fa-check text-green-600"></i> Listo`;
+                    btnLabel.innerHTML = `<i class="fas fa-check text-green-600"></i> listo`;
                     setTimeout(() => btnLabel.innerHTML = originalText, 3000);
                     renderTable();
-                } catch (err) { alert("Error: " + err.message); btnLabel.innerHTML = originalText; }
+                } catch (err) { alert("error: " + err.message); btnLabel.innerHTML = originalText; }
             };
 
-            // MODAL PRINCIPAL DE ORDEN
             window.openModal = function(orderId) {
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
                 
-                document.getElementById('modalTitle').innerText = `Gestión #${order.id.slice(0,8)}`;
+                document.getElementById('modalTitle').innerText = `gestión #${order.id.slice(0,8)}`;
                 
                 const html = `
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
@@ -649,55 +637,55 @@
                             
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                    <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2">Cliente</p>
-                                    <p class="text-sm mb-2"><i class="fas fa-user text-brand-green w-5"></i> <span class="font-bold">${order.full_name || 'N/A'}</span></p>
-                                    <p class="text-sm mb-2 break-all"><i class="fas fa-envelope text-brand-green w-5"></i> ${order.user_email || 'N/A'}</p>
-                                    <p class="text-sm mb-3"><i class="fas fa-phone text-brand-green w-5"></i> ${order.phone || 'N/A'}</p>
+                                    <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2">cliente</p>
+                                    <p class="text-sm mb-2"><i class="fas fa-user text-brand-green w-5"></i> <span class="font-bold">${order.full_name || 'n/a'}</span></p>
+                                    <p class="text-sm mb-2 break-all"><i class="fas fa-envelope text-brand-green w-5"></i> ${order.user_email || 'n/a'}</p>
+                                    <p class="text-sm mb-3"><i class="fas fa-phone text-brand-green w-5"></i> ${order.phone || 'n/a'}</p>
                                     <div class="bg-green-50 p-3 rounded-lg border border-green-100">
-                                        <p class="text-xs font-bold text-green-800 mb-2"><i class="fab fa-whatsapp"></i> Notificar Estado:</p>
+                                        <p class="text-xs font-bold text-green-800 mb-2"><i class="fab fa-whatsapp"></i> notificar estado:</p>
                                         <div class="grid grid-cols-2 gap-2">
-                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'es')" class="w-full bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-2 rounded shadow transition font-bold">Español</button>
-                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'en')" class="w-full bg-gray-800 hover:bg-black text-white text-xs px-3 py-2 rounded shadow transition font-bold">English</button>
+                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'es')" class="w-full bg-green-500 hover:bg-green-600 text-white text-xs px-3 py-2 rounded shadow transition font-bold">español</button>
+                                            <button onclick="sendWA('${order.phone}', '${order.full_name}', 'en')" class="w-full bg-gray-800 hover:bg-black text-white text-xs px-3 py-2 rounded shadow transition font-bold">english</button>
                                         </div>
                                     </div>
                                 </div>
 
                                 <div class="flex flex-col gap-4">
                                     <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                        <p class="text-xs text-gray-500 font-bold uppercase mb-2">Dirección de Entrega</p>
-                                        <p class="font-bold text-brand-green text-sm">${order.delivery_zone || 'N/A'}</p>
-                                        <p class="text-sm mt-1 text-gray-700 leading-tight">${order.delivery_address || 'N/A'}</p>
+                                        <p class="text-xs text-gray-500 font-bold uppercase mb-2">dirección de entrega</p>
+                                        <p class="font-bold text-brand-green text-sm">${order.delivery_zone || 'n/a'}</p>
+                                        <p class="text-sm mt-1 text-gray-700 leading-tight">${order.delivery_address || 'n/a'}</p>
                                     </div>
                                     <div class="bg-yellow-50 p-4 rounded-xl border border-yellow-200 shadow-sm flex-grow flex flex-col">
-                                        <p class="text-xs text-yellow-800 font-bold uppercase mb-2"><i class="fas fa-lock mr-1"></i> Notas Internas</p>
+                                        <p class="text-xs text-yellow-800 font-bold uppercase mb-2"><i class="fas fa-lock mr-1"></i> notas internas</p>
                                         <textarea id="internalNotes-${order.id}" class="w-full text-xs p-2 rounded border border-yellow-300 focus:outline-none focus:border-yellow-500 flex-grow mb-2 bg-yellow-50/50 min-h-[60px]">${order.internal_notes || ''}</textarea>
-                                        <button onclick="saveNotes('${order.id}')" id="btnSaveNotes-${order.id}" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-2 rounded shadow transition">Guardar Notas</button>
+                                        <button onclick="saveNotes('${order.id}')" id="btnSaveNotes-${order.id}" class="w-full bg-yellow-500 hover:bg-yellow-600 text-white text-xs font-bold py-2 rounded shadow transition">guardar notas</button>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                <p class="text-xs text-gray-500 font-bold uppercase mb-2"><i class="fas fa-list mr-1"></i> Lista Original</p>
-                                <div class="bg-gray-800 text-green-400 p-4 rounded-lg text-xs font-mono whitespace-pre-wrap overflow-y-auto shadow-inner border-l-4 border-brand-green max-h-40 md:max-h-48">${order.shopping_list || 'Sin detalles.'}</div>
+                                <p class="text-xs text-gray-500 font-bold uppercase mb-2"><i class="fas fa-list mr-1"></i> lista original</p>
+                                <div class="bg-gray-800 text-green-400 p-4 rounded-lg text-xs font-mono whitespace-pre-wrap overflow-y-auto shadow-inner border-l-4 border-brand-green max-h-40 md:max-h-48">${order.shopping_list || 'sin detalles.'}</div>
                             </div>
 
                             <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm">
-                                <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2"><i class="fas fa-camera mr-1"></i> Fotos de Recibos</p>
+                                <p class="text-xs text-gray-500 font-bold uppercase mb-3 border-b pb-2"><i class="fas fa-camera mr-1"></i> fotos de recibos</p>
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div class="border rounded-lg p-3 text-center bg-gray-50">
-                                        <p class="text-xs font-bold text-gray-700 mb-2">Factura PriceSmart</p>
+                                        <p class="text-xs font-bold text-gray-700 mb-2">factura pricesmart</p>
                                         <img id="img-receipt_pricesmart-${order.id}" src="${order.receipt_pricesmart || ''}" class="mx-auto h-24 md:h-28 object-cover mb-2 ${order.receipt_pricesmart ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)">
                                         <input type="file" id="file-ps-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_pricesmart')">
                                         <label id="lbl-receipt_pricesmart-${order.id}" for="file-ps-${order.id}" class="w-full block bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-2 rounded cursor-pointer font-bold transition shadow-sm">
-                                            <i class="fas fa-upload mr-1"></i> Subir Foto
+                                            <i class="fas fa-upload mr-1"></i> subir foto
                                         </label>
                                     </div>
                                     <div class="border rounded-lg p-3 text-center bg-gray-50">
-                                        <p class="text-xs font-bold text-gray-700 mb-2">Recibo Térmico</p>
+                                        <p class="text-xs font-bold text-gray-700 mb-2">recibo térmico</p>
                                         <img id="img-receipt_internal-${order.id}" src="${order.receipt_internal || ''}" class="mx-auto h-24 md:h-28 object-cover mb-2 ${order.receipt_internal ? '' : 'hidden'} border rounded shadow-sm cursor-pointer hover:opacity-80 transition" onclick="openImageViewer(this.src)">
                                         <input type="file" id="file-int-${order.id}" accept="image/*" class="hidden" onchange="handleReceiptUpload(event, '${order.id}', 'receipt_internal')">
                                         <label id="lbl-receipt_internal-${order.id}" for="file-int-${order.id}" class="w-full block bg-white border border-gray-300 hover:bg-gray-100 text-gray-700 text-xs px-3 py-2 rounded cursor-pointer font-bold transition shadow-sm">
-                                            <i class="fas fa-upload mr-1"></i> Subir Foto
+                                            <i class="fas fa-upload mr-1"></i> subir foto
                                         </label>
                                     </div>
                                 </div>
@@ -705,72 +693,72 @@
                         </div>
 
                         <div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-md h-fit">
-                            <h4 class="text-brand-green font-bold border-b pb-2 mb-4 text-sm md:text-base"><i class="fas fa-file-invoice-dollar mr-2"></i>Control Financiero</h4>
+                            <h4 class="text-brand-green font-bold border-b pb-2 mb-4 text-sm md:text-base"><i class="fas fa-file-invoice-dollar mr-2"></i>control financiero</h4>
                             
                             <div class="grid grid-cols-2 gap-3 mb-2">
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">Subtotal (C$)</label>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">subtotal (c$)</label>
                                     <input type="number" id="finSubtotal-${order.id}" value="${order.subtotal || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">IVA (C$)</label>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">iva (c$)</label>
                                     <input type="number" id="finIva-${order.id}" value="${order.tax_iva || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-gray-50 focus:border-brand-green outline-none">
                                 </div>
                             </div>
                             <div class="mb-4 text-[11px] md:text-xs text-gray-500 text-right font-bold">
-                                + Envío: $10.99 (C$ ${ENVIO_NIO.toFixed(2)})
+                                + envío: $10.99 (c$ ${ENVIO_NIO.toFixed(2)})
                             </div>
 
                             <div class="bg-gray-800 text-white p-3 rounded-lg mb-4 text-center shadow-inner">
-                                <p class="text-xs text-gray-400 uppercase tracking-wide">Total a Cobrar</p>
-                                <p class="text-xl md:text-2xl font-bold">C$ <span id="displayTotalNio-${order.id}">0.00</span></p>
-                                <p class="text-[11px] md:text-sm text-green-400 font-mono">Ref: $ <span id="displayTotalUsd-${order.id}">0.00</span></p>
+                                <p class="text-xs text-gray-400 uppercase tracking-wide">total a cobrar</p>
+                                <p class="text-xl md:text-2xl font-bold">c$ <span id="displayTotalNio-${order.id}">0.00</span></p>
+                                <p class="text-[11px] md:text-sm text-green-400 font-mono">ref: $ <span id="displayTotalUsd-${order.id}">0.00</span></p>
                             </div>
 
-                            <p class="text-xs text-gray-500 font-bold uppercase mb-2 border-t pt-4">Abonos / Pagos Recibidos</p>
+                            <p class="text-xs text-gray-500 font-bold uppercase mb-2 border-t pt-4">abonos / pagos recibidos</p>
                             <div class="grid grid-cols-2 gap-3 mb-4">
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">En C$</label>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">en c$</label>
                                     <input type="number" id="finPaidNio-${order.id}" value="${order.paid_nio || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-green-50 border-green-200 focus:border-brand-green outline-none text-green-800 font-bold">
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">En $</label>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">en $</label>
                                     <input type="number" id="finPaidUsd-${order.id}" value="${order.paid_usd || 0}" step="0.01" oninput="calcFinances('${order.id}')" class="w-full border p-2 md:p-3 rounded text-sm bg-green-50 border-green-200 focus:border-brand-green outline-none text-green-800 font-bold">
                                 </div>
                             </div>
 
                             <div id="balanceBox-${order.id}" class="p-3 rounded-lg mb-4 text-center border">
-                                <p class="text-xs font-bold uppercase" id="balanceLabel-${order.id}">Saldo Pendiente</p>
-                                <p class="text-lg font-bold" id="balanceAmount-${order.id}">C$ 0.00</p>
+                                <p class="text-xs font-bold uppercase" id="balanceLabel-${order.id}">saldo pendiente</p>
+                                <p class="text-lg font-bold" id="balanceAmount-${order.id}">c$ 0.00</p>
                             </div>
 
                             <div class="space-y-3 mb-4">
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">Estado de Pago</label>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">estado de pago</label>
                                     <select id="finStatus-${order.id}" class="w-full border p-2 md:p-3 rounded text-sm focus:border-brand-green outline-none bg-white">
-                                        <option value="Pendiente de pago" ${order.payment_status === 'Pendiente de pago' ? 'selected' : ''}>Pendiente de pago</option>
-                                        <option value="Pago parcial" ${order.payment_status === 'Pago parcial' ? 'selected' : ''}>Pago parcial</option>
-                                        <option value="Pagado" ${order.payment_status === 'Pagado' ? 'selected' : ''}>Pagado</option>
+                                        <option value="Pendiente de pago" ${order.payment_status === 'Pendiente de pago' ? 'selected' : ''}>pendiente de pago</option>
+                                        <option value="Pago parcial" ${order.payment_status === 'Pago parcial' ? 'selected' : ''}>pago parcial</option>
+                                        <option value="Pagado" ${order.payment_status === 'Pagado' ? 'selected' : ''}>pagado</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="block text-xs font-bold text-gray-600 mb-1">Método de Pago</label>
+                                    <label class="block text-xs font-bold text-gray-600 mb-1">método de pago</label>
                                     <select id="finMethod-${order.id}" class="w-full border p-2 md:p-3 rounded text-sm focus:border-brand-green outline-none bg-white">
-                                        <option value="">Seleccionar...</option>
-                                        <option value="Efectivo" ${order.payment_method === 'Efectivo' ? 'selected' : ''}>Efectivo</option>
-                                        <option value="Transferencia" ${order.payment_method === 'Transferencia' ? 'selected' : ''}>Transferencia</option>
-                                        <option value="Depósito" ${order.payment_method === 'Depósito' ? 'selected' : ''}>Depósito</option>
-                                        <option value="Mixto" ${order.payment_method === 'Mixto' ? 'selected' : ''}>Mixto</option>
+                                        <option value="">seleccionar...</option>
+                                        <option value="Efectivo" ${order.payment_method === 'Efectivo' ? 'selected' : ''}>efectivo</option>
+                                        <option value="Transferencia" ${order.payment_method === 'Transferencia' ? 'selected' : ''}>transferencia</option>
+                                        <option value="Depósito" ${order.payment_method === 'Depósito' ? 'selected' : ''}>depósito</option>
+                                        <option value="Mixto" ${order.payment_method === 'Mixto' ? 'selected' : ''}>mixto</option>
                                     </select>
                                 </div>
                             </div>
 
                             <button onclick="saveFinances('${order.id}')" id="btnSaveFinances-${order.id}" class="w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3">
-                                <i class="fas fa-save mr-2"></i> Guardar
+                                <i class="fas fa-save mr-2"></i> guardar
                             </button>
                             
                             <button onclick="printReceipt('${order.id}')" class="w-full bg-gray-800 hover:bg-black text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center">
-                                <i class="fas fa-print mr-2"></i> Imprimir Recibo
+                                <i class="fas fa-print mr-2"></i> imprimir recibo
                             </button>
                         </div>
                     </div>
@@ -787,24 +775,24 @@
             };
 
             window.sendWA = function(phoneRaw, name, lang) {
-                if(!phoneRaw) { alert("Sin teléfono."); return; }
+                if(!phoneRaw) { alert("sin teléfono."); return; }
                 let cleanPhone = phoneRaw.replace(/[^\d+]/g, '');
-                let firstName = name ? name.split(' ')[0] : 'Cliente';
-                let text = lang === 'es' ? `¡Hola ${firstName}! Te escribimos de Shop Delivery Nic para confirmarte que tu pedido ya va en camino. 🚚` : `Hello ${firstName}! This is Shop Delivery Nic. Your order is on its way. 🚚`;
+                let firstName = name ? name.split(' ')[0] : 'cliente';
+                let text = lang === 'es' ? `¡hola ${firstName}! te escribimos de shop delivery nic para confirmarte que tu pedido ya va en camino. 🚚` : `hello ${firstName}! this is shop delivery nic. your order is on its way. 🚚`;
                 window.open(`https://wa.me/${cleanPhone.replace('+','')}?text=${encodeURIComponent(text)}`, '_blank');
             };
 
             window.saveNotes = async function(orderId) {
                 const btn = document.getElementById(`btnSaveNotes-${orderId}`);
                 const notes = document.getElementById(`internalNotes-${orderId}`).value;
-                btn.innerText = "Guardando...";
+                btn.innerText = "guardando...";
                 const { error } = await supabase.from('orders').update({ internal_notes: notes }).eq('id', orderId);
-                if (error) { alert("Error: " + error.message); btn.innerText = "Guardar Notas"; } 
+                if (error) { alert("error: " + error.message); btn.innerText = "guardar notas"; } 
                 else {
                     const idx = currentOrdersData.findIndex(o => o.id === orderId);
                     if(idx > -1) currentOrdersData[idx].internal_notes = notes;
-                    btn.innerText = "¡Guardado!";
-                    setTimeout(() => btn.innerText = "Guardar Notas", 2000);
+                    btn.innerText = "¡guardado!";
+                    setTimeout(() => btn.innerText = "guardar notas", 2000);
                     renderTable();
                 }
             };
@@ -831,22 +819,22 @@
 
                 if (totalNio === ENVIO_NIO && subtotal === 0) {
                     box.className = "p-3 rounded-lg mb-4 text-center border bg-gray-50 border-gray-200 text-gray-500";
-                    lbl.innerText = "Falta ingresar compra"; amt.innerText = "C$ 0.00";
+                    lbl.innerText = "falta ingresar compra"; amt.innerText = "c$ 0.00";
                 } else if (balance > 0.05) { 
                     box.className = "p-3 rounded-lg mb-4 text-center border bg-red-50 border-red-200 text-red-700";
-                    lbl.innerText = "Falta por Pagar (Saldo)"; amt.innerText = `C$ ${balance.toFixed(2)}`;
+                    lbl.innerText = "falta por pagar (saldo)"; amt.innerText = `c$ ${balance.toFixed(2)}`;
                 } else if (balance < -0.05) {
                     box.className = "p-3 rounded-lg mb-4 text-center border bg-blue-50 border-blue-200 text-blue-700";
-                    lbl.innerText = "Dar Vuelto a Favor"; amt.innerText = `C$ ${Math.abs(balance).toFixed(2)}`;
+                    lbl.innerText = "dar vuelto a favor"; amt.innerText = `c$ ${Math.abs(balance).toFixed(2)}`;
                 } else {
                     box.className = "p-3 rounded-lg mb-4 text-center border bg-green-50 border-green-200 text-green-700";
-                    lbl.innerText = "Solvente / Pago Completo"; amt.innerText = "C$ 0.00";
+                    lbl.innerText = "solvente / pago completo"; amt.innerText = "c$ 0.00";
                 }
             };
 
             window.saveFinances = async function(orderId) {
                 const btn = document.getElementById(`btnSaveFinances-${orderId}`);
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin md:mr-2"></i> Guardando...`;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin md:mr-2"></i> guardando...`;
 
                 const dataToSave = {
                     subtotal: parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0,
@@ -860,13 +848,13 @@
                 const { error } = await supabase.from('orders').update(dataToSave).eq('id', orderId);
                 
                 if (error) {
-                    alert("Error guardando finanzas: " + error.message);
-                    btn.innerHTML = `<i class="fas fa-save md:mr-2"></i> Guardar`;
+                    alert("error guardando finanzas: " + error.message);
+                    btn.innerHTML = `<i class="fas fa-save md:mr-2"></i> guardar`;
                 } else {
                     const idx = currentOrdersData.findIndex(o => o.id === orderId);
                     if(idx > -1) { currentOrdersData[idx] = { ...currentOrdersData[idx], ...dataToSave }; }
                     btn.className = "w-full bg-green-500 text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3";
-                    btn.innerHTML = `<i class="fas fa-check md:mr-2"></i> ¡Guardado!`;
+                    btn.innerHTML = `<i class="fas fa-check md:mr-2"></i> ¡guardado!`;
                     
                     renderTable(); 
                     if(!document.getElementById('financesView').classList.contains('hidden')) generateFinancialReport();
@@ -874,7 +862,7 @@
 
                     setTimeout(() => {
                         btn.className = "w-full bg-brand-green hover:bg-brand-dark text-white font-bold py-3 rounded-lg shadow-lg transition flex justify-center items-center mb-3";
-                        btn.innerHTML = `<i class="fas fa-save md:mr-2"></i> Guardar`;
+                        btn.innerHTML = `<i class="fas fa-save md:mr-2"></i> guardar`;
                     }, 2000);
                 }
             };
@@ -887,6 +875,12 @@
                 const iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
                 const totalNio = subtotal + iva + ENVIO_NIO;
                 const totalUsd = totalNio / TASA_CAMBIO;
+                
+                const paidNio = parseFloat(document.getElementById(`finPaidNio-${orderId}`).value) || 0;
+                const paidUsd = parseFloat(document.getElementById(`finPaidUsd-${orderId}`).value) || 0;
+                const totalPaidInNio = paidNio + (paidUsd * TASA_CAMBIO);
+                const balance = totalNio - totalPaidInNio;
+
                 const dateStr = new Date().toLocaleString('es-ES');
                 
                 const currentStatus = document.getElementById(`finStatus-${orderId}`).value;
@@ -903,13 +897,40 @@
                         </div>
                     </div>
                 ` : '<div style="margin-top: 30px;"></div>';
+
+                let abonoHtml = '';
+                if (totalPaidInNio > 0 && !isPaid) {
+                    abonoHtml = `
+                        <div class="divider"></div>
+                        <div class="flex">
+                            <span>abono recibido:</span>
+                            <span>c$ ${totalPaidInNio.toFixed(2)}</span>
+                        </div>
+                        <div class="flex font-bold" style="font-size: 15px; margin-top: 5px;">
+                            <span>saldo pendiente:</span>
+                            <span>c$ ${balance > 0 ? balance.toFixed(2) : '0.00'}</span>
+                        </div>
+                    `;
+                } else if (totalPaidInNio > 0 && isPaid) {
+                     abonoHtml = `
+                        <div class="divider"></div>
+                        <div class="flex">
+                            <span>total pagado:</span>
+                            <span>c$ ${totalPaidInNio.toFixed(2)}</span>
+                        </div>
+                        <div class="flex font-bold" style="font-size: 15px; margin-top: 5px;">
+                            <span>vuelto a favor:</span>
+                            <span>c$ ${balance < 0 ? Math.abs(balance).toFixed(2) : '0.00'}</span>
+                        </div>
+                    `;
+                }
                 
                 const printWindow = window.open('', '_blank', 'width=350,height=600');
                 
                 const htmlReceipt = `
                     <html>
                     <head>
-                        <title>Recibo - Shop Delivery Nic</title>
+                        <title>recibo - shop delivery nic</title>
                         <style>
                             body {
                                 font-family: 'Courier New', Courier, monospace;
@@ -932,46 +953,48 @@
                     </head>
                     <body>
                         <div class="text-center font-bold text-xl">SHOP DELIVERY NIC</div>
-                        <div class="text-center">¡Gracias por tu compra!</div>
+                        <div class="text-center">¡gracias por tu compra!</div>
                         
                         <div class="divider"></div>
                         
-                        <div>Nombre de cliente: ${order.full_name || 'Consumidor Final'}</div>
-                        <div>Número de orden: #${order.id.slice(0,8)}</div>
-                        <div>Fecha: ${dateStr}</div>
+                        <div>cliente: ${order.full_name || 'consumidor final'}</div>
+                        <div>orden: #${order.id.slice(0,8)}</div>
+                        <div>fecha: ${dateStr}</div>
                         
                         <div class="divider"></div>
                         
                         <div class="flex">
-                            <span>Subtotal (PriceSmart):</span>
-                            <span>C$ ${subtotal.toFixed(2)}</span>
+                            <span>subtotal (pricesmart):</span>
+                            <span>c$ ${subtotal.toFixed(2)}</span>
                         </div>
                         <div class="flex">
-                            <span>IVA 15% (PriceSmart):</span>
-                            <span>C$ ${iva.toFixed(2)}</span>
+                            <span>iva 15%:</span>
+                            <span>c$ ${iva.toFixed(2)}</span>
                         </div>
                         <div class="flex">
-                            <span>Envío ($10.99):</span>
-                            <span>C$ ${ENVIO_NIO.toFixed(2)}</span>
+                            <span>envío ($10.99):</span>
+                            <span>c$ ${ENVIO_NIO.toFixed(2)}</span>
                         </div>
                         
                         <div class="divider"></div>
                         
                         <div class="flex font-bold text-xl">
-                            <span>Total a cobrar:</span>
-                            <span>C$ ${totalNio.toFixed(2)}</span>
+                            <span>total a cobrar:</span>
+                            <span>c$ ${totalNio.toFixed(2)}</span>
                         </div>
                         <div class="flex" style="justify-content: flex-end; font-size: 12px;">
-                            <span>(Equivalente: $ ${totalUsd.toFixed(2)})</span>
+                            <span>(eqv: $ ${totalUsd.toFixed(2)})</span>
                         </div>
+                        
+                        ${abonoHtml}
                         
                         ${stampHtml}
                         
                         <div class="divider"></div>
                         
                         <div class="text-center" style="font-size:12px;">
-                            Tipo de cambio: C$ ${TASA_CAMBIO}<br><br>
-                            Desarrollado por Denzell Sjogreen
+                            tipo de cambio: c$ ${TASA_CAMBIO}<br><br>
+                            desarrollado por denzell sjogreen
                         </div>
                     </body>
                     </html>
@@ -986,7 +1009,7 @@
                 }, 500);
             };
 
-        } catch(error) { showGlobalError("Fallo general: " + error.message); }
+        } catch(error) { showGlobalError("fallo general: " + error.message); }
     </script>
 </body>
 </html>
