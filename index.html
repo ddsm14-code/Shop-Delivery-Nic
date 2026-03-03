@@ -74,7 +74,23 @@
         .bank-card:hover { border-color: #0AAD0A; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen">
+<body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen relative">
+
+    <div id="referralBanner" class="fixed top-0 left-0 w-full bg-brand-orange text-white z-50 transform -translate-y-full transition-transform duration-500 shadow-lg hidden">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex justify-between items-center">
+            <div class="flex items-center">
+                <span class="flex p-2 rounded-lg bg-orange-600 mr-3">
+                    <i class="fas fa-gift text-white"></i>
+                </span>
+                <p class="font-medium text-sm md:text-base" data-i18n="banner_referral_text">
+                    ¡Gana envíos gratis! Refiere a tus amigos y familiares compartiendo tu Código de Cliente (encuéntralo en 'Mi Perfil').
+                </p>
+            </div>
+            <button type="button" onclick="hideReferralBanner()" class="p-2 rounded-md hover:bg-orange-600 focus:outline-none transition">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
 
     <nav class="bg-white shadow-sm sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -747,6 +763,7 @@
         let isLoginMode = true;
         let currentOrders = [];
         let currentLang = localStorage.getItem('shopLang') || 'es';
+        let referralBannerTimeout;
 
         // --- DICCIONARIO DE TRADUCCIONES ---
         const translations = {
@@ -769,6 +786,8 @@
                 hero_subtitle: "Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.",
                 btn_order: "Hacer mi Pedido",
                 btn_rates: "Ver Tarifas",
+
+                banner_referral_text: "¡Gana envíos gratis! Refiere a tus amigos compartiendo tu Código de Cliente (encuéntralo en 'Mi Perfil').",
 
                 about_title: "¿Cómo funciona Shop Delivery Nic?",
                 about_desc: "Somos tu asistente personal de compras. Olvídate del tráfico, las filas y el calor. Nosotros seleccionamos los mejores productos para ti.",
@@ -857,7 +876,6 @@
                 label_ruc_number: "Número RUC",
                 label_business_name: "Razón Social / Nombre del Negocio",
                 
-                // REFERIDOS
                 ref_title: "Programa de Referidos",
                 ref_desc: "Comparte tu código con un amigo. Él recibe 50% de descuento en el envío de su primer pedido, y tú ganas ¡Un envío GRATIS! (aplicable cuando tu referido complete 2 pedidos).",
                 ref_your_code: "Tu código:",
@@ -873,7 +891,6 @@
                 notice_payment_desc: "Para compras realizadas por nosotros, se requiere el 50% de anticipo.",
                 notice_schedule_desc: "Recuerda verificar el día de compra y el horario de cierre elegidos arriba.",
 
-                // PAYMENT METHODS SECTION
                 payment_title: "Métodos de Pago",
                 payment_intro: "Puedes realizar tu pago transfiriendo a cualquiera de las siguientes cuentas a nombre de **Denzell Sjogreen**:",
                 bank_bac: "BAC Credomatic",
@@ -915,7 +932,6 @@
                 alert_order_success: "¡Pedido enviado con éxito! Recibirás confirmación en tu correo.",
                 alert_profile_success: "Perfil actualizado correctamente.",
                 
-                // PDF Headers
                 pdf_title: "ORDEN DE COMPRA",
                 pdf_history_title: "Shop Delivery Nic - Historial de Compras",
                 pdf_col_date: "Fecha",
@@ -949,6 +965,8 @@
                 hero_subtitle: "PriceSmart Nicaragua shopping delivered to your doorstep.",
                 btn_order: "Place Order",
                 btn_rates: "View Rates",
+
+                banner_referral_text: "Earn free deliveries! Refer friends and family by sharing your Client Code (find it in 'My Profile').",
 
                 about_title: "How does Shop Delivery Nic work?",
                 about_desc: "We are your personal shopping assistant. Forget traffic, lines, and heat. We select the best products for you.",
@@ -1037,7 +1055,6 @@
                 label_ruc_number: "RUC Number",
                 label_business_name: "Business Name",
                 
-                // REFERIDOS
                 ref_title: "Referral Program",
                 ref_desc: "Share your code with a friend. They get 50% off their first order's delivery fee, and you earn a FREE delivery! (applicable after your friend completes 2 orders).",
                 ref_your_code: "Your code:",
@@ -1053,7 +1070,6 @@
                 notice_payment_desc: "For shopping done by us, a 50% prepayment is required.",
                 notice_schedule_desc: "Remember to check your shopping day and cut-off time above.",
 
-                // PAYMENT METHODS SECTION
                 payment_title: "Payment Methods",
                 payment_intro: "You can make your payment by transferring to any of the following accounts under **Denzell Sjogreen**:",
                 bank_bac: "BAC Credomatic",
@@ -1095,7 +1111,6 @@
                 alert_order_success: "Order sent successfully! You will receive confirmation via email.",
                 alert_profile_success: "Profile updated successfully.",
 
-                // PDF Headers
                 pdf_title: "PURCHASE ORDER",
                 pdf_history_title: "Shop Delivery Nic - Purchase History",
                 pdf_col_date: "Date",
@@ -1130,6 +1145,7 @@
                             if(!document.getElementById('view-auth').classList.contains('hidden')) {
                                 showView('create-order');
                             }
+                            showReferralBanner(); // Mostrar banner
                         } else {
                             currentUser = null;
                             updateNav(false);
@@ -1144,6 +1160,32 @@
             } catch (error) { console.error("Error inicializando:", error); }
         }
 
+        // --- BANNER REFERIDOS ---
+        function showReferralBanner() {
+            if(sessionStorage.getItem('referralBannerShown')) return; // Solo una vez por sesión
+            sessionStorage.setItem('referralBannerShown', 'true');
+
+            const banner = document.getElementById('referralBanner');
+            banner.classList.remove('hidden');
+            
+            setTimeout(() => {
+                banner.classList.remove('-translate-y-full');
+            }, 50);
+
+            referralBannerTimeout = setTimeout(() => {
+                hideReferralBanner();
+            }, 15000);
+        }
+
+        function hideReferralBanner() {
+            const banner = document.getElementById('referralBanner');
+            banner.classList.add('-translate-y-full');
+            setTimeout(() => {
+                banner.classList.add('hidden');
+            }, 500); 
+            if(referralBannerTimeout) clearTimeout(referralBannerTimeout);
+        }
+
         // --- I18N FUNCTIONS ---
         function toggleLanguage() {
             currentLang = currentLang === 'es' ? 'en' : 'es';
@@ -1154,13 +1196,11 @@
         function applyLanguage(lang) {
             document.getElementById('langDisplay').innerText = lang.toUpperCase();
             
-            // Text Content
             document.querySelectorAll('[data-i18n]').forEach(el => {
                 const key = el.getAttribute('data-i18n');
                 if (translations[lang][key]) el.innerHTML = translations[lang][key];
             });
 
-            // Placeholders
             document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-i18n-placeholder');
                 if (translations[lang][key]) el.placeholder = translations[lang][key];
@@ -1383,7 +1423,6 @@
                 fullList += `MEMBRESÍA: ${memberId}\n\n`;
             }
 
-            // Integrar Factura
             if (needInvoice) {
                 fullList += `** SOLICITA FACTURA CON RUC **\n`;
                 fullList += `RUC: ${rucNumber}\n`;
@@ -1424,7 +1463,6 @@
                 alert(t.alert_order_success);
                 document.getElementById('orderForm').reset();
                 
-                // Limpiar Custom Toggles
                 document.querySelectorAll('input[name="shoppingDate"]').forEach(el => el.checked = false);
                 document.getElementById('serviceShopForMe').checked = true;
                 handleServiceChange();
@@ -1517,7 +1555,7 @@
             let code = meta.client_code;
             if (!code) { code = 'SDN-' + currentUser.id.substring(0, 6).toUpperCase(); }
             document.getElementById('displayClientCode').innerText = code;
-            document.getElementById('profileReferralCode').innerText = code; // REFERRAL CODE
+            document.getElementById('profileReferralCode').innerText = code; 
             document.getElementById('profileClientCodeHidden').value = code;
         }
 
@@ -1560,7 +1598,7 @@
                     const maxSize = 200; 
                     let width = img.width; let height = img.height;
                     if (width > height) { if (width > maxSize) { height *= maxSize / width; width = maxSize; } } 
-                    else { if (height > maxSize) { width *= maxSize / height; height = maxSize; } }
+                    else { if (height > maxSize) { width *= maxSize / height; height = MAX_SIZE; } }
                     canvas.width = width; canvas.height = height;
                     ctx.drawImage(img, 0, 0, width, height);
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.7);
@@ -1752,6 +1790,7 @@
 
             if (!em || !pw) return;
             
+            // VALIDACIÓN CONTRASEÑA COINCIDE
             if (pw !== confirmPw) {
                 const err = document.getElementById('authError');
                 err.innerText = t.auth_error_pass_mismatch;
