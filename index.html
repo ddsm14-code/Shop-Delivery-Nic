@@ -73,7 +73,25 @@
         }
         .bank-card:hover { border-color: #0AAD0A; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     </style>
-</head>
+
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window,document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '803537969456648');
+    fbq('track', 'PageView');
+    </script>
+    <noscript>
+    <img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id=803537969456648&ev=PageView&noscript=1"
+    />
+    </noscript>
+    </head>
 <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen relative">
 
     <div id="referralBanner" class="fixed top-0 left-0 w-full bg-brand-orange text-white z-50 transform -translate-y-full transition-transform duration-500 shadow-lg hidden">
@@ -1461,6 +1479,10 @@
                 await sendOrderEmail(orderFormObj, pdfBase64, imageAttachments, userEmail);
 
                 alert(t.alert_order_success);
+
+                // AÑADIDO: Evento de Compra para el Píxel de Facebook
+                if(typeof fbq === 'function') fbq('track', 'Purchase');
+
                 document.getElementById('orderForm').reset();
                 
                 document.querySelectorAll('input[name="shoppingDate"]').forEach(el => el.checked = false);
@@ -1810,7 +1832,14 @@
                 options: { captchaToken }
             });
             if (error) { document.getElementById('authError').innerText = error.message; document.getElementById('authError').classList.remove('hidden'); }
-            else { document.getElementById('authSuccess').innerText = t.auth_success_reg; document.getElementById('authSuccess').classList.remove('hidden'); if (data.session) { currentUser = data.session.user; showView('create-order'); } }
+            else { 
+                document.getElementById('authSuccess').innerText = t.auth_success_reg; 
+                document.getElementById('authSuccess').classList.remove('hidden'); 
+                if (data.session) { currentUser = data.session.user; showView('create-order'); } 
+                
+                // AÑADIDO: Evento de Registro Completo para el Píxel de Facebook
+                if(typeof fbq === 'function') fbq('track', 'CompleteRegistration');
+            }
         }
         async function login() {
             const t = translations[currentLang];
