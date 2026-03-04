@@ -146,8 +146,8 @@
         <div class="relative h-[550px] flex items-center justify-center text-center hero-pattern text-white">
             <div class="absolute inset-0 hero-overlay"></div>
             <div class="relative z-10 px-4 max-w-4xl">
-                <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight" data-i18n="hero_title">Compramos por ti</h1>
-                <p class="text-xl md:text-2xl mb-8 font-light text-green-50" data-i18n="hero_subtitle">Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.</p>
+                <h1 class="text-4xl md:text-6xl font-bold mb-6 tracking-tight" data-i18n="hero_title">Shop Delivery Nic</h1>
+                <p class="text-xl md:text-2xl mb-8 font-light text-green-50" data-i18n="hero_subtitle">¡Hacemos las compras por ti!</p>
                 <div class="flex flex-col sm:flex-row gap-4 justify-center">
                     <button onclick="checkAuthAndRedirect()" class="bg-brand-orange hover:bg-orange-600 text-white font-bold py-4 px-8 rounded-full text-lg shadow-lg transition transform hover:scale-105">
                         <i class="fas fa-shopping-cart mr-2"></i> <span data-i18n="btn_order">Hacer mi Pedido</span>
@@ -168,7 +168,7 @@
                     <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
                         <div class="step-icon"><i class="fas fa-list-ol"></i></div>
                         <h3 class="text-xl font-bold text-gray-800 mb-2" data-i18n="step1_title">1. Envía tu Lista</h3>
-                        <p class="text-gray-600 text-sm" data-i18n="step1_desc">Regístrate y escribe qué productos necesitas de PriceSmart. Puedes detallar marcas y cantidades.</p>
+                        <p class="text-gray-600 text-sm" data-i18n="step1_desc">Regístrate y escribe qué productos necesitas. Puedes detallar marcas y cantidades.</p>
                     </div>
                     <div class="p-6 border border-gray-100 rounded-2xl shadow-sm hover:shadow-md transition">
                         <div class="step-icon"><i class="fas fa-shopping-basket"></i></div>
@@ -449,6 +449,16 @@
                 <form id="orderForm" onsubmit="submitOrder(event)">
                     <input type="hidden" name="client_code" id="hiddenClientCode">
                     
+                    <div class="mb-6 bg-gray-100 p-4 rounded-lg border border-gray-300">
+                        <label class="block text-gray-800 font-bold mb-2 text-base" data-i18n="label_store_selection">¿Dónde quieres que compremos?</label>
+                        <select id="storeSelection" required onchange="handleStoreChange()" class="w-full border p-3 rounded focus:border-brand-green outline-none bg-white font-bold text-gray-800 shadow-sm">
+                            <option value="PriceSmart">PriceSmart</option>
+                            <option value="Siman">Siman</option>
+                            <option value="Sinsa">Sinsa</option>
+                            <option value="Walmart">Walmart</option>
+                        </select>
+                    </div>
+
                     <div class="mb-6 bg-blue-50 border border-blue-200 p-5 rounded-xl">
                         <label class="block text-blue-900 font-bold mb-2 text-lg" data-i18n="label_shopping_date">Selecciona el Día de Compra</label>
                         <p class="text-sm text-blue-700 mb-5 font-medium" data-i18n="shopping_date_notice">⚠️ Importante: Tu compra se realizará EXCLUSIVAMENTE en el día que elijas.</p>
@@ -511,13 +521,15 @@
                                 </div>
                             </label>
 
-                            <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100 mb-2">
-                                <input type="radio" name="serviceType" value="clickGo" id="serviceClickGo" class="form-radio text-brand-green h-5 w-5 mt-1" onchange="handleServiceChange()">
-                                <div class="flex flex-col">
-                                    <span class="text-sm font-bold text-gray-800" data-i18n="clickgo_title">Servicio Click & Go (Solo Recogida)</span>
-                                    <span class="text-xs text-gray-500" data-i18n="clickgo_desc">Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.</span>
-                                </div>
-                            </label>
+                            <div id="clickGoOptionContainer">
+                                <label class="flex items-start space-x-3 cursor-pointer p-3 border rounded-lg hover:bg-green-50 transition bg-white shadow-sm border-green-100 mb-2">
+                                    <input type="radio" name="serviceType" value="clickGo" id="serviceClickGo" class="form-radio text-brand-green h-5 w-5 mt-1" onchange="handleServiceChange()">
+                                    <div class="flex flex-col">
+                                        <span class="text-sm font-bold text-gray-800" data-i18n="clickgo_title">Servicio Click & Go (Solo Recogida)</span>
+                                        <span class="text-xs text-gray-500" data-i18n="clickgo_desc">Selecciona si ya compraste en línea en PriceSmart.com y solo necesitas que lo recojamos.</span>
+                                    </div>
+                                </label>
+                            </div>
 
                             <div id="clickGoDetails" class="hidden mb-2 ml-8 mt-2">
                                 <label class="block text-gray-700 font-bold mb-2 text-sm" data-i18n="label_memberid">Número de Membresía PriceSmart (Titular de la compra)</label>
@@ -800,8 +812,8 @@
                 nav_logout: "Salir",
                 nav_logout_full: "Cerrar Sesión",
                 
-                hero_title: "Compramos por ti",
-                hero_subtitle: "Compras en PriceSmart Nicaragua entregadas en la puerta de tu casa.",
+                hero_title: "Shop Delivery Nic",
+                hero_subtitle: "¡Hacemos las compras por ti!",
                 btn_order: "Hacer mi Pedido",
                 btn_rates: "Ver Tarifas",
 
@@ -810,7 +822,7 @@
                 about_title: "¿Cómo funciona Shop Delivery Nic?",
                 about_desc: "Somos tu asistente personal de compras. Olvídate del tráfico, las filas y el calor. Nosotros seleccionamos los mejores productos para ti.",
                 step1_title: "1. Envía tu Lista",
-                step1_desc: "Regístrate y escribe qué productos necesitas de PriceSmart. Puedes detallar marcas y cantidades.",
+                step1_desc: "Regístrate y escribe qué productos necesitas. Puedes detallar marcas y cantidades.",
                 step2_title: "2. Compramos por Ti",
                 step2_desc: "Nuestro equipo va al supermercado y selecciona los mejores productos.",
                 step3_title: "3. Recibe en Casa",
@@ -859,6 +871,8 @@
                 open_pricesmart: "Abrir PriceSmart.com",
                 processing: "Procesando y enviando...",
                 
+                label_store_selection: "¿Dónde quieres que compremos?",
+
                 label_shopping_date: "Selecciona el Día de Compra",
                 shopping_date_notice: "⚠️ Importante: Tu compra se realizará EXCLUSIVAMENTE en el día que elijas.",
                 day_wednesday_title: "Miércoles",
@@ -979,8 +993,8 @@
                 nav_logout: "Logout",
                 nav_logout_full: "Logout",
                 
-                hero_title: "We Shop For You",
-                hero_subtitle: "PriceSmart Nicaragua shopping delivered to your doorstep.",
+                hero_title: "Shop Delivery Nic",
+                hero_subtitle: "We do the shopping for you!",
                 btn_order: "Place Order",
                 btn_rates: "View Rates",
 
@@ -989,7 +1003,7 @@
                 about_title: "How does Shop Delivery Nic work?",
                 about_desc: "We are your personal shopping assistant. Forget traffic, lines, and heat. We select the best products for you.",
                 step1_title: "1. Send your List",
-                step1_desc: "Register and write down what you need from PriceSmart. You can detail brands and quantities.",
+                step1_desc: "Register and write down what you need. You can detail brands and quantities.",
                 step2_title: "2. We Shop for You",
                 step2_desc: "Our team goes to the supermarket and selects the best products.",
                 step3_title: "3. Receive at Home",
@@ -1038,6 +1052,8 @@
                 open_pricesmart: "Open PriceSmart.com",
                 processing: "Processing and sending...",
                 
+                label_store_selection: "Where do you want us to shop?",
+
                 label_shopping_date: "Select Shopping Day",
                 shopping_date_notice: "⚠️ Important: Your shopping will be done EXCLUSIVELY on the day you choose.",
                 day_wednesday_title: "Wednesday",
@@ -1233,6 +1249,24 @@
             updateNav(currentUser !== null);
         }
 
+        // --- SELECCIÓN DE TIENDA (NUEVO) ---
+        function handleStoreChange() {
+            const store = document.getElementById('storeSelection').value;
+            const clickGoContainer = document.getElementById('clickGoOptionContainer');
+            const clickGoRadio = document.getElementById('serviceClickGo');
+            
+            if (store === 'PriceSmart') {
+                clickGoContainer.classList.remove('hidden');
+            } else {
+                clickGoContainer.classList.add('hidden');
+                // Si estaba seleccionado Click & Go, cambiar a Shop For Me
+                if (clickGoRadio.checked) {
+                    document.getElementById('serviceShopForMe').checked = true;
+                    handleServiceChange();
+                }
+            }
+        }
+
         // --- MANEJO DE REFERIDOS ---
         function toggleReferralInput() {
             const isChecked = document.getElementById('hasReferralCheck').checked;
@@ -1384,6 +1418,7 @@
             document.getElementById('sendingOverlay').classList.remove('hidden');
             
             const clientCode = currentUser.user_metadata?.client_code || "N/A";
+            const selectedStore = document.getElementById('storeSelection').value;
             const serviceType = document.querySelector('input[name="serviceType"]:checked').value;
             const isGranada = document.getElementById('orderZone').value === 'Granada';
             
@@ -1422,6 +1457,7 @@
             }
 
             let fullList = `CÓDIGO CLIENTE: ${clientCode}\n`;
+            fullList += `TIENDA: ${selectedStore}\n`;
             fullList += `DÍA DE COMPRA: ${dateVal}\n\n`;
 
             if (hasRef && refCode !== "") {
@@ -1481,7 +1517,11 @@
                 
                 document.querySelectorAll('input[name="shoppingDate"]').forEach(el => el.checked = false);
                 document.getElementById('serviceShopForMe').checked = true;
-                handleServiceChange();
+                
+                // Resetear tienda a PriceSmart por defecto para asegurar UI coherente
+                document.getElementById('storeSelection').value = 'PriceSmart';
+                handleStoreChange();
+                
                 document.getElementById('fileCount').innerText = ""; 
                 
                 document.getElementById('needInvoiceCheck').checked = false;
@@ -1775,7 +1815,7 @@
             const toggleText = document.getElementById('authToggleText'); const toggleLink = document.getElementById('authToggleLink');
             const passwordHelp = document.getElementById('passwordHelp');
             const confirmGroup = document.getElementById('confirmPasswordGroup');
-            const registerGroup = document.getElementById('registerFieldsGroup'); // NUEVO GRUPO
+            const registerGroup = document.getElementById('registerFieldsGroup');
 
             document.getElementById('authError').classList.add('hidden'); document.getElementById('authSuccess').classList.add('hidden');
             
@@ -1788,7 +1828,7 @@
                 
                 passwordHelp.classList.add('hidden');
                 confirmGroup.classList.add('hidden');
-                registerGroup.classList.add('hidden'); // OCULTAR EXTRA FIELDS
+                registerGroup.classList.add('hidden');
                 
                 document.getElementById('confirmPasswordAuth').required = false;
                 document.getElementById('authFirstName').required = false;
@@ -1803,7 +1843,7 @@
                 
                 passwordHelp.classList.remove('hidden');
                 confirmGroup.classList.remove('hidden');
-                registerGroup.classList.remove('hidden'); // MOSTRAR EXTRA FIELDS
+                registerGroup.classList.remove('hidden');
                 
                 document.getElementById('confirmPasswordAuth').required = true;
                 document.getElementById('authFirstName').required = true;
@@ -1813,15 +1853,13 @@
         }
         async function signup() {
             const t = translations[currentLang];
-            const em = document.getElementById('email').value; 
-            const pw = document.getElementById('password').value;
+            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
             const confirmPw = document.getElementById('confirmPasswordAuth').value;
             const firstName = document.getElementById('authFirstName').value;
             const lastName = document.getElementById('authLastName').value;
             const phone = document.getElementById('authPhone').value;
             const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
-            // Validación básica extra para los campos nuevos
             if (!em || !pw || !firstName || !lastName || !phone) {
                 const err = document.getElementById('authError');
                 err.innerText = currentLang === 'es' ? "Por favor completa todos los campos." : "Please fill in all fields.";
@@ -1903,7 +1941,6 @@
                 usd = 14.99; nio = 549.00;
             }
 
-            // Aplicar 50% de descuento al servicio si tiene código de referido válido
             if (applyDiscount && usd > 0) {
                 usd = (usd * 0.5).toFixed(2);
                 nio = (nio * 0.5).toFixed(2);
