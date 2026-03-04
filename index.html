@@ -73,25 +73,7 @@
         }
         .bank-card:hover { border-color: #0AAD0A; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
     </style>
-
-    <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window,document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '803537969456648');
-    fbq('track', 'PageView');
-    </script>
-    <noscript>
-    <img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=803537969456648&ev=PageView&noscript=1"
-    />
-    </noscript>
-    </head>
+</head>
 <body class="bg-gray-50 text-gray-800 flex flex-col min-h-screen relative">
 
     <div id="referralBanner" class="fixed top-0 left-0 w-full bg-brand-orange text-white z-50 transform -translate-y-full transition-transform duration-500 shadow-lg hidden">
@@ -309,6 +291,24 @@
         <div class="max-w-md mx-auto bg-white p-8 rounded-xl shadow-lg m-4">
             <h2 id="authTitle" class="text-2xl font-bold text-center mb-6 text-brand-green" data-i18n="auth_login_title">Iniciar Sesión</h2>
             <form id="authForm" onsubmit="handleAuth(event)">
+                
+                <div id="registerFieldsGroup" class="hidden mb-4">
+                    <div class="grid grid-cols-2 gap-4 mb-4">
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_firstname">Nombre</label>
+                            <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="authFirstName" type="text" placeholder="Ej: Juan">
+                        </div>
+                        <div>
+                            <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_lastname">Apellido</label>
+                            <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="authLastName" type="text" placeholder="Ej: Pérez">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_phone">Teléfono</label>
+                        <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="authPhone" type="tel" placeholder="+505...">
+                    </div>
+                </div>
+
                 <div class="mb-4">
                     <label class="block text-gray-700 text-sm font-bold mb-2" data-i18n="label_email">Correo Electrónico</label>
                     <input class="shadow border rounded w-full py-2 px-3 text-gray-700 focus:outline-none focus:border-brand-green" id="email" type="email" required placeholder="tu@correo.com">
@@ -805,7 +805,7 @@
                 btn_order: "Hacer mi Pedido",
                 btn_rates: "Ver Tarifas",
 
-                banner_referral_text: "¡Gana envíos gratis! Refiere a tus amigos compartiendo tu Código de Cliente (encuéntralo en 'Mi Perfil').",
+                banner_referral_text: "¡Gana envíos gratis! Refiere a tus amigos y familiares compartiendo tu Código de Cliente (encuéntralo en 'Mi Perfil').",
 
                 about_title: "¿Cómo funciona Shop Delivery Nic?",
                 about_desc: "Somos tu asistente personal de compras. Olvídate del tráfico, las filas y el calor. Nosotros seleccionamos los mejores productos para ti.",
@@ -1163,7 +1163,7 @@
                             if(!document.getElementById('view-auth').classList.contains('hidden')) {
                                 showView('create-order');
                             }
-                            showReferralBanner(); // Mostrar banner
+                            showReferralBanner(); 
                         } else {
                             currentUser = null;
                             updateNav(false);
@@ -1180,7 +1180,7 @@
 
         // --- BANNER REFERIDOS ---
         function showReferralBanner() {
-            if(sessionStorage.getItem('referralBannerShown')) return; // Solo una vez por sesión
+            if(sessionStorage.getItem('referralBannerShown')) return; 
             sessionStorage.setItem('referralBannerShown', 'true');
 
             const banner = document.getElementById('referralBanner');
@@ -1391,12 +1391,10 @@
             const specialReq = document.getElementById('specialRequests').value;
             const memberId = document.getElementById('memberId').value;
 
-            // Info Factura
             const needInvoice = document.getElementById('needInvoiceCheck').checked;
             const rucNumber = document.getElementById('rucNumber').value;
             const businessName = document.getElementById('businessName').value;
 
-            // Info Referido
             const hasRef = document.getElementById('hasReferralCheck').checked;
             const refCode = document.getElementById('referralCodeInput').value.trim();
 
@@ -1479,10 +1477,6 @@
                 await sendOrderEmail(orderFormObj, pdfBase64, imageAttachments, userEmail);
 
                 alert(t.alert_order_success);
-
-                // AÑADIDO: Evento de Compra para el Píxel de Facebook
-                if(typeof fbq === 'function') fbq('track', 'Purchase');
-
                 document.getElementById('orderForm').reset();
                 
                 document.querySelectorAll('input[name="shoppingDate"]').forEach(el => el.checked = false);
@@ -1781,6 +1775,7 @@
             const toggleText = document.getElementById('authToggleText'); const toggleLink = document.getElementById('authToggleLink');
             const passwordHelp = document.getElementById('passwordHelp');
             const confirmGroup = document.getElementById('confirmPasswordGroup');
+            const registerGroup = document.getElementById('registerFieldsGroup'); // NUEVO GRUPO
 
             document.getElementById('authError').classList.add('hidden'); document.getElementById('authSuccess').classList.add('hidden');
             
@@ -1790,29 +1785,50 @@
                 btn.onclick = login; 
                 toggleText.innerText = t.no_account; 
                 toggleLink.innerText = t.register_here; 
+                
                 passwordHelp.classList.add('hidden');
                 confirmGroup.classList.add('hidden');
+                registerGroup.classList.add('hidden'); // OCULTAR EXTRA FIELDS
+                
                 document.getElementById('confirmPasswordAuth').required = false;
+                document.getElementById('authFirstName').required = false;
+                document.getElementById('authLastName').required = false;
+                document.getElementById('authPhone').required = false;
             } else { 
                 title.innerText = t.auth_register_title; 
                 btn.innerText = t.btn_register; 
                 btn.onclick = signup; 
                 toggleText.innerText = t.have_account; 
                 toggleLink.innerText = t.enter_here; 
+                
                 passwordHelp.classList.remove('hidden');
                 confirmGroup.classList.remove('hidden');
+                registerGroup.classList.remove('hidden'); // MOSTRAR EXTRA FIELDS
+                
                 document.getElementById('confirmPasswordAuth').required = true;
+                document.getElementById('authFirstName').required = true;
+                document.getElementById('authLastName').required = true;
+                document.getElementById('authPhone').required = true;
             }
         }
         async function signup() {
             const t = translations[currentLang];
-            const em = document.getElementById('email').value; const pw = document.getElementById('password').value;
+            const em = document.getElementById('email').value; 
+            const pw = document.getElementById('password').value;
             const confirmPw = document.getElementById('confirmPasswordAuth').value;
+            const firstName = document.getElementById('authFirstName').value;
+            const lastName = document.getElementById('authLastName').value;
+            const phone = document.getElementById('authPhone').value;
             const captchaToken = document.querySelector('[name="cf-turnstile-response"]')?.value;
 
-            if (!em || !pw) return;
+            // Validación básica extra para los campos nuevos
+            if (!em || !pw || !firstName || !lastName || !phone) {
+                const err = document.getElementById('authError');
+                err.innerText = currentLang === 'es' ? "Por favor completa todos los campos." : "Please fill in all fields.";
+                err.classList.remove('hidden');
+                return;
+            }
             
-            // VALIDACIÓN CONTRASEÑA COINCIDE
             if (pw !== confirmPw) {
                 const err = document.getElementById('authError');
                 err.innerText = t.auth_error_pass_mismatch;
@@ -1826,20 +1842,21 @@
                 err.classList.remove('hidden');
                 return;
             }
+            
             const { data, error } = await supabaseClient.auth.signUp({
                 email: em,
                 password: pw,
-                options: { captchaToken }
+                options: { 
+                    captchaToken,
+                    data: {
+                        first_name: firstName,
+                        last_name: lastName,
+                        phone: phone
+                    }
+                }
             });
             if (error) { document.getElementById('authError').innerText = error.message; document.getElementById('authError').classList.remove('hidden'); }
-            else { 
-                document.getElementById('authSuccess').innerText = t.auth_success_reg; 
-                document.getElementById('authSuccess').classList.remove('hidden'); 
-                if (data.session) { currentUser = data.session.user; showView('create-order'); } 
-                
-                // AÑADIDO: Evento de Registro Completo para el Píxel de Facebook
-                if(typeof fbq === 'function') fbq('track', 'CompleteRegistration');
-            }
+            else { document.getElementById('authSuccess').innerText = t.auth_success_reg; document.getElementById('authSuccess').classList.remove('hidden'); if (data.session) { currentUser = data.session.user; showView('create-order'); } }
         }
         async function login() {
             const t = translations[currentLang];
