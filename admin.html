@@ -109,38 +109,44 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             <div class="bg-white p-5 rounded-xl border border-gray-200 shadow-md">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-gray-100 p-2 md:p-3 rounded-full text-gray-600"><i class="fas fa-shopping-cart text-lg md:text-xl"></i></div>
-                    <h3 class="font-bold text-gray-700 text-base md:text-lg">compras pricesmart</h3>
+                    <h3 class="font-bold text-gray-700 text-base md:text-lg">compras</h3>
                 </div>
-                <p class="text-xs text-gray-500 mb-2 md:mb-4">total gastado (subtotal + iva)</p>
+                <p class="text-xs text-gray-500 mb-2 md:mb-4">total gastado en súper</p>
                 <p class="text-2xl md:text-3xl font-bold text-gray-800">c$ <span id="finReportPSNio">0.00</span></p>
                 <p class="text-xs md:text-sm font-mono text-gray-500 mt-1">ref: $ <span id="finReportPSUsd">0.00</span></p>
+            </div>
+
+            <div class="bg-red-50 p-5 rounded-xl border border-red-200 shadow-md flex flex-col">
+                <h3 class="font-bold text-red-700 text-base mb-2"><i class="fas fa-gas-pump mr-2"></i>registrar gasto</h3>
+                <input type="text" id="expDesc" placeholder="ej: combustible..." class="w-full mb-2 p-2 rounded border border-red-200 focus:outline-none focus:border-red-400 text-xs">
+                <input type="number" id="expAmount" placeholder="monto (c$)" step="0.01" class="w-full mb-2 p-2 rounded border border-red-200 focus:outline-none focus:border-red-400 text-xs">
+                <button onclick="addExpense()" id="btnAddExp" class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded shadow transition text-xs mt-auto">agregar gasto</button>
             </div>
 
             <div class="bg-white p-5 rounded-xl border border-green-200 shadow-md relative overflow-hidden">
                 <div class="absolute top-0 right-0 bg-brand-green text-white text-[10px] md:text-xs font-bold px-2 py-1 rounded-bl-lg">tu dinero</div>
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-green-100 p-2 md:p-3 rounded-full text-brand-green"><i class="fas fa-chart-line text-lg md:text-xl"></i></div>
-                    <h3 class="font-bold text-gray-700 text-base md:text-lg">ganancias netas</h3>
+                    <h3 class="font-bold text-gray-700 text-base md:text-lg">ganancia neta</h3>
                 </div>
-                <p class="text-xs text-gray-500 mb-2 md:mb-4">ingresos por tarifa ($10.99)</p>
+                <p class="text-[10px] text-gray-500 mb-0">ingresos: c$ <span id="finReportGrossEarnNio">0.00</span></p>
+                <p class="text-[10px] text-red-500 mb-2 font-bold">- gastos: c$ <span id="finReportExpDeductNio">0.00</span></p>
                 <p class="text-2xl md:text-3xl font-bold text-brand-green">c$ <span id="finReportEarnNio">0.00</span></p>
-                <p class="text-xs md:text-sm font-mono text-green-600 mt-1 font-bold">ref: $ <span id="finReportEarnUsd">0.00</span></p>
             </div>
 
-            <div class="bg-gray-800 p-5 rounded-xl border border-gray-900 shadow-md text-white sm:col-span-2 md:col-span-1">
+            <div class="bg-gray-800 p-5 rounded-xl border border-gray-900 shadow-md text-white">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="bg-gray-700 p-2 md:p-3 rounded-full text-yellow-400"><i class="fas fa-coins text-lg md:text-xl"></i></div>
                     <h3 class="font-bold text-white text-base md:text-lg">flujo total</h3>
                 </div>
                 <p class="text-xs text-gray-400 mb-2 md:mb-4">dinero total movido</p>
                 <p class="text-2xl md:text-3xl font-bold">c$ <span id="finReportTotalNio">0.00</span></p>
-                
                 <div class="mt-4 pt-4 border-t border-gray-700 flex justify-between items-center">
-                    <span class="text-sm text-gray-300">órdenes exitosas:</span>
+                    <span class="text-sm text-gray-300">órdenes éxito:</span>
                     <span class="font-bold text-xl text-yellow-400" id="finReportCount">0</span>
                 </div>
             </div>
@@ -181,7 +187,7 @@
                     <option value="entregado">solo entregadas</option>
                     <option value="cancelado">solo canceladas</option>
                 </select>
-                <button onclick="loadAllOrders()" class="bg-brand-green text-white px-3 py-2 rounded shadow hover:bg-brand-dark transition flex items-center text-sm font-bold">
+                <button onclick="loadAllData()" class="bg-brand-green text-white px-3 py-2 rounded shadow hover:bg-brand-dark transition flex items-center text-sm font-bold">
                     <i class="fas fa-sync-alt"></i>
                 </button>
             </div>
@@ -257,6 +263,7 @@
             
             let currentOrdersData = [];
             let currentClientsData = []; 
+            let currentExpensesData = [];
 
             supabase.auth.getSession().then(({ data, error }) => {
                 if (error) throw error;
@@ -312,14 +319,14 @@
                 document.getElementById('tabOrders').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
                 document.getElementById('navAuth').innerHTML = `<button onclick="logout()" class="text-red-400 hover:text-red-300 text-sm font-bold bg-gray-800 px-3 py-1.5 md:px-4 md:py-2 rounded transition"><i class="fas fa-sign-out-alt md:mr-1"></i> <span class="hidden md:inline">salir</span></button>`;
                 
-                if(currentOrdersData.length === 0) loadAllOrders();
+                if(currentOrdersData.length === 0) loadAllData();
             };
 
             window.showFinances = function() {
                 resetNav();
                 document.getElementById('financesView').classList.remove('hidden');
                 document.getElementById('tabFinances').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
-                if(currentOrdersData.length === 0) loadAllOrders().then(() => generateFinancialReport());
+                if(currentOrdersData.length === 0) loadAllData().then(() => generateFinancialReport());
                 else generateFinancialReport(); 
             };
 
@@ -327,7 +334,7 @@
                 resetNav();
                 document.getElementById('clientsView').classList.remove('hidden');
                 document.getElementById('tabClients').className = "text-brand-green font-bold pb-1 border-b-2 border-brand-green transition text-sm";
-                if(currentOrdersData.length === 0) loadAllOrders().then(() => buildClientDirectory());
+                if(currentOrdersData.length === 0) loadAllData().then(() => buildClientDirectory());
                 else buildClientDirectory();
             };
 
@@ -419,26 +426,42 @@
                 const endInput = document.getElementById('reportEnd').value;
                 
                 let reportOrders = currentOrdersData.filter(o => o.status !== 'cancelado');
+                let reportExpenses = currentExpensesData;
 
-                if (startInput) reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) >= startInput);
-                if (endInput) reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) <= endInput);
+                if (startInput) {
+                    reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) >= startInput);
+                    reportExpenses = reportExpenses.filter(e => e.created_at.slice(0, 10) >= startInput);
+                }
+                if (endInput) {
+                    reportOrders = reportOrders.filter(o => o.created_at.slice(0, 10) <= endInput);
+                    reportExpenses = reportExpenses.filter(e => e.created_at.slice(0, 10) <= endInput);
+                }
 
-                let totalPSNio = 0, totalEarnNio = 0, count = 0;
+                let totalPSNio = 0, grossEarnNio = 0, count = 0, totalExpensesNio = 0;
 
                 reportOrders.forEach(o => {
                     const sub = parseFloat(o.subtotal || 0);
                     const iva = parseFloat(o.tax_iva || 0);
                     totalPSNio += (sub + iva);
-                    totalEarnNio += ENVIO_NIO; 
+                    grossEarnNio += ENVIO_NIO; 
                     count++;
                 });
+
+                reportExpenses.forEach(e => {
+                    totalExpensesNio += parseFloat(e.amount || 0);
+                });
+
+                const netEarnNio = grossEarnNio - totalExpensesNio;
 
                 document.getElementById('finReportCount').innerText = count;
                 document.getElementById('finReportPSNio').innerText = totalPSNio.toFixed(2);
                 document.getElementById('finReportPSUsd').innerText = (totalPSNio / TASA_CAMBIO).toFixed(2);
-                document.getElementById('finReportEarnNio').innerText = totalEarnNio.toFixed(2);
-                document.getElementById('finReportEarnUsd').innerText = (totalEarnNio / TASA_CAMBIO).toFixed(2);
-                document.getElementById('finReportTotalNio').innerText = (totalPSNio + totalEarnNio).toFixed(2);
+                
+                document.getElementById('finReportGrossEarnNio').innerText = grossEarnNio.toFixed(2);
+                document.getElementById('finReportExpDeductNio').innerText = totalExpensesNio.toFixed(2);
+                document.getElementById('finReportEarnNio').innerText = netEarnNio.toFixed(2);
+                
+                document.getElementById('finReportTotalNio').innerText = (totalPSNio + grossEarnNio).toFixed(2);
             };
 
             window.clearFinancialFilters = function() {
@@ -447,17 +470,46 @@
                 generateFinancialReport();
             };
 
-            window.loadAllOrders = async function() {
+            window.loadAllData = async function() {
                 const tbody = document.getElementById('ordersTableBody');
-                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">cargando órdenes...</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-gray-500">cargando base de datos...</td></tr>`;
 
-                const { data: orders, error } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
-
-                if (error) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">error: ${error.message}</td></tr>`; return; }
-
+                const { data: orders, error: oError } = await supabase.from('orders').select('*').order('created_at', { ascending: false });
+                if (oError) { tbody.innerHTML = `<tr><td colspan="5" class="p-8 text-center text-red-500">error: ${oError.message}</td></tr>`; return; }
                 currentOrdersData = orders || [];
+
+                // intenta cargar gastos, si no existe la tabla no rompe todo
+                const { data: expenses, error: eError } = await supabase.from('expenses').select('*').order('created_at', { ascending: false });
+                if (!eError) currentExpensesData = expenses || [];
+
                 updateMetrics();
                 renderTable();
+            };
+
+            window.addExpense = async function() {
+                const desc = document.getElementById('expDesc').value.trim();
+                const amt = parseFloat(document.getElementById('expAmount').value);
+                
+                if(!desc || !amt || amt <= 0) {
+                    alert("por favor, ingresa una descripción y un monto válido.");
+                    return;
+                }
+
+                const btn = document.getElementById('btnAddExp');
+                btn.innerText = "guardando...";
+
+                const { data, error } = await supabase.from('expenses').insert([{ description: desc, amount: amt }]).select();
+                
+                if (error) {
+                    alert("error guardando gasto: " + error.message + " (¿ya creaste la tabla 'expenses' en supabase?)");
+                } else {
+                    if (data && data.length > 0) currentExpensesData.unshift(data[0]);
+                    document.getElementById('expDesc').value = '';
+                    document.getElementById('expAmount').value = '';
+                    generateFinancialReport();
+                }
+                
+                btn.innerText = "agregar gasto";
             };
 
             window.updateMetrics = function() {
@@ -509,6 +561,7 @@
 
                     const noteIcon = order.internal_notes && order.internal_notes.trim() !== '' ? `<i class="fas fa-sticky-note text-yellow-500 ml-1" title="tiene nota"></i>` : '';
                     const photoIcon = (order.receipt_pricesmart || order.receipt_internal) ? `<i class="fas fa-image text-blue-500 ml-1" title="tiene recibos adjuntos"></i>` : '';
+                    const clickGoIcon = order.is_click_and_go ? `<i class="fas fa-shopping-bag text-blue-600 ml-1" title="Click & Go"></i>` : '';
 
                     html += `
                         <tr class="hover:bg-green-50 transition duration-150 border-b border-gray-100">
@@ -517,7 +570,7 @@
                                 <div class="text-[10px] md:text-xs text-gray-600"><i class="far fa-calendar-alt"></i> ${date}</div>
                             </td>
                             <td class="p-3 md:p-4">
-                                <div class="font-bold text-gray-800 leading-tight">${order.full_name || 'sin nombre'} <span class="inline-block">${noteIcon} ${photoIcon}</span></div>
+                                <div class="font-bold text-gray-800 leading-tight">${order.full_name || 'sin nombre'} <span class="inline-block">${noteIcon} ${photoIcon} ${clickGoIcon}</span></div>
                                 <div class="text-[10px] md:text-xs text-gray-500 mt-1"><i class="fas fa-phone mr-1"></i> ${order.phone || 'n/a'}</div>
                             </td>
                             <td class="p-3 md:p-4">
@@ -624,6 +677,11 @@
                 } catch (err) { alert("error: " + err.message); btnLabel.innerHTML = originalText; }
             };
 
+            window.toggleClickGo = function(orderId, event) {
+                if(event) event.stopPropagation();
+                calcFinances(orderId);
+            };
+
             window.openModal = function(orderId) {
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
@@ -693,6 +751,12 @@
                         </div>
 
                         <div class="bg-white p-4 md:p-5 rounded-xl border border-gray-200 shadow-md h-fit">
+                            
+                            <div class="bg-blue-50 hover:bg-blue-100 transition p-3 rounded-lg border border-blue-200 mb-4 flex items-center gap-2 cursor-pointer" onclick="document.getElementById('finClickGo-${order.id}').click()">
+                                <input type="checkbox" id="finClickGo-${order.id}" class="w-5 h-5 accent-blue-600 cursor-pointer" ${order.is_click_and_go ? 'checked' : ''} onchange="toggleClickGo('${order.id}', event)">
+                                <label class="font-bold text-blue-800 text-xs md:text-sm cursor-pointer select-none"><i class="fas fa-shopping-bag mr-1"></i> servicio click & go (solo recogida)</label>
+                            </div>
+
                             <h4 class="text-brand-green font-bold border-b pb-2 mb-4 text-sm md:text-base"><i class="fas fa-file-invoice-dollar mr-2"></i>control financiero</h4>
                             
                             <div class="grid grid-cols-2 gap-3 mb-2">
@@ -798,9 +862,30 @@
             };
 
             window.calcFinances = function(orderId) {
-                const subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
-                const iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
+                const isClickAndGo = document.getElementById(`finClickGo-${orderId}`)?.checked;
                 
+                let subtotal = 0;
+                let iva = 0;
+
+                if (isClickAndGo) {
+                    document.getElementById(`finSubtotal-${orderId}`).value = 0;
+                    document.getElementById(`finSubtotal-${orderId}`).disabled = true;
+                    document.getElementById(`finSubtotal-${orderId}`).classList.add('bg-gray-200');
+                    
+                    document.getElementById(`finIva-${orderId}`).value = 0;
+                    document.getElementById(`finIva-${orderId}`).disabled = true;
+                    document.getElementById(`finIva-${orderId}`).classList.add('bg-gray-200');
+                } else {
+                    document.getElementById(`finSubtotal-${orderId}`).disabled = false;
+                    document.getElementById(`finSubtotal-${orderId}`).classList.remove('bg-gray-200');
+                    
+                    document.getElementById(`finIva-${orderId}`).disabled = false;
+                    document.getElementById(`finIva-${orderId}`).classList.remove('bg-gray-200');
+                    
+                    subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
+                    iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
+                }
+
                 const totalNio = subtotal + iva + ENVIO_NIO;
                 const totalUsd = totalNio / TASA_CAMBIO;
 
@@ -817,7 +902,10 @@
                 const lbl = document.getElementById(`balanceLabel-${orderId}`);
                 const amt = document.getElementById(`balanceAmount-${orderId}`);
 
-                if (totalNio === ENVIO_NIO && subtotal === 0) {
+                if (isClickAndGo && totalPaidInNio === 0) {
+                    box.className = "p-3 rounded-lg mb-4 text-center border bg-yellow-50 border-yellow-200 text-yellow-800";
+                    lbl.innerText = "cobrar tarifa de envío"; amt.innerText = `c$ ${totalNio.toFixed(2)}`;
+                } else if (!isClickAndGo && totalNio === ENVIO_NIO && subtotal === 0) {
                     box.className = "p-3 rounded-lg mb-4 text-center border bg-gray-50 border-gray-200 text-gray-500";
                     lbl.innerText = "falta ingresar compra"; amt.innerText = "c$ 0.00";
                 } else if (balance > 0.05) { 
@@ -837,6 +925,7 @@
                 btn.innerHTML = `<i class="fas fa-spinner fa-spin md:mr-2"></i> guardando...`;
 
                 const dataToSave = {
+                    is_click_and_go: document.getElementById(`finClickGo-${orderId}`)?.checked || false,
                     subtotal: parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0,
                     tax_iva: parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0,
                     paid_nio: parseFloat(document.getElementById(`finPaidNio-${orderId}`).value) || 0,
@@ -871,8 +960,16 @@
                 const order = currentOrdersData.find(o => o.id === orderId);
                 if(!order) return;
 
-                const subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
-                const iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
+                const isClickAndGo = document.getElementById(`finClickGo-${orderId}`)?.checked;
+                
+                let subtotal = 0;
+                let iva = 0;
+
+                if(!isClickAndGo) {
+                    subtotal = parseFloat(document.getElementById(`finSubtotal-${orderId}`).value) || 0;
+                    iva = parseFloat(document.getElementById(`finIva-${orderId}`).value) || 0;
+                }
+
                 const totalNio = subtotal + iva + ENVIO_NIO;
                 const totalUsd = totalNio / TASA_CAMBIO;
                 
@@ -924,6 +1021,32 @@
                         </div>
                     `;
                 }
+
+                let desgloseHtml = '';
+                if (isClickAndGo) {
+                    desgloseHtml = `
+                        <div class="text-center font-bold mb-2">*** CLICK & GO (SOLO RECOGIDA) ***</div>
+                        <div class="flex">
+                            <span>tarifa de envío:</span>
+                            <span>c$ ${ENVIO_NIO.toFixed(2)}</span>
+                        </div>
+                    `;
+                } else {
+                    desgloseHtml = `
+                        <div class="flex">
+                            <span>subtotal (pricesmart):</span>
+                            <span>c$ ${subtotal.toFixed(2)}</span>
+                        </div>
+                        <div class="flex">
+                            <span>iva 15%:</span>
+                            <span>c$ ${iva.toFixed(2)}</span>
+                        </div>
+                        <div class="flex">
+                            <span>envío ($10.99):</span>
+                            <span>c$ ${ENVIO_NIO.toFixed(2)}</span>
+                        </div>
+                    `;
+                }
                 
                 const printWindow = window.open('', '_blank', 'width=350,height=600');
                 
@@ -953,7 +1076,7 @@
                     </head>
                     <body>
                         <div class="text-center font-bold text-xl">SHOP DELIVERY NIC</div>
-                        <div class="text-center">¡gracias por tu compra!</div>
+                        <div class="text-center">¡gracias por tu preferencia!</div>
                         
                         <div class="divider"></div>
                         
@@ -963,18 +1086,7 @@
                         
                         <div class="divider"></div>
                         
-                        <div class="flex">
-                            <span>subtotal (pricesmart):</span>
-                            <span>c$ ${subtotal.toFixed(2)}</span>
-                        </div>
-                        <div class="flex">
-                            <span>iva 15%:</span>
-                            <span>c$ ${iva.toFixed(2)}</span>
-                        </div>
-                        <div class="flex">
-                            <span>envío ($10.99):</span>
-                            <span>c$ ${ENVIO_NIO.toFixed(2)}</span>
-                        </div>
+                        ${desgloseHtml}
                         
                         <div class="divider"></div>
                         
